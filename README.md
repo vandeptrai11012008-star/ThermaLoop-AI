@@ -15,8 +15,6 @@ Website: https://thermaloop-ai-5.onrender.com
 * Physically consistent illustrative heat balance Q = m_dot * 4.186 * deltaT on that loop (not a hydraulic CFD solver).
 * Primary server coolant remains a separate fluid loop; seed cold storage independently cooled.
 
-## Source integration
-`reference_claude/` contains the original supplied Claude project for comparison. We adopted its data-rich 3D camera navigation and equipment-focused UI design principles; the Fusion app uses the previous WebGL scene instead of its separate Canvas renderer, so it remains one synchronized simulation rather than two contradictory simulation engines.
 
 ## Research limitations
 Synthetic parameters, invented device power and proxy model quality; cannot extrapolate results to real data centers. Thermal distribution uses a well-mixed single-loop equilibrium energy balance, fixed example heat-pump COP, and proportional branch load allocation with no hydraulic pressure drops, heat exchanger approach temperatures, or pump control optimization. Stage flow and return temperatures are illustrative. No direct GPU/IoT connection. Inference scheduling and fault hypotheses need calibration and benchmarking.
