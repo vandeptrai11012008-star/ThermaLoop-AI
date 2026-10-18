@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: thermaloop-ai
+    runtime: static
+    buildCommand: mkdir -p dist && cp index.html dist/index.html
+    staticPublishPath: ./dist
