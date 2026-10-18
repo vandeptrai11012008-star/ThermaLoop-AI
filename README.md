@@ -1,6 +1,6 @@
 # ThermaLoop AI Fusion Research Digital Twin
 
-An integrated, offline research demonstrator built from the AI design.( mention if you use my project)
+An integrated, offline research demonstrator built from the AI.( mention if you use my project)
 
 ## Run
 Open `index.html` in Chrome or Edge. No server, external dependencies, or internet required.
