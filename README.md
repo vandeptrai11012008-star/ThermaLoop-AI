@@ -1,6 +1,6 @@
 # ThermaLoop AI Fusion Research Digital Twin
 
-An integrated, offline research demonstrator built from the user's Claude design reference and earlier ThermaLoop 3D Before/After version.
+An integrated, offline research demonstrator built from the user's Claude design reference and earlier ThermaLoop 3D Before/After version.( mention if you use my project)
 
 ## Run
 Open `index.html` in Chrome or Edge. No server, external dependencies, or internet required.
