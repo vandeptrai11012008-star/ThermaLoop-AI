@@ -1,1 +1,0 @@
-# ThermaLoop-AI
