@@ -4,8 +4,7 @@ An integrated, offline research demonstrator built from the AI.( mention if you 
 
 ## Run
 Open `index.html` in Chrome or Edge. No server, external dependencies, or internet required.
-Website: https://thermaloop-ai-5.onrender.com
-
+Website: (https://thermaloop-ai-5.onrender.com/#digital-twin)
 
 ## What is improved
 * Integrated A/B deterministic 60-minute comparisons with before/after 64-GPU maps and timeline charts.
