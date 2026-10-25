@@ -101,3 +101,12 @@ body{background:radial-gradient(ellipse at 75% 0,#10303a42,transparent 42%),#080
 @media(max-width:800px){.science-heading{display:block}.science-header-meta{flex-direction:row;align-items:center;flex-wrap:wrap;margin-top:20px}.science-coverage{grid-template-columns:repeat(2,minmax(0,1fr))}.science-coverage>div{padding:15px 17px}.science-coverage strong{font-size:25px}.science-assumption-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.science-actions #sciReset{margin-right:0}.science-actions .btn{flex:1 1 auto}}
 @media(max-width:550px){.science-lab{padding:19px 15px;border-radius:15px;margin-top:25px}.science-heading{padding-bottom:19px}.science-lab h2{font-size:28px;letter-spacing:-.9px}.science-kicker{font-size:8px;letter-spacing:1.2px}.science-heading p{font-size:11px}.science-header-meta{gap:9px}.science-badge{font-size:8px}.science-coverage{margin:18px 0}.science-coverage>div{padding:13px}.science-coverage small{font-size:8px;letter-spacing:.7px}.science-coverage span{font-size:9px}.science-notice{padding:11px 12px;font-size:10px;margin-bottom:18px}.science-controls{grid-template-columns:repeat(2,minmax(0,1fr));padding:14px;gap:13px}.science-controls>label:first-child,.science-controls>label:last-child{grid-column:span 2}.science-lab>#sciDesign{padding:0 14px}.science-lab label{font-size:9px}.science-lab input,.science-lab select{font-size:10px;padding:8px;min-height:39px}.science-lab summary{font-size:10px}.science-actions .btn{font-size:9px;padding:9px}.science-actions #sciRun{flex-basis:65%}.science-card{padding:18px 15px}.science-lab h3{font-size:17px}.science-card .science-badge{font-size:7px}.science-headline strong{font-size:29px}.science-card dl{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:0 10px}.science-card dt,.science-card dd{font-size:9px}.science-card .science-footnote{font-size:9px}.science-lab>details:not(#sciDesign){padding-left:12px;padding-right:12px}.science-status{font-size:9px}.science-grid{gap:15px}}
 @media(prefers-reduced-motion:reduce){.science-lab *,.menu-item{transition:none!important}}
+@media(max-width:550px){
+  .science-card dt,.science-card dd,.science-card .science-footnote{font-size:10px}
+  /* SVG text uses viewBox units; enlarge it to stay readable when the chart narrows. */
+  .science-chart text{font-size:16px}
+  .science-chart .chart-heading{font-size:18px}
+  .science-chart .chart-number{font-size:19px}
+  .science-chart .chart-axis{font-size:14px}
+  .science-chart .chart-note{font-size:13px}
+}
