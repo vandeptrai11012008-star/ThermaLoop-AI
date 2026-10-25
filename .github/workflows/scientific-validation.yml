@@ -2,7 +2,8 @@ name: Scientific evidence and website regression
 on: [push, pull_request]
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    # Playwright 1.56 supports Ubuntu 24.04; do not follow the Ubuntu 26 runner migration.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
