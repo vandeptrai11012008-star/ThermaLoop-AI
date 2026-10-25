@@ -1,0 +1,13 @@
+# Data provenance and attribution
+
+This folder contains attributed published numeric records and small scientific reference files. Source authors do not endorse ThermaLoop. Values were transformed only as documented in `docs/SCIENTIFIC_METHODS.md` and the importer; simulations and projections are our calculations.
+
+| Material | Attribution and original source | License / scope |
+|---|---|---|
+| GSM8K cached correctness and contamination exclusions | Ong et al., *RouteLLM: Learning to Route LLMs with Preference Data*, arXiv:2406.18665; `lm-sys/RouteLLM` | RouteLLM Apache-2.0; underlying GSM8K MIT. Only numeric outcomes, original row indices and prompt hashes are bundled. |
+| H100 power, throughput, inter-token latency and energy aggregates | Chung et al., *The ML.ENERGY Benchmark: Toward Automated Inference Energy Measurement and Optimization*, NeurIPS Datasets and Benchmarks 2025; arXiv:2505.06371; `ml-energy/leaderboard`, supported by `ml-energy/benchmark` and `ml-energy/data` | Benchmark and data-toolkit code Apache-2.0. The retrieved leaderboard repository has no separate export license declaration; this extension attributes the published factual benchmark aggregates without asserting a broader license for the export. |
+| Single-GPU resource requests | Qizhen Weng et al., *Beware of Fragmentation: Scheduling GPU-Sharing Workloads with Fragmentation Gradient Descent*, USENIX ATC 2023; `alibaba/clusterdata`, GPU v2023 | No explicit license for this trace was located in the retrieved material. The bundle retains a small attributed subset of numeric resource requests; it does not relicense the original dataset. |
+| TMY3 weather and Trane heat-pump record | Lawrence Berkeley National Laboratory Modelica Buildings Library, `lbl-srg/modelica-buildings`; NREL TMY3 Chicago O'Hare station 725300; Trane catalogue record credited in `heat-pump.mo` | Buildings BSD-3-Clause (notice in `BUILDINGS-LICENSE.html`). Weather provenance NREL TMY3 (2008), generally 1973–2005 period of record. The catalogue reference is not a ThermaLoop field measurement. |
+| Greenhouse reference parameters | David Katzin et al., Wageningen University & Research, GreenLight; Katzin et al. (2020), *Biosystems Engineering* 194, 61–81; DOI 10.1016/j.biosystemseng.2020.03.010 | BSD-3-Clause-Clear, see `GREENLIGHT-LICENSE.txt`. Full parameter file retains authorship and references. Geometry is extracted from Table 1. |
+
+Immutable commits, SHA-256, byte sizes, retrieval dates, per-file caveats and research links are in `sources.json`. Numeric transformations and selection filters are reproducible with `scripts/build_evidence.py --refresh`. Neither the presence of a DOI nor a matching checksum demonstrates that our coupled scenario is validated.

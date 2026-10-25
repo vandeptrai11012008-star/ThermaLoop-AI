@@ -1,0 +1,1509 @@
+{
+  "scope": "All original root ZIPs and nested ZIP entries. Inventory and Python AST scan; qualitative findings in SOURCE_AUDIT.md.",
+  "archives": [
+    {
+      "name": "ThermaLoop_Scale_Economics_Source.zip",
+      "sha256": "ac34e8cbc13d4b711ec12d9befab4f07b0dcbe7afc696a9f4a8e5a92b2cf8fe3",
+      "entries": [
+        {
+          "archive": "ThermaLoop_Scale_Economics_Source.zip",
+          "path": "ThermaLoop_Scale_Economics_Source/index.html",
+          "bytes": 199984,
+          "sha256": "809f56a68db012b6ed1dc04642d8ceaa55af8063e06d3fcf9150b880fb923002",
+          "lines": 1050
+        },
+        {
+          "archive": "ThermaLoop_Scale_Economics_Source.zip",
+          "path": "ThermaLoop_Scale_Economics_Source/scale_lab.js",
+          "bytes": 14741,
+          "sha256": "d04f479c592707b5d21e1ec88fb9cab0474a86e5673ec0d4b9ddae1f482e4b02",
+          "lines": 102
+        },
+        {
+          "archive": "ThermaLoop_Scale_Economics_Source.zip",
+          "path": "ThermaLoop_Scale_Economics_Source/README.md",
+          "bytes": 7368,
+          "sha256": "f1b43a53ffaa4377a71db508409d359afebef1d40c88d8bea5c76cc69fa82f14",
+          "lines": 58
+        },
+        {
+          "archive": "ThermaLoop_Scale_Economics_Source.zip",
+          "path": "ThermaLoop_Scale_Economics_Source/scale_lab.css",
+          "bytes": 5994,
+          "sha256": "17a41a2660414f7d276dea9b00a1d416a74124c0b591e949e13b146384eb5b11",
+          "lines": 7
+        }
+      ]
+    },
+    {
+      "name": "ThermalLoop_Scheduling.zip",
+      "sha256": "94367e6d06dd70f4cc5f23ab3d484de8768da396310775331c72e801398961c1",
+      "entries": [
+        {
+          "archive": "ThermalLoop_Scheduling.zip",
+          "path": "ThermalLoop_Scheduling.html",
+          "bytes": 35461,
+          "sha256": "9e65c39d81a327e646c5b99bb918852d53e98d694bf17611243112ca2297c87c",
+          "lines": 171
+        }
+      ]
+    },
+    {
+      "name": "Thermaloop real scale.zip",
+      "sha256": "c0e6e51af970892f842c6e115707ad26aa94a0c23dd6ba248769e163102854ea",
+      "entries": [
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/.dockerignore",
+          "bytes": 81,
+          "sha256": "7737f6a4c253fe2de221fa99561feafa25d88438a06eec18972e4a2263c4b1fa"
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/.github/workflows/verify.yml",
+          "bytes": 1925,
+          "sha256": "a9842fe14ad2cade3cd082d6df5a75bc4f101aa0307bef76b560fe45b3ef2bf0",
+          "lines": 57
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/.gitignore",
+          "bytes": 464,
+          "sha256": "cdddb7ed9bb2bed0a8a60b23f73a09f096d10dd6b36a541500780da36184cfcf"
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/.gitkeep",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/Dockerfile",
+          "bytes": 713,
+          "sha256": "b8479108ec22ef1b4390f1a99b1fe3a25217725d7a00c75852b6324b0d787bd8"
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/README.md",
+          "bytes": 7004,
+          "sha256": "c9fc463f2c16ecea8336ce11f6828cedbd51995ce01b10ebd1392793daebb7e5",
+          "lines": 164
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/backend/pyproject.toml",
+          "bytes": 555,
+          "sha256": "c5e9c3c6727f36a1f769f931789eed3b9ef8603aab2b8438ee0daf51772aedb8",
+          "lines": 25
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/backend/requirements.txt",
+          "bytes": 88,
+          "sha256": "198f2b3bda3d9e6d09bc4ca9557c5879aa80ff382e10d443cadaf07c587bc815",
+          "lines": 5
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/backend/run_server.py",
+          "bytes": 203,
+          "sha256": "695393dc730334022852cf1fa1edd8f8603ebdff43c11bf0dc72bd5402b86697",
+          "lines": 5,
+          "pythonSymbols": []
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/backend/sample_run.json",
+          "bytes": 386,
+          "sha256": "8eb02b90e7266229e320b011da547849fc62a50d5cd2f32d4a28b6cbbc561d19",
+          "lines": 13
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/backend/serve.py",
+          "bytes": 451,
+          "sha256": "b7344f8b7ed5efdeab90c814eb9ad82017b606ecc200d3738900f7753b37d28d",
+          "lines": 14,
+          "pythonSymbols": []
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/backend/thermalloop/__init__.py",
+          "bytes": 89,
+          "sha256": "4e157f77800ca44c6d1d676897e452660dace0939899899d98c7e5262f35466f",
+          "lines": 3,
+          "pythonSymbols": []
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/backend/thermalloop/app.py",
+          "bytes": 4378,
+          "sha256": "ae364846adbc1f789aa6951f9b12f833b2fe9940d883d81a420d942aef156b7e",
+          "lines": 137,
+          "pythonSymbols": [
+            "health",
+            "get_config",
+            "get_scene",
+            "get_state",
+            "simulate",
+            "get_results",
+            "_serve_index",
+            "_spa_fallback"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/backend/thermalloop/config_loader.py",
+          "bytes": 1885,
+          "sha256": "d80b129e0122503ce3a00b25c0a7a1a49c4a871dda69d4c34cf9ca14d96170ad",
+          "lines": 68,
+          "pythonSymbols": [
+            "config_dir",
+            "_load_one",
+            "load_config",
+            "clear_cache",
+            "expand_rack_ids"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/backend/thermalloop/physics.py",
+          "bytes": 8724,
+          "sha256": "272c3bb06e8387545d89d1bee3779921a3fec0666d99a1bcc5fa49789d36f0c4",
+          "lines": 261,
+          "pythonSymbols": [
+            "c_to_k",
+            "k_to_c",
+            "sensible_heat_W",
+            "mass_flow_for_heat",
+            "delta_T_for_heat",
+            "HXResult",
+            "heat_exchanger_eps_ntu",
+            "pump_electrical_power_W",
+            "volumetric_from_mass",
+            "pipe_pressure_loss_Pa",
+            "buried_pipe_heat_loss_W",
+            "tank_temperature_step",
+            "soil_temperature_step",
+            "zone_heat_demand_W",
+            "HeatPumpResult",
+            "heat_pump_upgrade"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/backend/thermalloop/results_store.py",
+          "bytes": 1031,
+          "sha256": "8a2d8ba7aca8bbe65093aa1fb486f9c5d23266cb868a388992de9fd321d60f7e",
+          "lines": 32,
+          "pythonSymbols": [
+            "ResultsStore",
+            "__init__",
+            "_path",
+            "save",
+            "load"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/backend/thermalloop/scene.py",
+          "bytes": 6792,
+          "sha256": "0b260d93aef902760a6cc349792f923fbb4c67ba7e5d7953dc98195d2c530869",
+          "lines": 167,
+          "pythonSymbols": [
+            "_box",
+            "_marker",
+            "build_scene"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/backend/thermalloop/schemas.py",
+          "bytes": 4344,
+          "sha256": "f9161c47470dd1fe9ce206b5f6a0489836bf71358ceadbb9619aaf387d2001cf",
+          "lines": 107,
+          "pythonSymbols": [
+            "HealthResponse",
+            "SimulationRequest",
+            "ConservationCheck",
+            "SimulationResult",
+            "StateResponse",
+            "validate_run_limits",
+            "to_engine_request"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/backend/thermalloop/simulation.py",
+          "bytes": 36795,
+          "sha256": "9b7f9565080c12b6613d6f7626c577167d837019ec332be21defa68562adb4cd",
+          "lines": 791,
+          "pythonSymbols": [
+            "ZoneState",
+            "StepRecord",
+            "_get_override",
+            "_diurnal_load",
+            "_ambient_C",
+            "_relative_error",
+            "SimplifiedPhysicsEngine",
+            "run_simulation",
+            "__init__",
+            "_path_pressure_loss",
+            "_greenhouse_demand_W",
+            "_pipe_states",
+            "run",
+            "_conservation_checks",
+            "_summary",
+            "check"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/config/assumptions.json",
+          "bytes": 3768,
+          "sha256": "a7cbb0e15e5a76c50910b681bbb97e792b86efe453968c2aa1da732d45536832",
+          "lines": 85
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/config/equipment.json",
+          "bytes": 6619,
+          "sha256": "458960e2ddbb3d3e6a6b9883562c9cdcd1e9769573f33a22a8e16f99a9f65318",
+          "lines": 80
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/config/geometry.json",
+          "bytes": 1960,
+          "sha256": "c5a46e6c44789f28d4b9e6ecf81104caaa287722b6d3567e111ff475314b6ed3",
+          "lines": 52
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/config/network.json",
+          "bytes": 12766,
+          "sha256": "bb930a49c74d48fb24de7881d41b5c615c83fee3dd9f31925b2c281296d686d5",
+          "lines": 64
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/config/simulation.json",
+          "bytes": 1320,
+          "sha256": "dacf7e477bdb03a9e89315059d92990d4715a0b9fe99511d7504cbaf15379e00",
+          "lines": 33
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/config/site.json",
+          "bytes": 735,
+          "sha256": "eeb89551cbbea57b2f1bcbdfa6f22d766fd342b7edaf24a651b87c1c86b4a83b",
+          "lines": 22
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/config/units.json",
+          "bytes": 940,
+          "sha256": "7597244c98a947ea814d63bc9c18f7caf621a7cf3650d3e4156df119aaf41fc2",
+          "lines": 36
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/.env.example",
+          "bytes": 373,
+          "sha256": "e9aa6e5e1db958b837da3af6e8f3b46f151050f4e446972ab310fe718c63dc0f"
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/index.html",
+          "bytes": 325,
+          "sha256": "771eaae5be84e6ec600c4565777ed86e09e9fca9362b28b2b47d28b8bc1d12fd",
+          "lines": 12
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/package-lock.json",
+          "bytes": 91614,
+          "sha256": "8dfbf965f449edaa90f3de57f125119677a4dad17d88d7ee5924415f059e9f73",
+          "lines": 2645
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/package.json",
+          "bytes": 670,
+          "sha256": "e71814ce9b811e6c492b8826576d22d695923a08ce48e8a0ccab66c9096f008a",
+          "lines": 28
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/App.tsx",
+          "bytes": 5596,
+          "sha256": "29dedee74682dfa2d596bffa8b00c6e9b159ac13dc4de5aa31649e1709deb031",
+          "lines": 112
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/api/client.ts",
+          "bytes": 1241,
+          "sha256": "7fd67e96a0b9477f71d4e3bb4c821193e09d74cd47aa5d267e816865b4b03419",
+          "lines": 34
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/api/types.ts",
+          "bytes": 4138,
+          "sha256": "909b24ae20a971f31ff22f5ef22eea134de9d197fbbef1fd45702063f762cd4d",
+          "lines": 170
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/main.tsx",
+          "bytes": 237,
+          "sha256": "a80dcb91da9f1dd02e8b64c31d056e8b5894c2e08efe3500d2ef03f996293d30",
+          "lines": 10
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/store.ts",
+          "bytes": 10774,
+          "sha256": "2e7dd02ee0643908353d0295fbb4383f52a0a75e3413d9710f07151ae86cffe3",
+          "lines": 317
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/styles.css",
+          "bytes": 20733,
+          "sha256": "90d852bfceef16f23e800fd09d5eb0076b3da828304c81fd533e90ee8df560d8",
+          "lines": 441
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/three/Architecture.tsx",
+          "bytes": 9112,
+          "sha256": "7f698913601d5810e0d0c5263b6a8b8483b3819cbf82b26f601414e639248c8f",
+          "lines": 220
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/three/Building.tsx",
+          "bytes": 8504,
+          "sha256": "9134fcc410e9213ce0102d677fc8a1e342a89fc624a13d0f01ba80a5e81de764",
+          "lines": 211
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/three/CameraRig.tsx",
+          "bytes": 5451,
+          "sha256": "2a47ef9bd81832f351274b0998b1d68fa6b6c3df3371ff96060eee997132450a",
+          "lines": 125
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/three/Greenhouse.tsx",
+          "bytes": 8794,
+          "sha256": "1ec61c75c31e04145499a3d8f7a6c0fdbe97721f0f8427277cdd6c10f231c7b3",
+          "lines": 193
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/three/Hydronics.tsx",
+          "bytes": 6657,
+          "sha256": "edbaaff55346dfdb703d41ee69bc9dcc2ddca3cbb2ed6b427535c22372c442e9",
+          "lines": 185
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/three/InteriorEquipment.tsx",
+          "bytes": 12419,
+          "sha256": "93f7cd161dedd62cfd53439d9f8c7deae837c2e7fa84afd8a42e580d85baa50b",
+          "lines": 252
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/three/Label.tsx",
+          "bytes": 562,
+          "sha256": "e9e91c17c5bdf1f6c7603ae830b68ebcd5237c4ba2a5c4437ecc24c0dccb1d7e",
+          "lines": 24
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/three/ServerHall.tsx",
+          "bytes": 7124,
+          "sha256": "dd63dcb1aedefefcdc92c27c4771564c0d79e17af4f4c407a77fcf0d3fcb3453",
+          "lines": 174
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/three/Vegetation.tsx",
+          "bytes": 4685,
+          "sha256": "2d99aac9e3cfffca8f0380edf0f447c36fef5ed13e489633f633d1f13675e7e1",
+          "lines": 93
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/three/Viewer.tsx",
+          "bytes": 3616,
+          "sha256": "7b773071783309083ca09d511aa82787b878e03bff1c84db37ce7962399bdcab",
+          "lines": 95
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/three/colors.ts",
+          "bytes": 1009,
+          "sha256": "11e84aec7930e1c9579af28cf20a0abd579dff6c38b70621316397328be3e73f",
+          "lines": 30
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/three/coordinates.ts",
+          "bytes": 595,
+          "sha256": "9e3ec4c7cea4281b002f4029b621b53ad98a7b299871f439bc534dda5889eafe",
+          "lines": 18
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/three/pipePath.ts",
+          "bytes": 1011,
+          "sha256": "93300b8917ff7e71408be0cdf82ac4f48f37305fee134a61b61b67f1833b1723",
+          "lines": 21
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/three/surfaceTextures.ts",
+          "bytes": 2636,
+          "sha256": "d78b5145a5e8a231b16ddd7f318d8ec003a9e53fe52a1ff8a7d8e342f87457f8",
+          "lines": 57
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/ui/LeftPanel.tsx",
+          "bytes": 8164,
+          "sha256": "fed5db51a8175a616de97f6b290d9923dc40d6ffa22c4330536d0f03469b3501",
+          "lines": 209
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/ui/MiniChart.tsx",
+          "bytes": 1602,
+          "sha256": "b13574f34d9b1fa0deff5f7d37fe7f6880a5809d538b9655db6f31510a79def9",
+          "lines": 60
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/ui/Presentation.tsx",
+          "bytes": 3419,
+          "sha256": "f0015cf0d0623a5c51fef837aef9ae0a594ec50a88fd414ec6df4bec07771633",
+          "lines": 94
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/ui/RightPanel.tsx",
+          "bytes": 9053,
+          "sha256": "76ff612e8344b0fd46f423aebf4fd03335ab8fcb03e6d3a51f8757e648a1aa68",
+          "lines": 172
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/ui/Timeline.tsx",
+          "bytes": 1219,
+          "sha256": "e1ab27d06b08e913c2d72833b7ac736277e061369489dddd5cf80574759c34a7",
+          "lines": 41
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/ui/exportRun.ts",
+          "bytes": 1153,
+          "sha256": "d154beee105a90fea944bb0c1db6bc3716f79a7dc0de023dcdfb5078ce548906",
+          "lines": 30
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/src/vite-env.d.ts",
+          "bytes": 159,
+          "sha256": "6600001f6b9e18657b3314fdcf2fad48d4f74bfafb27fc464bb57ce670cb8ec8",
+          "lines": 9
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/tsconfig.json",
+          "bytes": 562,
+          "sha256": "e09b1d7398a757eae35c19efcd50710803fe8df7e8d6414d2b6f595166ebf906",
+          "lines": 21
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/tsconfig.node.json",
+          "bytes": 233,
+          "sha256": "bb9fd8592a9e364641441219f10d84daae9ba2ca5cc85db798efad6913bb8257",
+          "lines": 11
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/frontend/vite.config.ts",
+          "bytes": 283,
+          "sha256": "dd4c87cb21ac40919ba5590a144bd699008e034f9e085de8fc7975ca93be4629",
+          "lines": 15
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/render.yaml",
+          "bytes": 325,
+          "sha256": "f33aeb5916c127ffb15ae6c5ff9f83e87d03e15978d3f34198037f2b9481da7a",
+          "lines": 11
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/tests/conftest.py",
+          "bytes": 110,
+          "sha256": "1f862bce6e199987bb975ed737d6894bb2fe36e2d7dd9d3bc6c41b821fdcb1b5",
+          "lines": 4,
+          "pythonSymbols": []
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/tests/test_pipe_routing.py",
+          "bytes": 3911,
+          "sha256": "502f361e90b0e335482270537617e2d1ac8171eebcb4bc292ff1dcbe41e92248",
+          "lines": 76,
+          "pythonSymbols": [
+            "test_every_shared_node_has_one_physical_connection_point",
+            "test_primary_and_secondary_use_distinct_heat_exchanger_ports",
+            "test_gpu_branches_have_one_riser_and_distinct_hot_and_cold_manifolds",
+            "test_disabled_cooler_and_inactive_storage_have_no_flow_arrows",
+            "test_tanks_have_distinct_inlet_and_outlet_ports",
+            "test_buried_pair_runs_inside_the_utility_corridor"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip",
+          "path": "SEED-cube/thermal-loop-render.zip",
+          "bytes": 5168706,
+          "sha256": "7244d5046de0b3ebd2d68d4761678bf82903ab6fc13be9bf048f50f545e3f1bd"
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": ".gitignore",
+          "bytes": 464,
+          "sha256": "cdddb7ed9bb2bed0a8a60b23f73a09f096d10dd6b36a541500780da36184cfcf"
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "README.md",
+          "bytes": 7026,
+          "sha256": "269181f96e58e4296b021f565f60d033f443a855823571d9e433105d3e01aa2b",
+          "lines": 165
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "render.yaml",
+          "bytes": 1111,
+          "sha256": "04f836ed431dc3f6305e23ba99b240554eed12f0e1f8ea11bbe04436f6ed57ae",
+          "lines": 28
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "tourshot.txt",
+          "bytes": 1475,
+          "sha256": "cc64c212daff4c7ded2d4427c3e83afd42f8eb7a237d062f22e1f54b75d6e999",
+          "lines": 15
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "vercel.json",
+          "bytes": 210,
+          "sha256": "bb5b84b6d6dd6bf545a64d6e32f035be15059bdde2dde3ea99525ee3cbbeeeff",
+          "lines": 8
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "pyproject.toml",
+          "bytes": 555,
+          "sha256": "c5e9c3c6727f36a1f769f931789eed3b9ef8603aab2b8438ee0daf51772aedb8",
+          "lines": 25
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "requirements.txt",
+          "bytes": 88,
+          "sha256": "198f2b3bda3d9e6d09bc4ca9557c5879aa80ff382e10d443cadaf07c587bc815",
+          "lines": 5
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "run_server.py",
+          "bytes": 203,
+          "sha256": "695393dc730334022852cf1fa1edd8f8603ebdff43c11bf0dc72bd5402b86697",
+          "lines": 5,
+          "pythonSymbols": []
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "serve.py",
+          "bytes": 451,
+          "sha256": "b7344f8b7ed5efdeab90c814eb9ad82017b606ecc200d3738900f7753b37d28d",
+          "lines": 14,
+          "pythonSymbols": []
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "app.py",
+          "bytes": 4378,
+          "sha256": "ae364846adbc1f789aa6951f9b12f833b2fe9940d883d81a420d942aef156b7e",
+          "lines": 137,
+          "pythonSymbols": [
+            "health",
+            "get_config",
+            "get_scene",
+            "get_state",
+            "simulate",
+            "get_results",
+            "_serve_index",
+            "_spa_fallback"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "config_loader.py",
+          "bytes": 1885,
+          "sha256": "d80b129e0122503ce3a00b25c0a7a1a49c4a871dda69d4c34cf9ca14d96170ad",
+          "lines": 68,
+          "pythonSymbols": [
+            "config_dir",
+            "_load_one",
+            "load_config",
+            "clear_cache",
+            "expand_rack_ids"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "physics.py",
+          "bytes": 8724,
+          "sha256": "272c3bb06e8387545d89d1bee3779921a3fec0666d99a1bcc5fa49789d36f0c4",
+          "lines": 261,
+          "pythonSymbols": [
+            "c_to_k",
+            "k_to_c",
+            "sensible_heat_W",
+            "mass_flow_for_heat",
+            "delta_T_for_heat",
+            "HXResult",
+            "heat_exchanger_eps_ntu",
+            "pump_electrical_power_W",
+            "volumetric_from_mass",
+            "pipe_pressure_loss_Pa",
+            "buried_pipe_heat_loss_W",
+            "tank_temperature_step",
+            "soil_temperature_step",
+            "zone_heat_demand_W",
+            "HeatPumpResult",
+            "heat_pump_upgrade"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "results_store.py",
+          "bytes": 1031,
+          "sha256": "8a2d8ba7aca8bbe65093aa1fb486f9c5d23266cb868a388992de9fd321d60f7e",
+          "lines": 32,
+          "pythonSymbols": [
+            "ResultsStore",
+            "__init__",
+            "_path",
+            "save",
+            "load"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "scene.py",
+          "bytes": 6792,
+          "sha256": "0b260d93aef902760a6cc349792f923fbb4c67ba7e5d7953dc98195d2c530869",
+          "lines": 167,
+          "pythonSymbols": [
+            "_box",
+            "_marker",
+            "build_scene"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "schemas.py",
+          "bytes": 4344,
+          "sha256": "f9161c47470dd1fe9ce206b5f6a0489836bf71358ceadbb9619aaf387d2001cf",
+          "lines": 107,
+          "pythonSymbols": [
+            "HealthResponse",
+            "SimulationRequest",
+            "ConservationCheck",
+            "SimulationResult",
+            "StateResponse",
+            "validate_run_limits",
+            "to_engine_request"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "simulation.py",
+          "bytes": 36009,
+          "sha256": "4b84db4db48f9d62594952d1190565e2099676279b59d4bf3bc99b1bfa24b2ce",
+          "lines": 776,
+          "pythonSymbols": [
+            "ZoneState",
+            "StepRecord",
+            "_get_override",
+            "_diurnal_load",
+            "_ambient_C",
+            "_relative_error",
+            "SimplifiedPhysicsEngine",
+            "run_simulation",
+            "__init__",
+            "_path_pressure_loss",
+            "_greenhouse_demand_W",
+            "_pipe_states",
+            "run",
+            "_conservation_checks",
+            "_summary",
+            "check"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "__init__.py",
+          "bytes": 89,
+          "sha256": "4e157f77800ca44c6d1d676897e452660dace0939899899d98c7e5262f35466f",
+          "lines": 3,
+          "pythonSymbols": []
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "build_model.py",
+          "bytes": 17530,
+          "sha256": "9cd3288e16e337e0a9cc2bb1e1cfc7112cc81d75add30301d9cf0719b7daa886",
+          "lines": 408,
+          "pythonSymbols": [
+            "load_config",
+            "parse_args",
+            "material",
+            "clear_scene",
+            "_new_object",
+            "collection",
+            "box",
+            "cylinder",
+            "polyline_tube",
+            "build_structure",
+            "build_gpu_racks",
+            "build_marker",
+            "build_equipment",
+            "build_greenhouse",
+            "build_network",
+            "build_utility_corridor",
+            "export_glb",
+            "build",
+            "main",
+            "set_input"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "generate_facility.py",
+          "bytes": 26998,
+          "sha256": "fc08d4d22365e2978675dcc3cd85b49cd16a639fb5b66d786f869dde7239a941",
+          "lines": 592,
+          "pythonSymbols": [
+            "project_root",
+            "load_json",
+            "material",
+            "clear_scene",
+            "get_collection",
+            "_add",
+            "group_empty",
+            "box",
+            "cyl",
+            "sphere",
+            "pipe",
+            "build_structure",
+            "build_gpu_floors",
+            "build_power_distribution",
+            "build_robot_lab",
+            "build_seed_facility",
+            "build_mechanical_plant",
+            "build_underground_distribution",
+            "build_greenhouse",
+            "build_lighting",
+            "build_cameras",
+            "save_and_export",
+            "build_all",
+            "main",
+            "set_input",
+            "add_camera"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "thermal_loop.blend1",
+          "bytes": 399558,
+          "sha256": "83e594b90ef24f8ffabde865a4013ff9d29c2cad66859c4138db05bc226b38ca"
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "assumptions.json",
+          "bytes": 3768,
+          "sha256": "a7cbb0e15e5a76c50910b681bbb97e792b86efe453968c2aa1da732d45536832",
+          "lines": 85
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "equipment.json",
+          "bytes": 6735,
+          "sha256": "7eb8aacf9db3834157f1be62d240a8304fd17236fea3dbfa20950199a523f66a",
+          "lines": 80
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "geometry.json",
+          "bytes": 1958,
+          "sha256": "a60af1cc7d82dfbdb99d1b132286bced480ed2199d0ca7b3e7fa7548b570a4ea",
+          "lines": 52
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "network.json",
+          "bytes": 10244,
+          "sha256": "46811a4dd4d981b61bb015e2ddbbe4c930c62151bbec9b5b48820564d1d577c4",
+          "lines": 70
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "sample_run.json",
+          "bytes": 386,
+          "sha256": "8eb02b90e7266229e320b011da547849fc62a50d5cd2f32d4a28b6cbbc561d19",
+          "lines": 13
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "simulation.json",
+          "bytes": 1320,
+          "sha256": "dacf7e477bdb03a9e89315059d92990d4715a0b9fe99511d7504cbaf15379e00",
+          "lines": 33
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "site.json",
+          "bytes": 735,
+          "sha256": "eeb89551cbbea57b2f1bcbdfa6f22d766fd342b7edaf24a651b87c1c86b4a83b",
+          "lines": 22
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "units.json",
+          "bytes": 940,
+          "sha256": "7597244c98a947ea814d63bc9c18f7caf621a7cf3650d3e4156df119aaf41fc2",
+          "lines": 36
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": ".gitkeep",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "view-floor-f2.png",
+          "bytes": 567751,
+          "sha256": "f10d4db27bb1b8629f1270067b3a3dffeac70fa19ea54a503da65ae8c2d8ef48"
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "view-front-cutaway.png",
+          "bytes": 469881,
+          "sha256": "88fc0179bbffc20c5962c49305da05819956bde5b09b89a2a3cf8f38b54e8f60"
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "view-greenhouse.png",
+          "bytes": 728748,
+          "sha256": "3757725273bac7bc053d487096183eafb01ee4ecf9e67bcfc50d70ecd0c018be"
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "view-present2.png",
+          "bytes": 648107,
+          "sha256": "140c81dad33106fe5ea429fd1657ba2c4558b11eee9e3b1e339eaa8340986351"
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "view-tour.png",
+          "bytes": 668078,
+          "sha256": "dc289dd471fecf3e64c6aec7d7758048dd93349b7c6c3e648fd9af7c797d2614"
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "view-underground.png",
+          "bytes": 463705,
+          "sha256": "a2ed551f512b5cd9606dbac138ca7543a7c3b7220ab0be6ac82516878c75f02e"
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "view-walkthrough.png",
+          "bytes": 508415,
+          "sha256": "1761287fd9a548c0309a3fece8524fcaf3e235490d0b8b6e76d46f456c77a6e1"
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "viewer-validation.png",
+          "bytes": 580557,
+          "sha256": "b05ada1889c81a1980f5819a71218297fa4fd8599f14bd7feb11b047285c6192"
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "API.md",
+          "bytes": 2660,
+          "sha256": "0b8b8a45bb9b9917ba8b81df3273abcf142405394bd752d4714fea5b7942390f",
+          "lines": 73
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "ARCHITECTURE.md",
+          "bytes": 4098,
+          "sha256": "6969ef473832c9f655d13ffae5200a511142c79fb536818cc8fd665e84970a08",
+          "lines": 76
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "DEPLOY.md",
+          "bytes": 2974,
+          "sha256": "91f4d783c36f3ebd26bf16d1b4671c6753aed53a323d08393b573de434c81aee",
+          "lines": 68
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "PHYSICS.md",
+          "bytes": 3526,
+          "sha256": "3e32ad1ea5b254809dcdaf9cf3d5273fb298fc76a84b9887bfeacb802f048f4f",
+          "lines": 71
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "REQUIREMENTS.md",
+          "bytes": 2727,
+          "sha256": "bde246e5617bc057db3e476f642f4de7d727c8d5c713acb559ace35b5731fc75",
+          "lines": 48
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "generate_idf.py",
+          "bytes": 2127,
+          "sha256": "a09c62e57548fb7e7ea89fb34403a8ff484c9f0bd8d811eee9a7abe85b03c394",
+          "lines": 62,
+          "pythonSymbols": [
+            "generate"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "thermalloop.idf",
+          "bytes": 2934,
+          "sha256": "867b7bab57d72d179509db3aa4f72d1fa5b94de9d66d860e42ccf7068f07184b"
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": ".env.example",
+          "bytes": 373,
+          "sha256": "e9aa6e5e1db958b837da3af6e8f3b46f151050f4e446972ab310fe718c63dc0f"
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "index.html",
+          "bytes": 325,
+          "sha256": "771eaae5be84e6ec600c4565777ed86e09e9fca9362b28b2b47d28b8bc1d12fd",
+          "lines": 12
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "package-lock.json",
+          "bytes": 91614,
+          "sha256": "8dfbf965f449edaa90f3de57f125119677a4dad17d88d7ee5924415f059e9f73",
+          "lines": 2645
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "package.json",
+          "bytes": 670,
+          "sha256": "e71814ce9b811e6c492b8826576d22d695923a08ce48e8a0ccab66c9096f008a",
+          "lines": 28
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "tsconfig.json",
+          "bytes": 562,
+          "sha256": "e09b1d7398a757eae35c19efcd50710803fe8df7e8d6414d2b6f595166ebf906",
+          "lines": 21
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "tsconfig.node.json",
+          "bytes": 233,
+          "sha256": "bb9fd8592a9e364641441219f10d84daae9ba2ca5cc85db798efad6913bb8257",
+          "lines": 11
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "tsconfig.node.tsbuildinfo",
+          "bytes": 53626,
+          "sha256": "0cbd4421ece4ee1c43131e22b5795ff8300d61af9e84370207018e6867350190"
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "tsconfig.tsbuildinfo",
+          "bytes": 321,
+          "sha256": "5eeb56baa02ee7f27fc2947aad423717fd4e983a4d89103b2be5d2404945e282"
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "vite.config.d.ts",
+          "bytes": 76,
+          "sha256": "4b96dd19fd2949d28ce80e913412b0026dc421e5bf6c31d87c7b5eb11b5753b4",
+          "lines": 2
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "vite.config.js",
+          "bytes": 328,
+          "sha256": "5d021282cbcf717b1aaf5656c7039cabcdc86a4dab30274ec349f63e6b79055c",
+          "lines": 14
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "vite.config.ts",
+          "bytes": 283,
+          "sha256": "dd4c87cb21ac40919ba5590a144bd699008e034f9e085de8fc7975ca93be4629",
+          "lines": 15
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "App.tsx",
+          "bytes": 2554,
+          "sha256": "b53400c158964990ab8f5cbfffdeb6195e0f5bd42a5b1277b056bbe11524294f",
+          "lines": 74
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "main.tsx",
+          "bytes": 237,
+          "sha256": "a80dcb91da9f1dd02e8b64c31d056e8b5894c2e08efe3500d2ef03f996293d30",
+          "lines": 10
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "store.ts",
+          "bytes": 10462,
+          "sha256": "c56b084144a383946a99658dcb3828bc11b67395a8ad6c09c949394cdbc7e76d",
+          "lines": 307
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "styles.css",
+          "bytes": 11194,
+          "sha256": "8f789fa69f5bcca391f03e33bb86617ffb5ed18d2f56ad82e5b9af0a0d04501f",
+          "lines": 327
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "vite-env.d.ts",
+          "bytes": 159,
+          "sha256": "6600001f6b9e18657b3314fdcf2fad48d4f74bfafb27fc464bb57ce670cb8ec8",
+          "lines": 9
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "client.ts",
+          "bytes": 1241,
+          "sha256": "7fd67e96a0b9477f71d4e3bb4c821193e09d74cd47aa5d267e816865b4b03419",
+          "lines": 34
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "types.ts",
+          "bytes": 4138,
+          "sha256": "909b24ae20a971f31ff22f5ef22eea134de9d197fbbef1fd45702063f762cd4d",
+          "lines": 170
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "Architecture.tsx",
+          "bytes": 8034,
+          "sha256": "5ce06525ea6a4a1e8c84af4186f95f4c3098dd3f90bd147575970b888ca1f82e",
+          "lines": 207
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "Building.tsx",
+          "bytes": 6077,
+          "sha256": "2c437b850e3473f339e9ec9e747d7295c16c7db053fdf244cef9d0a040982211",
+          "lines": 164
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "CameraRig.tsx",
+          "bytes": 4622,
+          "sha256": "ab0df3027219822c73ddd080fc833e5de7a79a8772d52d362db1d403a13b39a5",
+          "lines": 111
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "colors.ts",
+          "bytes": 1009,
+          "sha256": "11e84aec7930e1c9579af28cf20a0abd579dff6c38b70621316397328be3e73f",
+          "lines": 30
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "coordinates.ts",
+          "bytes": 595,
+          "sha256": "9e3ec4c7cea4281b002f4029b621b53ad98a7b299871f439bc534dda5889eafe",
+          "lines": 18
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "Greenhouse.tsx",
+          "bytes": 7739,
+          "sha256": "5d563a828b1795dda192365e6233bba8f75640fbf226f0859d5f4784a371b9c8",
+          "lines": 193
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "Hydronics.tsx",
+          "bytes": 6456,
+          "sha256": "0977d25866fb08f981f24596985a095a1466c1b65a7c82c1cb614d58ca093ed8",
+          "lines": 183
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "InteriorEquipment.tsx",
+          "bytes": 11138,
+          "sha256": "4b69bda7cb3387e656b9103e8785a56c4bc786b3470965074c05f25de1f43219",
+          "lines": 237
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "Label.tsx",
+          "bytes": 528,
+          "sha256": "1f00f3739afa09e1ea65b103421eed12385f0d4028343d9ebd627f619e36d9b0",
+          "lines": 22
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "ServerHall.tsx",
+          "bytes": 5671,
+          "sha256": "297e99fdeeb06e9d150a76a18849b27b060fcc78b96906a68d69a05127a4938f",
+          "lines": 160
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "Viewer.tsx",
+          "bytes": 2410,
+          "sha256": "b9fdbdf913ef9c1e891e2b039302793ea3049183a5cc3818108626e675a66cab",
+          "lines": 73
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "exportRun.ts",
+          "bytes": 1153,
+          "sha256": "d154beee105a90fea944bb0c1db6bc3716f79a7dc0de023dcdfb5078ce548906",
+          "lines": 30
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "LeftPanel.tsx",
+          "bytes": 8164,
+          "sha256": "fed5db51a8175a616de97f6b290d9923dc40d6ffa22c4330536d0f03469b3501",
+          "lines": 209
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "MiniChart.tsx",
+          "bytes": 1602,
+          "sha256": "b13574f34d9b1fa0deff5f7d37fe7f6880a5809d538b9655db6f31510a79def9",
+          "lines": 60
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "Presentation.tsx",
+          "bytes": 3419,
+          "sha256": "f0015cf0d0623a5c51fef837aef9ae0a594ec50a88fd414ec6df4bec07771633",
+          "lines": 94
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "RightPanel.tsx",
+          "bytes": 9053,
+          "sha256": "76ff612e8344b0fd46f423aebf4fd03335ab8fcb03e6d3a51f8757e648a1aa68",
+          "lines": 172
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "Timeline.tsx",
+          "bytes": 1219,
+          "sha256": "e1ab27d06b08e913c2d72833b7ac736277e061369489dddd5cf80574759c34a7",
+          "lines": 41
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "generate_model.py",
+          "bytes": 3493,
+          "sha256": "923fc1328431849e64afb214eed8981941fd2f1a1c6df98674c5eb65bfa35620",
+          "lines": 92,
+          "pythonSymbols": [
+            "load_assumptions",
+            "generate"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "run_openmodelica.mos",
+          "bytes": 201,
+          "sha256": "e15f82419a15c9bca2d6a8021387c0c87f3b9bb1d41a3fcfd31652bc5863df91"
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "ThermalLoop.mo",
+          "bytes": 1291,
+          "sha256": "3411fa9181507f7008f5cea283fdcd7c3201af4bdb80893822aa1534ff15564b"
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "optimize.py",
+          "bytes": 2620,
+          "sha256": "d53be4d424ff891391f82c80755ca570a98165e5b2572444f59c88211128ed25",
+          "lines": 72,
+          "pythonSymbols": [
+            "objective",
+            "sweep",
+            "main"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": ".gitkeep",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "validation-report.json",
+          "bytes": 692,
+          "sha256": "85c71ae8d8d4ef6f6b11ae0921ba566f0e4d507bd38d1ac3fc6a4a21fe61d4bc",
+          "lines": 34
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "build_glb.ps1",
+          "bytes": 1254,
+          "sha256": "1f7e7bd684d9b250fb2a98dc3a361d5f87e334b9703edbb4e8453501411e7736"
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "capture_views.ps1",
+          "bytes": 1439,
+          "sha256": "ff6a523145ac4df695980002bbe4a48e83590e26fb3392d1a96665bcef25ed87"
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "generate_facility.ps1",
+          "bytes": 1069,
+          "sha256": "d53a23e46ff99748c8e279615f4559012705aa7d90182cb2f256e571a8b57174"
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "run_backend.ps1",
+          "bytes": 257,
+          "sha256": "4a7b4b8524d1197af76522f15e364aeef0d909c2cf5f0bd323bd8e2360e43f0d"
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "run_frontend.ps1",
+          "bytes": 491,
+          "sha256": "09e61feebb2b492268e10dde31c1bdadab7a474cf7452b2276d6006eefb1103d"
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "setup.ps1",
+          "bytes": 786,
+          "sha256": "f0508992064406e3eddb13b7f5da1789cd98407dcd33fddb2d6ee0e09cb9ab71"
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "validate_all.py",
+          "bytes": 2917,
+          "sha256": "18390f351c160d91f169f85cb400b85e23a35abc341fd9f26b58cc2862c376b9",
+          "lines": 84,
+          "pythonSymbols": [
+            "run",
+            "main"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "capture_view.py",
+          "bytes": 2232,
+          "sha256": "39ec8f317d8d175c0a930784946111e0ed9ea668c156e6f4b24159b35d8ebed2",
+          "lines": 61,
+          "pythonSymbols": [
+            "main"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "conftest.py",
+          "bytes": 225,
+          "sha256": "4cabe14dfb9f77e51beeace85a1aca77d5523939f44f648c6359511ab9bfc86a",
+          "lines": 7,
+          "pythonSymbols": []
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "inspect_glb.py",
+          "bytes": 2093,
+          "sha256": "111747cafd69d72cadf6a005a2a1bc60f2d1ce7435a6426808689feb5281622d",
+          "lines": 58,
+          "pythonSymbols": [
+            "main"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "smoke_http.py",
+          "bytes": 1677,
+          "sha256": "6a4fbf283ea587b61c2a9f435e239e2cb000b6e77e34fd13efe2ca9ec3a765ed",
+          "lines": 49,
+          "pythonSymbols": [
+            "get",
+            "post",
+            "main"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "smoke_upgrade.py",
+          "bytes": 2331,
+          "sha256": "a3ab3334af0e1b09b899ad0561d2f959f9f19f3c0f83b22337d8ce0e300d523e",
+          "lines": 65,
+          "pythonSymbols": [
+            "read_json",
+            "main"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "test_api.py",
+          "bytes": 1943,
+          "sha256": "dc24d0ff5f1b9b9f8d4a58ef95c393f8d8a6135350765c7ab1ae9c14a17d9524",
+          "lines": 66,
+          "pythonSymbols": [
+            "test_health",
+            "test_config",
+            "test_scene_ids_match_contract",
+            "test_state",
+            "test_simulate_and_fetch_results",
+            "test_simulate_named_scenario",
+            "test_unknown_scenario_404",
+            "test_unknown_run_id_404"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "test_digital_twin_contract.py",
+          "bytes": 5129,
+          "sha256": "fe05dfb99d8b21f570a5f0afcaf2f652f5fa683c37dc2ffd6d7b3313a45c17aa",
+          "lines": 125,
+          "pythonSymbols": [
+            "test_six_floor_geometry_and_world_scale",
+            "test_building_greenhouse_dimensions_and_separation",
+            "test_scene_has_detailed_stable_equipment_ids",
+            "test_exactly_two_connected_circuit_contracts_and_renderable_paths",
+            "test_simulation_binds_state_to_every_rendered_pipe",
+            "test_hx_temperature_is_physical_without_heat_pump",
+            "test_heat_pump_condenser_energy_reconciles",
+            "test_buffer_really_discharges_and_balances_hold"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "test_physics.py",
+          "bytes": 2998,
+          "sha256": "087de8a6af0d7571bc44a69a3cacbe4dd1ec7ec0b905ab1e44ef6b0de16ba352",
+          "lines": 89,
+          "pythonSymbols": [
+            "test_c_k_roundtrip",
+            "test_sensible_heat_and_inverse",
+            "test_mass_flow_guard_on_zero_dt",
+            "test_delta_T_for_heat",
+            "test_hx_effectiveness_override_energy_balance",
+            "test_hx_ntu_bounds",
+            "test_pump_power",
+            "test_pipe_pressure_loss_positive_and_monotonic",
+            "test_buried_pipe_loss_sign",
+            "test_tank_charges_and_cools",
+            "test_zone_demand_clamped",
+            "test_heat_pump_cop"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "test_simulation.py",
+          "bytes": 3311,
+          "sha256": "1ac9d01fe8528543b936482b18e89c95e303a9bbbbff4c2ba341af1f2ab8831f",
+          "lines": 90,
+          "pythonSymbols": [
+            "test_run_produces_series",
+            "test_capture_split_conservation",
+            "test_primary_balance_conservation",
+            "test_secondary_balance_conservation",
+            "test_per_step_residual_small",
+            "test_capture_fraction_respected",
+            "test_full_load_numbers_match_spec",
+            "test_heat_pump_disabled_scenario",
+            "test_external_modes_not_executed",
+            "test_rack_ids_match_contract"
+          ]
+        },
+        {
+          "archive": "Thermaloop real scale.zip!SEED-cube/thermal-loop-render.zip",
+          "path": "__init__.py",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "lines": 0,
+          "pythonSymbols": []
+        }
+      ]
+    },
+    {
+      "name": "neuralroute3d-web.zip",
+      "sha256": "0dc08637082cf63624a4fe6023da89bdced45c910652921983f2a7598d3c31a7",
+      "entries": [
+        {
+          "archive": "neuralroute3d-web.zip",
+          "path": "index.html",
+          "bytes": 365,
+          "sha256": "155daaf981f4f43b3510d91227d838ad99317432fc342c2fa80978f868352eab",
+          "lines": 13
+        },
+        {
+          "archive": "neuralroute3d-web.zip",
+          "path": "app.js",
+          "bytes": 253151,
+          "sha256": "fac2c64b4d17e17056273d69645ddbce30c297d7751563973b4498cb19f10b68",
+          "lines": 66
+        },
+        {
+          "archive": "neuralroute3d-web.zip",
+          "path": "app.css",
+          "bytes": 5924,
+          "sha256": "50093a40ca119740cea23510890ae763015fce68b82e1aefb4c942780ea7efbb",
+          "lines": 1
+        }
+      ]
+    }
+  ]
+}

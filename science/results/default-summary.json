@@ -1,0 +1,208 @@
+{
+  "engineVersion": "1.0.0",
+  "claim": "Evidence-informed research experiments, not a validated operational digital twin",
+  "parameters": {
+    "weakShare": 0.5,
+    "seed": 521143,
+    "gpuCount": 16,
+    "model": "meta-llama/Llama-3.1-8B-Instruct",
+    "baselineBatch": 8,
+    "itlLimitMs": 40,
+    "outputTokens": 1000000,
+    "season": "winter",
+    "replicas": 64,
+    "uValueWm2K": 6,
+    "airChangesPerHour": 0.5,
+    "solarTransmission": 0.6,
+    "setpointC": 18,
+    "captureFraction": 0.82,
+    "exchangerEffectiveness": 0.92,
+    "overheadFraction": 0.1,
+    "pumpKW": 0.2,
+    "baselineHeatingCOP": 1
+  },
+  "checks": {
+    "routingPairs": true,
+    "schedulingConservation": true,
+    "thermalConservation": true,
+    "measuredGPUIdentity": true
+  },
+  "routing": {
+    "questions": 1307,
+    "baselineAccuracyPct": 85.76893649579189,
+    "candidateAccuracyPct": 74.36878347360367,
+    "deltaPP": {
+      "mean": -11.400153022188217,
+      "low": -13.771996939556235,
+      "high": -9.334353481254782,
+      "repeats": 1000,
+      "method": "Paired percentile bootstrap over benchmark questions; 95%; fixed routing decisions",
+      "scope": "Question-sampling variability only; excludes router-seed variability, judge error, and deployment shift"
+    },
+    "energyJ": null,
+    "latencyMs": null,
+    "policy": "Seeded random-routing control; no trained RouteLLM router"
+  },
+  "scheduling": {
+    "baseline": {
+      "policy": "first-fit",
+      "submitted": 256,
+      "admitted": 23,
+      "pending": 233,
+      "allocatedMilli": 15820
+    },
+    "candidate": {
+      "policy": "best-fit",
+      "submitted": 256,
+      "admitted": 23,
+      "pending": 233,
+      "allocatedMilli": 15820
+    }
+  },
+  "gpu": {
+    "kind": "In-sample selection from published GPU measurements; fixed-token projection",
+    "baselineBatch": 8,
+    "candidateBatch": 256,
+    "baselineFixedTokenKWh": 0.12633285031839006,
+    "candidateFixedTokenKWh": 0.021289250898570082,
+    "uncertainty": null,
+    "limitation": "ITL is inter-token latency, not request latency or TTFT. No queueing, cold-start, CPU, network, cooling, idle-fleet energy, or quality guarantee. Output lengths vary. Selecting and reporting on the same runs is optimistic; no held-out validation or replicate error bars."
+  },
+  "thermal": {
+    "kind": "Uncalibrated reduced-order scenario; NOT measured heat savings",
+    "period": "winter",
+    "hours": 168,
+    "itKW": 31.132035427805995,
+    "cop": 4.277777777777778,
+    "baselineKWh": 10923.234191858566,
+    "candidateKWh": 7697.974147706522,
+    "savedKWh": 3225.2600441520444,
+    "demandKWh": 5170.034044799994,
+    "usefulHeatKWh": 4252.305481350927,
+    "hpElectricKWh": 994.0454371989205,
+    "pumpKWh": 32.99999999999993,
+    "maxConservationResidualKW": 0,
+    "measuredPredictionMAE": null,
+    "limitation": "Published geometry is transplanted into Chicago TMY weather as a counterfactual. No measured greenhouse heat validation, plant-yield model, latent heat, screens, soil storage, hydraulic/temperature feasibility, off-design heat-pump curve, or connection to the legacy 3D campus. Catalogue COP is held constant at its nominal reference point. Replicas run continuously at the measured GPU point by assumption."
+  },
+  "sensitivity": {
+    "method": "27-point sensitivity grid: cover U value, capture fraction, nominal COP each ×0.8/1/1.2; capture capped at 1",
+    "isConfidenceInterval": false,
+    "lowKWh": 2402.5141352870296,
+    "highKWh": 4058.5058054693936
+  },
+  "sources": [
+    {
+      "id": "gpu-8b.json",
+      "url": "https://raw.githubusercontent.com/ml-energy/leaderboard/2bdd0070186956688e1f842dc28077980fe64013/public/data/models/meta-llama__Llama-3.1-8B-Instruct__lm-arena-chat.json",
+      "repository": "ml-energy/leaderboard",
+      "commit": "2bdd0070186956688e1f842dc28077980fe64013",
+      "path": "public/data/models/meta-llama__Llama-3.1-8B-Instruct__lm-arena-chat.json",
+      "sha256": "3db897caac1af5057fe2915a85c27cccaa5d734362f4c745d6f499cc308c0fe3",
+      "bytes": 52495,
+      "kind": "Published GPU benchmark aggregates",
+      "paper": "https://arxiv.org/abs/2505.06371",
+      "limitations": "GPU board energy only; H100 rows; no full-site meter; no repeat-run uncertainty in this export.",
+      "license": "Apache-2.0 toolkit/benchmark; leaderboard export has no separate license declaration",
+      "retrieved": "2026-10-25"
+    },
+    {
+      "id": "gpu-70b.json",
+      "url": "https://raw.githubusercontent.com/ml-energy/leaderboard/2bdd0070186956688e1f842dc28077980fe64013/public/data/models/meta-llama__Llama-3.1-70B-Instruct__lm-arena-chat.json",
+      "repository": "ml-energy/leaderboard",
+      "commit": "2bdd0070186956688e1f842dc28077980fe64013",
+      "path": "public/data/models/meta-llama__Llama-3.1-70B-Instruct__lm-arena-chat.json",
+      "sha256": "bafc501076c3ad0c28640d0be931983074e8c5f6da7ed93178cd8a9edfe2fc90",
+      "bytes": 57479,
+      "kind": "Published GPU benchmark aggregates",
+      "paper": "https://arxiv.org/abs/2505.06371",
+      "limitations": "4 H100 GPUs per measured replica; different output lengths across runs.",
+      "license": "Apache-2.0 toolkit/benchmark; leaderboard export has no separate license declaration",
+      "retrieved": "2026-10-25"
+    },
+    {
+      "id": "routing.csv",
+      "url": "https://raw.githubusercontent.com/lm-sys/RouteLLM/0b64fdafe049e596a3f5657c219329f24af24198/routellm/evals/gsm8k/gsm8k_responses.csv",
+      "repository": "lm-sys/RouteLLM",
+      "commit": "0b64fdafe049e596a3f5657c219329f24af24198",
+      "path": "routellm/evals/gsm8k/gsm8k_responses.csv",
+      "sha256": "1f38ed03db354a020f71e92022383dc3cf37bbf2694dea4daaeea7b6c43fe57b",
+      "bytes": 1291062,
+      "kind": "Published model correctness records",
+      "paper": "https://arxiv.org/abs/2406.18665",
+      "limitations": "Cached GPT-4 and Mixtral GSM8K outcomes; not Llama energy data; no router scores are supplied.",
+      "license": "Apache-2.0 (RouteLLM); upstream GSM8K MIT",
+      "retrieved": "2026-10-25"
+    },
+    {
+      "id": "routing-contaminated.jsonl",
+      "url": "https://raw.githubusercontent.com/lm-sys/RouteLLM/0b64fdafe049e596a3f5657c219329f24af24198/routellm/evals/gsm8k/contaminated_prompts.jsonl",
+      "repository": "lm-sys/RouteLLM",
+      "commit": "0b64fdafe049e596a3f5657c219329f24af24198",
+      "path": "routellm/evals/gsm8k/contaminated_prompts.jsonl",
+      "sha256": "1f5a7be02148ee0f7f306d233ba76a6573c826cee9499a34f8ef938a1a84c234",
+      "bytes": 6282,
+      "kind": "Published exclusion list",
+      "paper": "https://arxiv.org/abs/2406.18665",
+      "limitations": "Exclude contaminated prompts exactly as upstream evaluation does.",
+      "license": "Apache-2.0",
+      "retrieved": "2026-10-25"
+    },
+    {
+      "id": "scheduling.csv",
+      "url": "https://raw.githubusercontent.com/alibaba/clusterdata/3858992ca41bf92082e6d6522ddf0bebd14e838b/cluster-trace-gpu-v2023/csv/openb_pod_list_default.csv",
+      "repository": "alibaba/clusterdata",
+      "commit": "3858992ca41bf92082e6d6522ddf0bebd14e838b",
+      "path": "cluster-trace-gpu-v2023/csv/openb_pod_list_default.csv",
+      "sha256": "1ee7ed79c27a3b0861cda8ddba86a004c6aba904caafa329a76ae93ca63834a8",
+      "bytes": 575468,
+      "kind": "Production resource-request trace",
+      "paper": "https://www.usenix.org/conference/atc23/presentation/weng",
+      "limitations": "Admission packing replay only; GPU request is not observed GPU utilization or power.",
+      "license": "No explicit data license located; numeric request subset attributed to the public trace",
+      "retrieved": "2026-10-25"
+    },
+    {
+      "id": "weather.mos",
+      "url": "https://raw.githubusercontent.com/lbl-srg/modelica-buildings/7c8f588f462d0080945fc9dffdf7988551853fb7/Buildings/Resources/weatherdata/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.mos",
+      "repository": "lbl-srg/modelica-buildings",
+      "commit": "7c8f588f462d0080945fc9dffdf7988551853fb7",
+      "path": "Buildings/Resources/weatherdata/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.mos",
+      "sha256": "624917c7533ef6317dfc56207fed54c68c234a04ab4de86478490fb0523549c0",
+      "bytes": 1171885,
+      "kind": "Typical meteorological year",
+      "paper": "https://www.nrel.gov/docs/fy08osti/43156.pdf",
+      "limitations": "Chicago TMY3 assembled historical weather; not a continuous measured ThermaLoop year.",
+      "license": "Modelica Buildings BSD-3-Clause; NREL TMY3 weather",
+      "retrieved": "2026-10-25"
+    },
+    {
+      "id": "heat-pump.mo",
+      "url": "https://raw.githubusercontent.com/lbl-srg/modelica-buildings/7c8f588f462d0080945fc9dffdf7988551853fb7/Buildings/Fluid/HeatPumps/Data/EquationFitReversible/Trane_Axiom_EXW240.mo",
+      "repository": "lbl-srg/modelica-buildings",
+      "commit": "7c8f588f462d0080945fc9dffdf7988551853fb7",
+      "path": "Buildings/Fluid/HeatPumps/Data/EquationFitReversible/Trane_Axiom_EXW240.mo",
+      "sha256": "a087b7441ea0a365d54d86a0d634b496457d9bb6bba35298121531df83f9fee0",
+      "bytes": 1848,
+      "kind": "Catalogue reference operating point",
+      "paper": "https://github.com/lbl-srg/modelica-buildings",
+      "limitations": "Use record values Q=77000 W and P=18000 W at load 53 C/source 18 C; record comment COP=4.10 differs from Q/P=4.2778. No field calibration.",
+      "license": "BSD-3-Clause",
+      "retrieved": "2026-10-25"
+    },
+    {
+      "id": "greenhouse.json",
+      "url": "https://raw.githubusercontent.com/davkat1/GreenLight/7a7b36870135aa38bbe81e65590dcf5473786bdd/greenlight/models/katzin_2021/definition/modification_katzin_2020_katzin_2021.json",
+      "repository": "davkat1/GreenLight",
+      "commit": "7a7b36870135aa38bbe81e65590dcf5473786bdd",
+      "path": "greenlight/models/katzin_2021/definition/modification_katzin_2020_katzin_2021.json",
+      "sha256": "c0fd7485c931aa0f856913e4ef87c40ccc790d1f363a27bec32a50e5dd31d7b7",
+      "bytes": 20411,
+      "kind": "Research greenhouse geometry parameters",
+      "paper": "https://doi.org/10.1016/j.biosystemseng.2020.03.010",
+      "limitations": "Katzin 2020 Table 1 geometry only; reduced heat model is not the validated GreenLight solver. Measured greenhouse energy data are not bundled.",
+      "license": "BSD-3-Clause-Clear",
+      "retrieved": "2026-10-25"
+    }
+  ]
+}
