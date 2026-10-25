@@ -9,20 +9,21 @@
   let current = null, charts = {}, timer;
 
   function bars(title, values, unit, max) {
-    const width = 520, height = values.length * 44 + 62, end = 370;
+    const width = 540, height = values.length * 60 + 68, left = 22, right = 518;
     max = max || Math.max(1e-9, ...values.map(x => x.value)) * 1.05;
-    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" class="science-chart" role="img" aria-label="${esc(title)}"><title>${esc(title)}</title><text x="12" y="20">${esc(title)} · ${esc(unit)}</text>` +
-      values.map((r, i) => `<text x="12" y="${49 + i * 44}">${esc(r.label)}</text><rect x="112" y="${32 + i * 44}" width="${Math.max(0, r.value / max * (end - 112))}" height="26" fill="${i ? '#6bdce9' : '#f0ac82'}" rx="3"/><text x="380" y="${49 + i * 44}">${num(r.value)} ${esc(unit)}</text>`).join('') +
-      `<text x="112" y="${height - 7}">0</text><text x="300" y="${height - 7}">Scale 0–${num(max)} ${esc(unit)}</text></svg>`;
+    const precision = unit === 'kWh' ? 4 : 2;
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" class="science-chart" role="img" aria-label="${esc(title)}"><title>${esc(title)}</title><rect width="${width}" height="${height}" rx="9" fill="#0b1621"/><g font-family="Segoe UI, sans-serif" font-size="11" fill="#aec2cd"><text x="${left}" y="25" class="chart-heading">${esc(title)}</text>` +
+      values.map((r, i) => `<text x="${left}" y="${53 + i * 60}">${esc(r.label)}</text><text x="${right}" y="${53 + i * 60}" text-anchor="end" class="chart-number" fill="#e8f2f5" font-size="13">${num(r.value, precision)} ${esc(unit)}</text><rect x="${left}" y="${65 + i * 60}" width="${right - left}" height="13" rx="6.5" fill="#1a2c39"/><rect x="${left}" y="${65 + i * 60}" width="${Math.max(0, r.value / max * (right - left))}" height="13" fill="${i ? '#6bdce9' : '#f0ac82'}" rx="6.5"/>`).join('') +
+      `<text x="${left}" y="${height - 13}" class="chart-axis">0</text><text x="${right}" y="${height - 13}" class="chart-axis" text-anchor="end">Scale 0–${num(max, precision)} ${esc(unit)}</text></g></svg>`;
   }
   function timeline(rows) {
-    const W = 620, H = 215, L = 48, R = 601, T = 32, B = 173;
+    const W = 620, H = 260, L = 50, R = 594, T = 62, B = 206;
     const max = Math.max(1, ...rows.flatMap(r => [r.baselineKW, r.candidateKW])) * 1.05;
     const path = key => rows.map((r, i) => `${i ? 'L' : 'M'}${(L + i * (R - L) / (rows.length - 1)).toFixed(2)},${(B - r[key] / max * (B - T)).toFixed(2)}`).join(' ');
-    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" class="science-chart" role="img" aria-label="Modeled site electricity, same IT and greenhouse conditions, 168 hours"><title>Modeled site electricity; uncalibrated heat-recovery scenario</title><text x="8" y="17">Electricity (kW) · uncalibrated scenario</text>` +
-      [0, 0.5, 1].map(f => `<line x1="${L}" x2="${R}" y1="${B - f * (B - T)}" y2="${B - f * (B - T)}" stroke="#284255"/><text x="5" y="${B - f * (B - T) + 4}">${num(f * max, 0)}</text>`).join('') +
-      `<path d="${path('baselineKW')}" fill="none" stroke="#f0ac82" stroke-width="2"/><path d="${path('candidateKW')}" fill="none" stroke="#6bdce9" stroke-width="2"/>` +
-      [0, 48, 96, 144, 167].map(i => `<text x="${L + i * (R - L) / 167 - 5}" y="192">${i}</text>`).join('') + `<text x="460" y="210">Hour of selected TMY week</text></svg>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" class="science-chart" role="img" aria-label="Modeled site electricity, same IT and greenhouse conditions, 168 hours"><title>Modeled site electricity; uncalibrated heat-recovery scenario</title><rect width="${W}" height="${H}" rx="9" fill="#0b1621"/><g font-family="Segoe UI, sans-serif" font-size="11" fill="#aec2cd"><text x="20" y="25" class="chart-heading">Site electricity · kW</text><text x="20" y="43" class="chart-note">Uncalibrated scenario · NOT measured</text>` +
+      [0, 0.25, 0.5, 0.75, 1].map(f => `<line x1="${L}" x2="${R}" y1="${B - f * (B - T)}" y2="${B - f * (B - T)}" stroke="#263d4b" stroke-dasharray="3 5"/><text x="15" y="${B - f * (B - T) + 4}" class="chart-axis">${num(f * max, 0)}</text>`).join('') +
+      `<path d="${path('candidateKW')} L${R},${B} L${L},${B} Z" fill="#6bdce9" fill-opacity="0.06"/><path d="${path('baselineKW')}" fill="none" stroke="#f0ac82" stroke-width="2.4" stroke-linejoin="round"/><path d="${path('candidateKW')}" fill="none" stroke="#6bdce9" stroke-width="2.4" stroke-linejoin="round"/>` +
+      [0, 48, 96, 144, 167].map(i => `<text x="${L + i * (R - L) / 167}" y="226" text-anchor="middle" class="chart-axis">${i}</text>`).join('') + `<text x="${R}" y="247" text-anchor="end" class="chart-axis">Hour of selected TMY week</text></g></svg>`;
   }
 
   function read() {
@@ -36,6 +37,15 @@
 
   function render(result) {
     const {routing: r, scheduling: s, gpu: g, thermal: t, thermalSensitivity: sensitivity} = result;
+    const signed = (value, digits = 2) => (value > 0 ? '+' : '') + num(value, digits);
+    $('sciRoutingHeadline').textContent = signed(r.accuracyDeltaPP.mean) + ' pp';
+    $('sciRoutingSummary').dataset.tone = r.accuracyDeltaPP.mean < 0 ? 'caution' : 'neutral';
+    $('sciSchedulingHeadline').textContent = signed(s.candidate.admitted - s.baseline.admitted, 0) + ' requests';
+    $('sciSchedulingSummary').dataset.tone = 'neutral';
+    $('sciGPUHeadline').textContent = g.candidate ? num(g.candidate.fixedTokenEnergyKWh, 4) + ' kWh' : 'No feasible point';
+    $('sciGPUSummary').dataset.tone = g.candidate ? 'default' : 'caution';
+    $('sciThermalHeadline').textContent = num(t.savedKWh) + ' kWh';
+    $('sciThermalSummary').dataset.tone = 'caution';
     $('sciRoutingMetrics').innerHTML = metric('Published benchmark pairs', num(r.questions, 0)) +
       metric('Baseline · all GPT-4', num(r.baselineAccuracyPct) + '% correct') +
       metric('Candidate · seeded routing', num(r.candidateAccuracyPct) + '% correct') +
@@ -117,6 +127,11 @@
   }
   function setup() {
     if (!M || !D) { $('sciStatus').textContent = 'Evidence scripts unavailable. Check local files.'; return; }
+    $('sciSourceCount').textContent = D.sources.length + ' pinned source files · offline ready';
+    $('sciCoveragePairs').textContent = num(D.routing.records.length, 0);
+    $('sciCoverageGPU').textContent = num(D.gpu.length, 0);
+    $('sciCoverageRequests').textContent = num(D.scheduling.records.length, 0);
+    $('sciCoverageHours').textContent = num(D.weather.winter.length + D.weather.summer.length, 0) + ' h';
     $('sciSources').innerHTML = D.sources.map(s => `<article class="science-source"><h4>${esc(s.id)} · ${esc(s.kind)}</h4><p><a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">Pinned source · ${esc(s.repository)}</a> · <a href="${esc(s.paper)}" target="_blank" rel="noopener noreferrer">Research / reference</a> · Retrieved ${esc(s.retrieved)}</p><p>${esc(s.limitations)}</p><p>License / attribution: ${esc(s.license)}</p><div class="science-hash">Commit ${esc(s.commit)}<br>Original file SHA-256 ${esc(s.sha256)}</div></article>`).join('');
     $('sciRun').addEventListener('click', run);
     $('sciReset').addEventListener('click', () => {
@@ -130,7 +145,7 @@
     $('sciExportCSV').addEventListener('click', () => current && download(M.csv(current), 'ThermaLoop_Scientific_Evidence.csv', 'text/csv;charset=utf-8'));
     $('sciExportSVG').addEventListener('click', () => {
       if (!current) return;
-      const svg = charts.thermal.replace('</svg>', '<text x="48" y="29">Baseline: orange · ThermaLoop candidate: cyan · NOT measured</text></svg>');
+      const svg = charts.thermal.replace('</g></svg>', '<text x="594" y="43" text-anchor="end" class="chart-note">Baseline: orange · Candidate: cyan</text></g></svg>');
       download(svg, 'ThermaLoop_Heat_Recovery_Scenario.svg', 'image/svg+xml');
     });
     window.ThermaScientificDashboard = {run, getResult: () => current};
