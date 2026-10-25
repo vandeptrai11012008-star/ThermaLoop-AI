@@ -1,0 +1,28 @@
+{
+  "status": "passed",
+  "checks": [
+    "All pre-existing DOM IDs preserved",
+    "WebGL 3D context and all three original external destinations preserved",
+    "Legacy pause, step and restart",
+    "All three simulation speeds",
+    "Campus/hall cameras, orbit, ISO/TOP/SIDE and paired 3D modes",
+    "All five legacy scenarios run complete 60-minute A/B histories",
+    "All four live parameter sliders, explicit A/B rerun and 3D jump",
+    "Five individual policy toggles and enable-all",
+    "All six experiment presets, minute scrubbing and paired playback",
+    "Per-GPU selection, GPU minute history, hottest GPU, 3D inspector and thermal cascade",
+    "Cooling-fault injection/reset and legacy energy benchmark",
+    "Finance lab tabs and existing scale calculation",
+    "All five legacy exports and three scientific exports contain valid results",
+    "Scientific parameters, 70B hardware scope, summer data, infeasibility, invalid-input rejection and reset",
+    "All local evidence, methods and audit links resolve",
+    "Sidebar navigation and responsive desktop/tablet/mobile evidence layout",
+    "Offline browser context with local static resource fulfillment; both experiment engines work",
+    "No uncaught browser JavaScript exceptions"
+  ],
+  "checkCount": 18,
+  "pageErrors": [],
+  "limitations": [
+    "Direct file:// navigation is blocked by this Chromium administrator policy; file-loader validation is unverified"
+  ]
+}
