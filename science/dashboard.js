@@ -49,7 +49,7 @@
     $('sciRoutingMetrics').innerHTML = metric('Published benchmark pairs', num(r.questions, 0)) +
       metric('Baseline · all GPT-4', num(r.baselineAccuracyPct) + '% correct') +
       metric('Candidate · seeded routing', num(r.candidateAccuracyPct) + '% correct') +
-      metric('Actual Mixtral calls', `${num(r.weakCalls, 0)} / ${r.questions}`) +
+      metric('Replayed Mixtral assignments', `${num(r.weakCalls, 0)} / ${r.questions}`) +
       metric('Accuracy change', num(r.accuracyDeltaPP.mean) + ' pp') +
       metric('95% paired bootstrap', `[${num(r.accuracyDeltaPP.low)}, ${num(r.accuracyDeltaPP.high)}] pp`);
     $('sciRoutingNote').textContent = `${D.routing.originalCount} upstream questions; ${D.routing.excludedCount} contamination exclusions. Seed ${r.seed}. Decisions use a seeded random stream, not answers or a trained router. This control can lose quality; energy and latency are unavailable for this model pair. Bootstrap reflects question sampling only.`;

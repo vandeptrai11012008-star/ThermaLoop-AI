@@ -4,6 +4,7 @@ import argparse
 import asyncio
 import csv
 import functools
+import hashlib
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import io
 import json
@@ -38,6 +39,9 @@ async def run(base, artifacts):
             "--use-gl=angle", "--use-angle=swiftshader", "--enable-webgl", "--enable-unsafe-swiftshader"])
         page = await browser.new_page(viewport={"width": 1440, "height": 1000}, accept_downloads=True)
         page.on("pageerror", lambda error: errors.append(str(error)))
+        dataset_requests = []
+        page.on("request", lambda request: dataset_requests.append(request.url)
+                if urllib.parse.urlsplit(request.url).path.endswith("/science/data/evidence.json") else None)
         try:
             await page.goto(base)
             await page.wait_for_function("window.ThermaCompare?.getExperiment() && window.ThermaScientificDashboard?.getResult()")
@@ -50,6 +54,63 @@ async def run(base, artifacts):
             assert all(href in links for href in CONTRACT["externalLinks"])
             assert await page.evaluate("!!document.getElementById('glCanvas').getContext('webgl')")
             checks.append("WebGL 3D context and all three original external destinations preserved")
+
+            # Identity checks must not claim a connection or silently update scientific inputs.
+            assert not dataset_requests, "Dataset verification should run only on user request"
+            assert await page.locator("#sciSyncStatus").get_attribute("data-state") == "unchecked"
+            assert "NOT CONNECTED" in await page.locator(".science-data-status").inner_text()
+            baseline = await page.evaluate("window.ThermaScientificDashboard.getResult()")
+            dataset_bytes = (ROOT / "science/data/evidence.json").read_bytes()
+            expected_hash = hashlib.sha256(dataset_bytes).hexdigest()
+            await page.locator("#sciCheckSync").click()
+            await page.wait_for_function("window.ThermaDataStatus.getReport().verification.state === 'matched'")
+            report = await page.evaluate("window.ThermaDataStatus.getReport()")
+            assert report["verification"]["observedSHA256"] == expected_hash
+            assert report["expected"]["evidenceSHA256"] == expected_hash
+            assert report["liveTelemetryConnected"] is False
+            assert len(report["sources"]) == 8
+            assert report["sourceRetrievalDates"] == ["2026-10-25"]
+            async with page.expect_download() as event:
+                await page.locator("#sciExportDataStatus").click()
+            download = await event.value
+            destination = artifacts / download.suggested_filename
+            await download.save_as(destination)
+            assert json.loads(destination.read_text()) == report
+
+            async def changed_dataset(route):
+                # Even semantically equivalent JSON must not pass a byte-identity check.
+                await route.fulfill(status=200, body=dataset_bytes + b"\n", content_type="application/json")
+
+            dataset_url = "**/science/data/evidence.json"
+            await page.route(dataset_url, changed_dataset)
+            await page.locator("#sciCheckSync").click()
+            await page.wait_for_function("window.ThermaDataStatus.getReport().verification.state === 'mismatch'")
+            await page.unroute(dataset_url, changed_dataset)
+
+            async def failed_dataset(route):
+                await route.fulfill(status=503, body="Unavailable")
+
+            await page.route(dataset_url, failed_dataset)
+            await page.locator("#sciCheckSync").click()
+            await page.wait_for_function("window.ThermaDataStatus.getReport().verification.state === 'unavailable'")
+            report = await page.evaluate("window.ThermaDataStatus.getReport()")
+            assert report["verification"]["observedSHA256"] is None
+            assert "HTTP 503" in report["verification"]["message"]
+            await page.unroute(dataset_url, failed_dataset)
+
+            async def disconnected_dataset(route):
+                await route.abort("internetdisconnected")
+
+            await page.route(dataset_url, disconnected_dataset)
+            await page.locator("#sciCheckSync").click()
+            await page.wait_for_function("window.ThermaDataStatus.getReport().verification.state === 'unavailable'")
+            assert await page.locator("#sciCheckSync").is_enabled()
+            assert await page.locator("#sciExportJSON").is_enabled()
+            await page.unroute(dataset_url, disconnected_dataset)
+            await page.locator("#sciCheckSync").click()
+            await page.wait_for_function("window.ThermaDataStatus.getReport().verification.state === 'matched'")
+            assert baseline == await page.evaluate("window.ThermaScientificDashboard.getResult()")
+            checks.append("Dataset status/export, SHA-256 match, altered bytes, HTTP failure, disconnection and recovery; experiment inputs stay unchanged")
 
             before = await page.locator("#clock").inner_text()
             await page.locator("#step").click()

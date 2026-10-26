@@ -3,6 +3,7 @@
   "checks": [
     "All pre-existing DOM IDs preserved",
     "WebGL 3D context and all three original external destinations preserved",
+    "Dataset status/export, SHA-256 match, altered bytes, HTTP failure, disconnection and recovery; experiment inputs stay unchanged",
     "Legacy pause, step and restart",
     "All three simulation speeds",
     "Campus/hall cameras, orbit, ISO/TOP/SIDE and paired 3D modes",
@@ -20,7 +21,7 @@
     "Offline browser context with local static resource fulfillment; both experiment engines work",
     "No uncaught browser JavaScript exceptions"
   ],
-  "checkCount": 18,
+  "checkCount": 19,
   "pageErrors": [],
   "limitations": [
     "Direct file:// navigation is blocked by this Chromium administrator policy; file-loader validation is unverified"
