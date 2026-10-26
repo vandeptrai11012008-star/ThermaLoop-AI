@@ -354,6 +354,74 @@ async def run(base, artifacts):
             await page.set_viewport_size({"width":1440,"height":1000})
             checks.append("Numerical workspace responsive charts and controls at desktop/tablet/mobile widths")
 
+            # Settle the restored desktop layout and enter the lab explicitly;
+            # preceding checks finish at the bottom of the numerical section.
+            await page.locator("#public-workloads").evaluate("e=>e.scrollIntoView({block:'start',behavior:'instant'})")
+            await page.evaluate("() => new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))")
+            await page.wait_for_function("window.ThermaWorkloadDashboard?.getReport()")
+            original_science=await page.evaluate("window.ThermaScientificDashboard.getResult()")
+            original_numerical=await page.evaluate("window.ThermaNumericalDashboard.getReport()")
+            workload=await page.evaluate("window.ThermaWorkloadDashboard.getReport()")
+            assert workload["routing"]["testCount"]==262
+            assert workload["routing"]["weakCalls"]==89
+            assert workload["routing"]["energyJ"] is None and workload["routing"]["latencyMs"] is None
+            assert all(s["meanWaitSeconds"]==0 for s in workload["scheduling"])
+            assert "no scheduling benefit" in await page.locator("#wlSchedulerNote").inner_text()
+            assert "1813 Failed" in await page.locator("#wlTraceStatus").inner_text()
+            assert "1,813 Failed" in await page.locator("#wlSchedulerPhase").inner_text()
+            for budget in ["0.2","0.6"]:
+                await page.locator("#wlWeakShare").select_option(budget)
+                await page.locator("#wlRun").click()
+                assert await page.evaluate("window.ThermaWorkloadDashboard.getReport().parameters.weakShare")==float(budget)
+            await page.locator("#wlWeakShare").select_option("0.4")
+            await page.locator("#wlArrivalScale").select_option("0.1")
+            await page.locator("#wlRun").click()
+            stress=await page.evaluate("window.ThermaWorkloadDashboard.getReport()")
+            assert "synthetic stress" in await page.locator("#wlStatus").inner_text()
+            assert stress["scheduling"][3]["meanWaitSeconds"]<stress["scheduling"][0]["meanWaitSeconds"]
+            assert stress["scheduling"][3]["maxWaitSeconds"]>stress["scheduling"][0]["maxWaitSeconds"]
+            await page.locator("#wlGpuSlots").select_option("8")
+            await page.locator("#wlRun").click()
+            assert await page.evaluate("window.ThermaWorkloadDashboard.getReport().parameters.gpuSlots")==8
+            await page.locator("#wlSweepDetails > summary").click()
+            assert await page.locator("#wlSweepRows tr").count()==24
+            assert original_science==await page.evaluate("window.ThermaScientificDashboard.getResult()")
+            assert original_numerical==await page.evaluate("window.ThermaNumericalDashboard.getReport()")
+            checks.append("Public-workload held-out routing, matched budgets, queue/placement ablation, stress trade-offs and independent existing engines")
+
+            for export_id in ["wlExportJSON","wlExportCSV","wlExportSVG"]:
+                async with page.expect_download() as event:
+                    await page.locator("#"+export_id).click()
+                download=await event.value;destination=artifacts/download.suggested_filename
+                await download.save_as(destination);text=destination.read_text()
+                if export_id=="wlExportJSON":
+                    exported=json.loads(text)
+                    assert exported["parameters"]=={"weakShare":.4,"gpuSlots":8,"arrivalScale":.1}
+                    assert len(exported["routerAudit"]["partitions"]["train"])==784
+                    assert all(len(s["jobs"])==1991 for s in exported["scheduling"])
+                    assert len(exported["sources"])==4 and exported["routing"]["energyJ"] is None
+                elif export_id=="wlExportCSV":
+                    assert "residence" in text and "Failed" in text and "Input SHA-256" in text
+                    assert "gpu_request" in text and "mGPU" in text and "assigned_slot" in text
+                    assert len(list(csv.reader(io.StringIO(text))))>40000
+                else:
+                    import xml.etree.ElementTree as ET
+                    ET.fromstring(text)
+                    assert "not measured savings" in text and "Input SHA-256" in text
+            checks.append("Workload JSON/CSV/SVG exports preserve partitions, per-reservation results, source failures, hashes and scope")
+            await page.locator("#wlReset").click()
+            assert await page.evaluate("window.ThermaWorkloadDashboard.getReport().parameters")=={"weakShare":.4,"gpuSlots":16,"arrivalScale":1}
+            await page.locator("#wlSweepDetails > summary").click()
+            await page.locator("#public-workloads").evaluate("e=>e.scrollIntoView({block:'start',behavior:'instant'})")
+            await page.screenshot(path=str(artifacts/"workloads-desktop.png"))
+            for width in [768,390]:
+                await page.set_viewport_size({"width":width,"height":844})
+                await page.locator("#public-workloads").evaluate("e=>e.scrollIntoView({block:'start',behavior:'instant'})")
+                assert await page.evaluate("document.documentElement.scrollWidth<=innerWidth+1")
+                await page.screenshot(path=str(artifacts/f"workloads-{width}.png"))
+            await page.set_viewport_size({"width":1440,"height":1000})
+            checks.append("Public-workload workspace desktop/tablet/mobile controls and charts without page overflow")
+
             mixed_context = await browser.new_context(viewport={"width":1440,"height":1000})
             mixed_page = await mixed_context.new_page()
             mixed_errors=[]
@@ -370,6 +438,19 @@ async def run(base, artifacts):
             assert not mixed_errors,mixed_errors
             await mixed_context.close()
             checks.append("Mixed-version numerical data is rejected with disabled exports and no impact on existing engines or uncaught errors")
+
+            bad_workloads=await browser.new_context()
+            bad_page=await bad_workloads.new_page();bad_errors=[]
+            bad_page.on("pageerror",lambda error:bad_errors.append(str(error)))
+            await bad_page.route("**/science/workload-data.js",lambda route:route.fulfill(status=200,content_type="application/javascript",body="globalThis.ThermaWorkloadData={schemaVersion:999};"))
+            await bad_page.goto(base)
+            await bad_page.wait_for_function("window.ThermaWorkloadDashboard?.status === 'unavailable' && window.ThermaScientificDashboard?.getResult() && window.ThermaCompare?.getExperiment()")
+            for export_id in ["wlExportJSON","wlExportCSV","wlExportSVG"]:
+                assert await bad_page.locator("#"+export_id).is_disabled()
+            assert await bad_page.evaluate("window.ThermaWorkloadDashboard.getReport()") is None
+            assert not bad_errors,bad_errors
+            await bad_workloads.close()
+            checks.append("Incompatible workload artifacts fail visibly with disabled exports and independent legacy engines")
 
             # Every same-origin document link must resolve; external sites are preserved, not claimed as tested deployments.
             for href in set(links):
@@ -423,10 +504,11 @@ async def run(base, artifacts):
             filepage = await offline.new_page()
             filepage.on("pageerror", lambda error: errors.append(str(error)))
             await filepage.goto(base)
-            await filepage.wait_for_function("window.ThermaScientificDashboard?.getResult() && window.ThermaCompare?.getExperiment() && window.ThermaValidationDashboard?.getReport() && window.ThermaNumericalDashboard?.getReport()")
+            await filepage.wait_for_function("window.ThermaScientificDashboard?.getResult() && window.ThermaCompare?.getExperiment() && window.ThermaValidationDashboard?.getReport() && window.ThermaNumericalDashboard?.getReport() && window.ThermaWorkloadDashboard?.getReport()")
             assert await filepage.evaluate("Object.values(window.ThermaScientificDashboard.getResult().checks).every(Boolean)")
             assert await filepage.evaluate("window.ThermaValidationDashboard.getReport().comparison.rows.length") == 4
             assert await filepage.evaluate("Object.values(window.ThermaNumericalDashboard.getReport().gates).every(Boolean)")
+            assert await filepage.evaluate("Object.values(window.ThermaWorkloadDashboard.getReport().checks).every(Boolean)")
             await offline.close()
             checks.append("Offline browser context with local static resource fulfillment; both experiment engines work")
             assert not errors, errors

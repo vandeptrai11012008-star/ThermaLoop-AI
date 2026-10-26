@@ -1,10 +1,43 @@
 # Validation evidence
 
-Current verification covers the numerical extension built on main commit
-`c188c84c6fd02e6aca240556a9db35196e7c0235`. The sections below retain earlier
-verification records with their original scope. These are software/numerical
-checks, not validation of real-world energy savings. Public deployment and
-GitHub Actions outcomes require separate release verification.
+Current website verification includes the public-workload extension built on
+main commit `63acf44db1447fbb02b3a3bf66ea3456fb3c6aa9`. Earlier sections retain
+their original scope. These are software, numerical and retrospective replay
+checks, not validation of real-world energy savings. Release/CI outcomes are
+verified separately from local tests.
+
+## Public-workload extension
+
+Final local verification passed **51 Python tests**, **55 Node tests** and
+**30 Chromium check groups**, with no uncaught JavaScript errors. Existing
+README, archive/PDF bytes, inline programs, evidence datasets and original
+functions remain preserved. All four static bundles match their sources;
+the complete Node workload sweep reproduces its saved summaries. A fresh
+source-cache download and retraining reproduced the fitted model/scores
+exactly locally, with identical frozen routing decisions. CLI full-record
+export also passed inspection.
+
+New adversarial checks flip test/calibration outcomes and alter test text:
+training IDF/coefficients and calibration thresholds cannot read held-out
+information. Group identity prevents normalized duplicates crossing splits.
+Queue fixtures have independently calculated start/wait times; resource-time
+is checked through a separate timeline integral and per-slot interval sweep.
+All four policy combinations preserve identical requested work, including
+original source failure labels. Zero-benefit and worse-tail cases stay visible.
+
+Browser regression covers operating budgets, original/synthetic arrival
+scenarios, GPU capacity controls, 24-case sweep, reset, JSON/CSV/SVG exports,
+responsive layouts, version mismatch rejection, offline use and existing
+website functions. Two additional 12-interaction runs passed, one after
+responsive resizing. Two long-session runs timed out around real button
+clicks without uncaught JS errors; the test now explicitly enters the panel
+and settles the restored layout before interaction. The final full run passed
+without forced clicks, relaxed assertions or increased timeouts. A definitive
+root cause for the earlier timeouts is not claimed.
+
+These are cached-outcome and counterfactual reservation experiments. They
+add no measured inference energy, GPU execution times, hardware telemetry or
+end-to-end thermal savings. See [PUBLIC_WORKLOADS.md](PUBLIC_WORKLOADS.md).
 
 ## Numerical verification extension
 

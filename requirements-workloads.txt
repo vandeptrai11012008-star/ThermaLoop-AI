@@ -1,0 +1,5 @@
+# Offline text-router training; browser and scheduler need no added runtime service.
+-r requirements-research.txt
+scikit-learn==1.6.1
+joblib==1.4.2
+threadpoolctl==3.6.0

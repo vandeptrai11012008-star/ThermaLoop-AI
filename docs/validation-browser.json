@@ -22,13 +22,17 @@
     "Numerical artifacts, clock/model controls, CDU definitions, target selection and honest coarse-tolerance failures",
     "Numerical JSON/CSV/SVG exports preserve full data, source fingerprints and non-experimental scope",
     "Numerical workspace responsive charts and controls at desktop/tablet/mobile widths",
+    "Public-workload held-out routing, matched budgets, queue/placement ablation, stress trade-offs and independent existing engines",
+    "Workload JSON/CSV/SVG exports preserve partitions, per-reservation results, source failures, hashes and scope",
+    "Public-workload workspace desktop/tablet/mobile controls and charts without page overflow",
     "Mixed-version numerical data is rejected with disabled exports and no impact on existing engines or uncaught errors",
+    "Incompatible workload artifacts fail visibly with disabled exports and independent legacy engines",
     "All local evidence, methods and audit links resolve",
     "Sidebar navigation and responsive desktop/tablet/mobile evidence layout",
     "Offline browser context with local static resource fulfillment; both experiment engines work",
     "No uncaught browser JavaScript exceptions"
   ],
-  "checkCount": 26,
+  "checkCount": 30,
   "pageErrors": [],
   "limitations": [
     "Direct file:// navigation is blocked by this Chromium administrator policy; file-loader validation is unverified"

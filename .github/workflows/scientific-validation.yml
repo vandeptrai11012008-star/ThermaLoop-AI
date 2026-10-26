@@ -15,12 +15,17 @@ jobs:
       - run: python scripts/build_evidence.py --check
       - run: python scripts/build_validation.py --check
       - run: python scripts/build_numerical.py --check
+      - run: python scripts/build_workloads.py --check
+      - run: node scripts/run_workload_experiments.cjs --check
       - run: node --test tests/*.test.cjs
-      - run: pip install -r requirements-research.txt
-      - run: python -m pytest -q tests/test_numerical_reference.py
+      - run: pip install -r requirements-workloads.txt
+      - run: python -m pytest -q tests/test_numerical_reference.py tests/test_workload_router.py
         env:
           OPENBLAS_NUM_THREADS: '1'
       - run: python scripts/run_numerical_verification.py --compare science/numerical/results.json
+        env:
+          OPENBLAS_NUM_THREADS: '1'
+      - run: python scripts/prepare_workloads.py --compare science/workloads/data.json
         env:
           OPENBLAS_NUM_THREADS: '1'
       - run: pip install -r requirements-dev.txt

@@ -30,6 +30,17 @@ The small GPU, heat-pump and greenhouse reference files are preserved byte-for-b
 
 Source research links were identified and cross-checked through the retrieved upstream repositories. This does not mean every linked paper or manufacturer PDF was independently downloaded: the environment initially blocked arXiv, DOI, 4TU and manufacturer destinations. Sources, limitations and licensing status are visible in the website. See `science/data/ATTRIBUTION.md` for notices.
 
+## Additional public-workload lab
+
+The additive [Routing & Scheduling Lab](PUBLIC_WORKLOADS.md) now trains a
+small hashed-TF-IDF/ridge router on a separate training partition and evaluates
+its frozen calibration thresholds on held-out cached GSM8K outcomes. It also
+adds a time-dependent, four-policy GPU reservation replay using the Alibaba
+trace's lifecycle intervals as explicitly qualified duration proxies. This is
+separate from the original four experiments below: their data, defaults and
+results remain unchanged. It is not a trained RouteLLM reproduction, measured
+GPU execution or end-to-end deployment validation.
+
 ## Four independent experiments
 
 ### 1. Routing: published outcome replay
