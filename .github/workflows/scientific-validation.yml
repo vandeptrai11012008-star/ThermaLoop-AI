@@ -1,5 +1,5 @@
 name: Scientific evidence and website regression
-on: [push, pull_request]
+on: [push, pull_request, workflow_dispatch]
 jobs:
   validate:
     # Playwright 1.56 supports Ubuntu 24.04; do not follow the Ubuntu 26 runner migration.
@@ -16,10 +16,11 @@ jobs:
       - run: python scripts/build_validation.py --check
       - run: python scripts/build_numerical.py --check
       - run: python scripts/build_workloads.py --check
+      - run: python scripts/build_physics.py --check
       - run: node scripts/run_workload_experiments.cjs --check
       - run: node --test tests/*.test.cjs
       - run: pip install -r requirements-workloads.txt
-      - run: python -m pytest -q tests/test_numerical_reference.py tests/test_workload_router.py
+      - run: python -m pytest -q tests/test_numerical_reference.py tests/test_workload_router.py tests/test_physics_counterflow.py
         env:
           OPENBLAS_NUM_THREADS: '1'
       - run: python scripts/run_numerical_verification.py --compare science/numerical/results.json
@@ -28,9 +29,17 @@ jobs:
       - run: python scripts/prepare_workloads.py --compare science/workloads/data.json
         env:
           OPENBLAS_NUM_THREADS: '1'
+      - run: python scripts/run_physics_verification.py --compare science/physics/results.json
+        env:
+          OPENBLAS_NUM_THREADS: '1'
       - run: pip install -r requirements-dev.txt
       - run: python -m playwright install --with-deps chromium
       - run: python tests/browser_smoke.py --artifacts /tmp/thermaloop-browser-results
+        if: github.event_name != 'workflow_dispatch'
+      - name: Verify the deployed main website with the pinned browser
+        if: github.event_name == 'workflow_dispatch'
+        run: python tests/browser_smoke.py --base-url https://thermaloop-ai-5.onrender.com --artifacts /tmp/thermaloop-browser-results
+      - run: python tests/browser_physics.py --artifacts /tmp/thermaloop-browser-results/physics-default-motion
       - uses: actions/upload-artifact@v4
         if: always()
         with:

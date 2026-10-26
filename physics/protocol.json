@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "kind": "Synthetic finite-capacity counterflow CDU model; numerical/physical-law verification, not measured validation",
+  "n_gpus": 8,
+  "secondary_flow_kg_s": 0.24,
+  "primary_flows_kg_s": [
+    0.06,
+    0.12,
+    0.24,
+    0.48,
+    0.96
+  ],
+  "primary_design_flow_kg_s": 0.48,
+  "facility_inlet_C": 30,
+  "primary_volume_m3": 0.001,
+  "primary_volume_assumption": "1 L CDU primary-side liquid hold-up is an explicit unmeasured example, not inferred from UA or channel geometry",
+  "primary_volume_sensitivity_m3": [
+    0.00025,
+    0.001,
+    0.004
+  ],
+  "primary_cp_J_kgK": 4186,
+  "primary_density_kg_m3": 1000,
+  "reported_cells": 80,
+  "spatial_cells": [
+    20,
+    40,
+    80,
+    160,
+    320,
+    640,
+    1280,
+    2560
+  ],
+  "duration_s": 150,
+  "output_spacing_s": 0.25,
+  "power_times_s": [
+    0,
+    30,
+    90,
+    150
+  ],
+  "power_per_gpu_W": [
+    100,
+    700,
+    100,
+    100
+  ],
+  "steady_power_per_gpu_W": 700,
+  "solver": {
+    "max_step": 0.25,
+    "rtol": 1e-08,
+    "atol": 1e-10
+  },
+  "temporal_temperature_target_C": 0.001,
+  "steady_discretization_target_C": 0.05,
+  "relative_integral_energy_target": 1e-07,
+  "target_note": "Case-specific declared numerical targets, not experimental uncertainty or accuracy certification",
+  "power_scope": "Prescribed heat deposited into the aggregate GPU solids, not measured board/site electric power. Pump work, host/network power and ambient losses are excluded."
+}

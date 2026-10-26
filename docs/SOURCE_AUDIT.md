@@ -24,6 +24,16 @@ the new browser lab. Previously archived modules and the original four
 scientific experiments are not replaced; see `PUBLIC_WORKLOADS.md` for the
 new holdout and residence-proxy limits.
 
+## Finite-capacity thermal extension
+
+`physics/counterflow.py` provides the new conservative two-stream CDU model,
+using the licensed reference's geometry/parameter helpers, convection checks,
+clock integration and exact epsilon-NTU limit. Its separate result/source
+fingerprints are in `science/physics/`. A pinned Modelica Buildings equation
+snapshot corroborates the continuum relationship; it is not executed here or
+treated as experimental data. Historical thermal/workload artifacts and the
+3D programs are unchanged. See `FINITE_CAPACITY_PHYSICS.md` for assumptions.
+
 ## Archive modules
 
 | Archive | Modules and purpose | Scientific findings / integration decision |

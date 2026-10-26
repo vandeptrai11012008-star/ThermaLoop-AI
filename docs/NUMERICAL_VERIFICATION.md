@@ -5,6 +5,11 @@ It does not replace the original 3D simulation, connect sensors, calibrate a
 server, or add independent experimental observations. A small error against a
 solution of the same equations is not evidence of equally small physical error.
 
+The separate [finite-capacity physical model](FINITE_CAPACITY_PHYSICS.md)
+now adds a two-stream CDU with explicit primary liquid storage. The historical
+checks below still refer to the unchanged lumped/fixed-bath reference; their
+results are not overwritten or relabeled as the new model's validation.
+
 ## Source and unchanged behavior
 
 The MIT thermal reference is included under `research/thermal_reference/` with
