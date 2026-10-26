@@ -1,6 +1,43 @@
 # Validation evidence
 
-Validation applies to the current-instance branch implementation based on main commit `587661bc290e77a1dcbe895bf298e40856ef0e27`. It is development verification, not validation of real-world energy savings. No GitHub Actions result, public deployment, new cloud-task restoration or field measurement is implied by local tests.
+Current verification covers the numerical extension built on main commit
+`c188c84c6fd02e6aca240556a9db35196e7c0235`. The sections below retain earlier
+verification records with their original scope. These are software/numerical
+checks, not validation of real-world energy savings. Public deployment and
+GitHub Actions outcomes require separate release verification.
+
+## Numerical verification extension
+
+The final local release checks passed **43 Python tests**, **43 Node tests**
+and **26 Chromium check groups**, with zero uncaught JavaScript errors.
+`docs/validation-browser.json` records the browser groups and platform limit.
+All three static-bundle checks passed; the original-file/program preservation
+test still passes. Original README, PDFs, ZIP files, inline 3D programs,
+external destinations and existing canonical evidence are preserved.
+
+The complete fixed-input protocol was rerun against the saved artifact.
+Maximum differences in compared temperature, timing, integrated heat and CDU
+metrics were all zero in this environment; all eight numerical gates passed.
+Cross-environment budgets and the exact protocol are documented in
+[NUMERICAL_VERIFICATION.md](NUMERICAL_VERIFICATION.md). CI independently reruns
+the protocol with pinned dependencies; no CI pass is inferred from local tests.
+
+Browser regression covers new model/solver controls, deliberately above-target
+coarse results, correct NTU/effectiveness definitions, JSON/CSV/SVG exports,
+desktop/tablet/mobile layouts, injected incompatible artifact versions,
+offline resource fulfillment and all existing simulation groups. Dataset
+verification recovery is exercised through four disconnection/recovery cycles.
+An initial recovery timeout did not reproduce in the final run; it is not
+claimed to have an established root cause. A hidden-details test interaction
+was corrected to open the panel before selecting its control. Mixed-version
+artifacts are now explicitly rejected and their exports disabled.
+
+The recorded same-equation continuum steady limit is about 71.1206°C.
+Of the tested physically aligned grids, 640 cells is the first to meet the
+**declared case-specific** 0.05°C steady discretization target. This is not a
+recommendation for every simulation. Small time-integration and conservation
+residuals establish neither measured predictive accuracy nor transient
+continuum convergence. No new experimental observations are added.
 
 ## Active static website and scientific extension
 

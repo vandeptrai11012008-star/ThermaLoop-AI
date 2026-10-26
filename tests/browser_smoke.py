@@ -33,12 +33,16 @@ class CheckLog(list):
 
 async def run(base, artifacts):
     checks, errors, limitations = CheckLog(), [], []
+    navigations, request_failures, console_errors = [], [], []
     async with async_playwright() as p:
         executable = shutil.which("chromium") or shutil.which("chromium-browser")
         browser = await p.chromium.launch(executable_path=executable, headless=True, args=[
             "--use-gl=angle", "--use-angle=swiftshader", "--enable-webgl", "--enable-unsafe-swiftshader"])
         page = await browser.new_page(viewport={"width": 1440, "height": 1000}, accept_downloads=True)
         page.on("pageerror", lambda error: errors.append(str(error)))
+        page.on("framenavigated", lambda frame: navigations.append(frame.url) if frame == page.main_frame else None)
+        page.on("requestfailed", lambda request: request_failures.append({"url":request.url,"failure":request.failure}))
+        page.on("console", lambda message: console_errors.append(message.text) if message.type == "error" else None)
         dataset_requests = []
         page.on("request", lambda request: dataset_requests.append(request.url)
                 if urllib.parse.urlsplit(request.url).path.endswith("/science/data/evidence.json") else None)
@@ -110,6 +114,14 @@ async def run(base, artifacts):
             await page.locator("#sciCheckSync").click()
             await page.wait_for_function("window.ThermaDataStatus.getReport().verification.state === 'matched'")
             assert baseline == await page.evaluate("window.ThermaScientificDashboard.getResult()")
+            for _ in range(3):
+                await page.route(dataset_url, disconnected_dataset)
+                await page.locator("#sciCheckSync").click()
+                await page.wait_for_function("window.ThermaDataStatus.getReport().verification.state === 'unavailable'")
+                await page.unroute(dataset_url, disconnected_dataset)
+                await page.locator("#sciCheckSync").click()
+                await page.wait_for_function("window.ThermaDataStatus.getReport().verification.state === 'matched'")
+                assert await page.locator("#sciCheckSync").is_enabled()
             checks.append("Dataset status/export, SHA-256 match, altered bytes, HTTP failure, disconnection and recovery; experiment inputs stay unchanged")
 
             before = await page.locator("#clock").inner_text()
@@ -298,6 +310,67 @@ async def run(base, artifacts):
             await page.set_viewport_size({"width":1440,"height":1000})
             checks.append("Research workspace desktop/tablet/mobile controls and charts without horizontal page overflow")
 
+            await page.wait_for_function("window.ThermaNumericalDashboard?.getReport()")
+            numerical = await page.evaluate("window.ThermaNumericalDashboard.getReport()")
+            assert all(numerical["gates"].values())
+            assert numerical["kind"].startswith("Numerical verification only")
+            assert numerical["CDU"]["NTU"] > 1
+            assert 0 <= numerical["CDU"]["isothermal_effectiveness"] <= 1
+            assert numerical["spatial"]["first_steady_grid_meeting_target"] == 640
+            assert await page.locator("#numSpatialRows tr").count() == 7
+            await page.select_option("#numModel", "1d")
+            await page.locator("#numTimeDetails > summary").click()
+            await page.select_option("#numStudy", "tolerance_levels")
+            assert await page.locator("#numTimeRows .num-above").count() >= 1
+            assert "1.00e-8" in await page.locator("#numSelectedSolver").inner_text()
+            await page.locator("#numCDUDetails > summary").click()
+            assert "2.388915" in await page.locator("#numCDUMetrics").inner_text()
+            await page.select_option("#numStudy", "step_limits")
+            await page.select_option("#numModel", "lumped")
+            assert "NaN" not in await page.locator("#numerical-verification").inner_text()
+            checks.append("Numerical artifacts, clock/model controls, CDU definitions, target selection and honest coarse-tolerance failures")
+            numerical_downloads = {}
+            for id in ["numExportJSON", "numExportCSV", "numExportSVG"]:
+                async with page.expect_download() as event:
+                    await page.locator("#"+id).click()
+                download = await event.value
+                destination = artifacts/download.suggested_filename
+                await download.save_as(destination)
+                numerical_downloads[id] = destination.read_text()
+            assert json.loads(numerical_downloads["numExportJSON"]) == numerical
+            assert "SHA-256" in numerical_downloads["numExportCSV"]
+            assert "not measured cooling benefit" in numerical_downloads["numExportCSV"]
+            assert "not experimental accuracy" in numerical_downloads["numExportSVG"]
+            assert "NaN" not in numerical_downloads["numExportSVG"]
+            checks.append("Numerical JSON/CSV/SVG exports preserve full data, source fingerprints and non-experimental scope")
+            await page.locator("#numerical-verification").evaluate("e=>e.scrollIntoView({block:'start',behavior:'instant'})")
+            await page.screenshot(path=str(artifacts/"numerical-desktop.png"))
+            for width in [768,390]:
+                await page.set_viewport_size({"width":width,"height":844})
+                await page.evaluate("() => new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))")
+                await page.locator("#numerical-verification").evaluate("e=>e.scrollIntoView({block:'start',behavior:'instant'})")
+                assert await page.evaluate("document.documentElement.scrollWidth<=innerWidth+1")
+                await page.screenshot(path=str(artifacts/f"numerical-{width}.png"))
+            await page.set_viewport_size({"width":1440,"height":1000})
+            checks.append("Numerical workspace responsive charts and controls at desktop/tablet/mobile widths")
+
+            mixed_context = await browser.new_context(viewport={"width":1440,"height":1000})
+            mixed_page = await mixed_context.new_page()
+            mixed_errors=[]
+            mixed_page.on("pageerror",lambda error:mixed_errors.append(str(error)))
+            await mixed_page.route("**/science/numerical-data.js",lambda route:route.fulfill(
+                status=200,content_type="application/javascript",body="globalThis.ThermaNumericalData={schemaVersion:1};globalThis.ThermaNumericalBuild={schemaVersion:1};"))
+            await mixed_page.goto(base)
+            await mixed_page.wait_for_function("window.ThermaNumericalDashboard?.status === 'unavailable' && window.ThermaScientificDashboard?.getResult() && window.ThermaCompare?.getExperiment()")
+            assert "incompatible versions" in await mixed_page.locator("#numProtocolStatus").inner_text()
+            assert await mixed_page.locator("#numExportJSON").is_disabled()
+            assert await mixed_page.locator("#numExportCSV").is_disabled()
+            assert await mixed_page.locator("#numExportSVG").is_disabled()
+            assert await mixed_page.evaluate("window.ThermaNumericalDashboard.getReport()") is None
+            assert not mixed_errors,mixed_errors
+            await mixed_context.close()
+            checks.append("Mixed-version numerical data is rejected with disabled exports and no impact on existing engines or uncaught errors")
+
             # Every same-origin document link must resolve; external sites are preserved, not claimed as tested deployments.
             for href in set(links):
                 if href.startswith(("#", "http:", "https:", "blob:")):
@@ -350,13 +423,25 @@ async def run(base, artifacts):
             filepage = await offline.new_page()
             filepage.on("pageerror", lambda error: errors.append(str(error)))
             await filepage.goto(base)
-            await filepage.wait_for_function("window.ThermaScientificDashboard?.getResult() && window.ThermaCompare?.getExperiment()")
+            await filepage.wait_for_function("window.ThermaScientificDashboard?.getResult() && window.ThermaCompare?.getExperiment() && window.ThermaValidationDashboard?.getReport() && window.ThermaNumericalDashboard?.getReport()")
             assert await filepage.evaluate("Object.values(window.ThermaScientificDashboard.getResult().checks).every(Boolean)")
             assert await filepage.evaluate("window.ThermaValidationDashboard.getReport().comparison.rows.length") == 4
+            assert await filepage.evaluate("Object.values(window.ThermaNumericalDashboard.getReport().gates).every(Boolean)")
             await offline.close()
             checks.append("Offline browser context with local static resource fulfillment; both experiment engines work")
             assert not errors, errors
             checks.append("No uncaught browser JavaScript exceptions")
+        except Exception as error:
+            diagnostic={"error":str(error),"url":page.url,"pageErrors":errors,
+                        "navigations":navigations,"failedRequests":request_failures,"consoleErrors":console_errors}
+            try:
+                diagnostic["title"]=await page.title()
+                diagnostic["bodyExcerpt"]=(await page.locator("body").inner_text())[:5000]
+                await page.screenshot(path=str(artifacts/"failure.png"),timeout=5000)
+            except Exception as capture_error:
+                diagnostic["captureError"]=str(capture_error)
+            (artifacts/"failure.json").write_text(json.dumps(diagnostic,indent=2)+"\n")
+            raise
         finally:
             await browser.close()
     return {"status": "passed", "checks": checks, "checkCount": len(checks), "pageErrors": errors,

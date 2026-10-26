@@ -19,12 +19,16 @@
     "Research partition/source statuses, exponent applicability, report arithmetic, null/invalid inputs, heat imbalance and independent calculator reset",
     "Research JSON, CSV and SVG exports preserve provenance, partition, unavailable intervals and illustrative-input labels",
     "Research workspace desktop/tablet/mobile controls and charts without horizontal page overflow",
+    "Numerical artifacts, clock/model controls, CDU definitions, target selection and honest coarse-tolerance failures",
+    "Numerical JSON/CSV/SVG exports preserve full data, source fingerprints and non-experimental scope",
+    "Numerical workspace responsive charts and controls at desktop/tablet/mobile widths",
+    "Mixed-version numerical data is rejected with disabled exports and no impact on existing engines or uncaught errors",
     "All local evidence, methods and audit links resolve",
     "Sidebar navigation and responsive desktop/tablet/mobile evidence layout",
     "Offline browser context with local static resource fulfillment; both experiment engines work",
     "No uncaught browser JavaScript exceptions"
   ],
-  "checkCount": 22,
+  "checkCount": 26,
   "pageErrors": [],
   "limitations": [
     "Direct file:// navigation is blocked by this Chromium administrator policy; file-loader validation is unverified"

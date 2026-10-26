@@ -1,0 +1,4 @@
+# Offline verification only; the website remains static and dependency-free.
+numpy==2.2.6
+scipy==1.15.3
+pytest==8.3.5
