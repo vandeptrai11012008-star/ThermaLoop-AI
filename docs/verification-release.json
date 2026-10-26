@@ -1,0 +1,30 @@
+{
+  "scope": "Local software and numerical verification only; no measured predictive accuracy or deployment claim",
+  "baseCommit": "c188c84c6fd02e6aca240556a9db35196e7c0235",
+  "resultSha256": "8327812b81255f8befbb20cfd999ba28bf42bb9927164ef3ad2e147457ce0396",
+  "python": {
+    "passed": 43,
+    "failed": 0
+  },
+  "node": {
+    "passed": 43,
+    "failed": 0
+  },
+  "browser": {
+    "passedGroups": 26,
+    "uncaughtErrors": 0,
+    "report": "docs/validation-browser.json"
+  },
+  "fullProtocolRerun": {
+    "maxTemperatureDifference_C": 0,
+    "maxTimeDifference_s": 0,
+    "maxHeatDifference_J": 0,
+    "maxCDUDifference": 0,
+    "gatesPassed": 8
+  },
+  "limitations": [
+    "Direct file:// navigation blocked by managed Chromium policy; offline resource fulfillment tested instead",
+    "No new independent experimental observations",
+    "No complete transient continuum convergence certification"
+  ]
+}

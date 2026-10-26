@@ -1,0 +1,33 @@
+{
+  "upstreamRepository": "https://github.com/Walla17x/thermaloop",
+  "upstreamCommit": "3a5ffe9fa127b5810b712fff2dcfe7e81f30753f",
+  "reviewedLocalCommit": "10954f42db89a4ec12e16c8080f5ceab333ad814",
+  "reviewedCommitStatus": "Prior local convection review, not published upstream; the adapted source is included in this repository.",
+  "scope": "Offline reference solver for numerical verification artifacts; not the browser 3D runtime.",
+  "files": [
+    {
+      "file": "rc_network.py",
+      "upstreamPath": "thermaloop/thermal/rc_network.py",
+      "upstreamSHA256": "caf6b3538fc151600e9d8885a5ed14047516a83f36cca1aa91be88bb81e1edae",
+      "reviewedSourceSHA256": "889688eaf5f48437291d16de5a771b52fb466b53e70e4c92048f815bc6da3542"
+    },
+    {
+      "file": "loop_1d.py",
+      "upstreamPath": "thermaloop/thermal/loop_1d.py",
+      "upstreamSHA256": "902220e414a33688b031c517f54a1b5beea837293ff7746ec10499283b4479b5",
+      "reviewedSourceSHA256": "17f665eea37c1862369ac07b37c02bc1dcff95b5195b6c7574ddac727bef6593"
+    },
+    {
+      "file": "convection.py",
+      "upstreamPath": "thermaloop/thermal/convection.py",
+      "upstreamSHA256": "3935945179b41dd4c05beca116e72d0b9c0decae7e74cef0b92d5be8af290a01",
+      "reviewedSourceSHA256": "79a7f74e64958b627d98be44172da923ef1133960d36c3253ef17657a9710e1f"
+    },
+    {
+      "file": "epsilon_ntu.py",
+      "upstreamPath": "thermaloop/cdu/epsilon_ntu.py",
+      "upstreamSHA256": "c03c57fc937c2d154b650527a8a422188b55c90a3f5517844c853a02a96a8da5",
+      "reviewedSourceSHA256": "c03c57fc937c2d154b650527a8a422188b55c90a3f5517844c853a02a96a8da5"
+    }
+  ]
+}
