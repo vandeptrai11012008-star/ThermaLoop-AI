@@ -1,0 +1,36 @@
+{
+  "scope": "Local software verification and retrospective public-workload replay; no deployment or measured savings claim",
+  "baseCommit": "63acf44db1447fbb02b3a3bf66ea3456fb3c6aa9",
+  "inputSHA256": "a939d3df19415f86b71d8acda24cda4cb23c1d849e0769aab648ff48da4027e4",
+  "resultSHA256": "fa3d06dc78e7c6f747d00b5fc81cff7331493a5bb7761f7ca205f8af5f9c5c2b",
+  "python": {
+    "passed": 51,
+    "failed": 0
+  },
+  "node": {
+    "passed": 55,
+    "failed": 0
+  },
+  "browser": {
+    "passedGroups": 30,
+    "uncaughtErrors": 0,
+    "report": "docs/validation-browser.json"
+  },
+  "independentInteractionChecks": {
+    "runs": 2,
+    "totalInteractions": 24,
+    "uncaughtErrors": 0,
+    "maxClickAndResultSeconds": 2.1349766769999405
+  },
+  "freshCacheRetraining": {
+    "maxNumericDifference": 0,
+    "routingDecisionsIdentical": true
+  },
+  "schedulerCases": 24,
+  "routerBudgets": 3,
+  "limitations": [
+    "Two earlier long-session click timeouts; final full suite passed after explicit panel navigation/layout settling; no definitive root cause claimed",
+    "Direct file:// loading blocked in this managed local Chromium; offline fulfillment tested",
+    "Within-benchmark holdout and filtered residence-proxy replay, not independent field validation"
+  ]
+}

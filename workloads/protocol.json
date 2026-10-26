@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "splitSeed": 521143,
+  "trainFraction": 0.6,
+  "calibrationFraction": 0.2,
+  "hashFeatures": 4096,
+  "ridgeAlpha": 10.0,
+  "weakShares": [0.2, 0.4, 0.6],
+  "primaryWeakShare": 0.4,
+  "bootstrapReplicates": 2000,
+  "bootstrapSeed": 821,
+  "randomSeeds": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+  "gpuSlots": [8, 16, 32],
+  "arrivalScales": [1, 0.1],
+  "primaryGpuSlots": 16,
+  "primaryArrivalScale": 1,
+  "schedulerPolicies": ["fifo_first", "fifo_best", "backfill_first", "backfill_best"]
+}

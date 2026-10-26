@@ -1,0 +1,911 @@
+{
+  "schemaVersion": 1,
+  "inputSHA256": "a939d3df19415f86b71d8acda24cda4cb23c1d849e0769aab648ff48da4027e4",
+  "engineSHA256": "0c3d9c5e8d5dbbddea1a1c165586e07c7af24300c500915aefb3e1ccf0b25c9d",
+  "defaultResult": {
+    "schemaVersion": 1,
+    "engineVersion": "1.0.0",
+    "kind": "Public-outcome router holdout and counterfactual GPU reservation replay; not deployment measurements",
+    "parameters": {
+      "weakShare": 0.4,
+      "gpuSlots": 16,
+      "arrivalScale": 1
+    },
+    "routing": {
+      "targetWeakShare": 0.4,
+      "calibrationRealizedShare": 0.40229885057471265,
+      "threshold": 0.2024768668498271,
+      "testCount": 262,
+      "weakCalls": 89,
+      "strongCalls": 173,
+      "realizedWeakShare": 0.33969465648854963,
+      "accuraciesPct": {
+        "strong": 83.96946564885496,
+        "weak": 64.12213740458014,
+        "random": 74.04580152671755,
+        "randomExpected": 77.22743429870059,
+        "learned": 81.67938931297711
+      },
+      "learnedMinusStrong": {
+        "meanPP": -2.2900763358778624,
+        "lowPP": -6.106870229007634,
+        "highPP": 1.5267175572519085,
+        "replicates": 2000,
+        "scope": "95% paired percentile bootstrap over held-out questions, conditional on this fitted router, split and fixed random control; excludes training/seed uncertainty and dataset shift"
+      },
+      "learnedMinusRandom": {
+        "meanPP": 7.633587786259542,
+        "lowPP": 2.6717557251908395,
+        "highPP": 12.595419847328245,
+        "replicates": 2000,
+        "scope": "95% paired percentile bootstrap over held-out questions, conditional on this fitted router, split and fixed random control; excludes training/seed uncertainty and dataset shift"
+      },
+      "learnedMinusExpectedRandom": {
+        "meanPP": 4.451955014276565,
+        "lowPP": 1.0386923838937134,
+        "highPP": 7.764699026863243,
+        "replicates": 2000,
+        "scope": "95% paired percentile bootstrap over questions versus the exact matched-quota random expectation; quota and fitted router held fixed. Does not include fitting, random-allocation or dataset-shift uncertainty."
+      },
+      "randomSeedVariation": {
+        "count": 20,
+        "meanAccuracyPct": 77.15648854961833,
+        "minAccuracyPct": 74.04580152671755,
+        "maxAccuracyPct": 79.38931297709924,
+        "scope": "Descriptive variation over all predeclared matched-budget random seeds; not a confidence interval"
+      },
+      "energyJ": null,
+      "latencyMs": null,
+      "scope": "Retrospective within-GSM8K holdout. Labels are cached model outcomes; no new LLM inference. All test results are now inspectable and must not be reused for further tuning as untouched data.",
+      "checks": {
+        "sameTestQuestions": true,
+        "matchedWeakBudget": true,
+        "labelBlindDecision": true,
+        "noEnergyOrLatencyInvented": true
+      }
+    },
+    "scheduling": [
+      {
+        "policy": "fifo_first",
+        "slots": 16,
+        "arrivalScale": 1,
+        "reservations": 1991,
+        "released": 1991,
+        "pendingAtEnd": 0,
+        "meanWaitSeconds": 0,
+        "p95WaitSeconds": 0,
+        "maxWaitSeconds": 0,
+        "makespanSeconds": 2936328,
+        "requestedGpuSeconds": 3266943.8000000026,
+        "meanReservedCapacityPct": 6.953718641105494,
+        "peakReservedCapacityPct": 38.5625,
+        "peakPendingBeforeDispatch": 2,
+        "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+        "checks": {
+          "allReservationsAccounted": true,
+          "noOversubscription": true,
+          "nonnegativeWait": true
+        }
+      },
+      {
+        "policy": "fifo_best",
+        "slots": 16,
+        "arrivalScale": 1,
+        "reservations": 1991,
+        "released": 1991,
+        "pendingAtEnd": 0,
+        "meanWaitSeconds": 0,
+        "p95WaitSeconds": 0,
+        "maxWaitSeconds": 0,
+        "makespanSeconds": 2936328,
+        "requestedGpuSeconds": 3266943.8000000026,
+        "meanReservedCapacityPct": 6.953718641105494,
+        "peakReservedCapacityPct": 38.5625,
+        "peakPendingBeforeDispatch": 2,
+        "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+        "checks": {
+          "allReservationsAccounted": true,
+          "noOversubscription": true,
+          "nonnegativeWait": true
+        }
+      },
+      {
+        "policy": "backfill_first",
+        "slots": 16,
+        "arrivalScale": 1,
+        "reservations": 1991,
+        "released": 1991,
+        "pendingAtEnd": 0,
+        "meanWaitSeconds": 0,
+        "p95WaitSeconds": 0,
+        "maxWaitSeconds": 0,
+        "makespanSeconds": 2936328,
+        "requestedGpuSeconds": 3266943.8000000026,
+        "meanReservedCapacityPct": 6.953718641105494,
+        "peakReservedCapacityPct": 38.5625,
+        "peakPendingBeforeDispatch": 2,
+        "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+        "checks": {
+          "allReservationsAccounted": true,
+          "noOversubscription": true,
+          "nonnegativeWait": true
+        }
+      },
+      {
+        "policy": "backfill_best",
+        "slots": 16,
+        "arrivalScale": 1,
+        "reservations": 1991,
+        "released": 1991,
+        "pendingAtEnd": 0,
+        "meanWaitSeconds": 0,
+        "p95WaitSeconds": 0,
+        "maxWaitSeconds": 0,
+        "makespanSeconds": 2936328,
+        "requestedGpuSeconds": 3266943.8000000026,
+        "meanReservedCapacityPct": 6.953718641105494,
+        "peakReservedCapacityPct": 38.5625,
+        "peakPendingBeforeDispatch": 2,
+        "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+        "checks": {
+          "allReservationsAccounted": true,
+          "noOversubscription": true,
+          "nonnegativeWait": true
+        }
+      }
+    ],
+    "sources": [
+      {
+        "bytes": 1291062,
+        "commit": "0b64fdafe049e596a3f5657c219329f24af24198",
+        "id": "routing.csv",
+        "kind": "Published model correctness records",
+        "license": "Apache-2.0 (RouteLLM); upstream GSM8K MIT",
+        "limitations": "Cached GPT-4 and Mixtral GSM8K outcomes; not Llama energy data; no router scores are supplied.",
+        "paper": "https://arxiv.org/abs/2406.18665",
+        "path": "routellm/evals/gsm8k/gsm8k_responses.csv",
+        "repository": "lm-sys/RouteLLM",
+        "retrieved": "2026-10-25",
+        "sha256": "1f38ed03db354a020f71e92022383dc3cf37bbf2694dea4daaeea7b6c43fe57b",
+        "url": "https://raw.githubusercontent.com/lm-sys/RouteLLM/0b64fdafe049e596a3f5657c219329f24af24198/routellm/evals/gsm8k/gsm8k_responses.csv"
+      },
+      {
+        "bytes": 6282,
+        "commit": "0b64fdafe049e596a3f5657c219329f24af24198",
+        "id": "routing-contaminated.jsonl",
+        "kind": "Published exclusion list",
+        "license": "Apache-2.0",
+        "limitations": "Exclude contaminated prompts exactly as upstream evaluation does.",
+        "paper": "https://arxiv.org/abs/2406.18665",
+        "path": "routellm/evals/gsm8k/contaminated_prompts.jsonl",
+        "repository": "lm-sys/RouteLLM",
+        "retrieved": "2026-10-25",
+        "sha256": "1f5a7be02148ee0f7f306d233ba76a6573c826cee9499a34f8ef938a1a84c234",
+        "url": "https://raw.githubusercontent.com/lm-sys/RouteLLM/0b64fdafe049e596a3f5657c219329f24af24198/routellm/evals/gsm8k/contaminated_prompts.jsonl"
+      },
+      {
+        "bytes": 575468,
+        "commit": "3858992ca41bf92082e6d6522ddf0bebd14e838b",
+        "id": "scheduling.csv",
+        "kind": "Production resource-request trace",
+        "license": "No explicit data license located; numeric request subset attributed to the public trace",
+        "limitations": "Admission packing replay only; GPU request is not observed GPU utilization or power.",
+        "paper": "https://www.usenix.org/conference/atc23/presentation/weng",
+        "path": "cluster-trace-gpu-v2023/csv/openb_pod_list_default.csv",
+        "repository": "alibaba/clusterdata",
+        "retrieved": "2026-10-25",
+        "sha256": "1ee7ed79c27a3b0861cda8ddba86a004c6aba904caafa329a76ae93ca63834a8",
+        "url": "https://raw.githubusercontent.com/alibaba/clusterdata/3858992ca41bf92082e6d6522ddf0bebd14e838b/cluster-trace-gpu-v2023/csv/openb_pod_list_default.csv"
+      },
+      {
+        "bytes": 5237,
+        "commit": "3858992ca41bf92082e6d6522ddf0bebd14e838b",
+        "id": "alibaba-readme.md",
+        "kind": "Upstream timestamp/unit documentation",
+        "license": "No explicit data license located; attribution is not a license grant",
+        "repository": "alibaba/clusterdata",
+        "sha256": "4445ce29c045d3281f857f25c392b78880658978ea4fc420ec3f5b4bf621bc80",
+        "url": "https://raw.githubusercontent.com/alibaba/clusterdata/3858992ca41bf92082e6d6522ddf0bebd14e838b/cluster-trace-gpu-v2023/README.md"
+      }
+    ],
+    "checks": {
+      "sameTestQuestions": true,
+      "matchedWeakBudget": true,
+      "labelBlindDecision": true,
+      "noEnergyOrLatencyInvented": true,
+      "schedulerAccounting": true,
+      "equalRequestedWork": true
+    }
+  },
+  "routing": [
+    {
+      "targetWeakShare": 0.2,
+      "calibrationRealizedShare": 0.20306513409961685,
+      "threshold": 0.1772974512849959,
+      "testCount": 262,
+      "weakCalls": 38,
+      "strongCalls": 224,
+      "realizedWeakShare": 0.1450381679389313,
+      "accuraciesPct": {
+        "strong": 83.96946564885496,
+        "weak": 64.12213740458014,
+        "random": 79.77099236641222,
+        "randomExpected": 81.09084552182269,
+        "learned": 82.82442748091603
+      },
+      "learnedMinusStrong": {
+        "meanPP": -1.1450381679389312,
+        "lowPP": -3.435114503816794,
+        "highPP": 1.1450381679389312,
+        "replicates": 2000,
+        "scope": "95% paired percentile bootstrap over held-out questions, conditional on this fitted router, split and fixed random control; excludes training/seed uncertainty and dataset shift"
+      },
+      "learnedMinusRandom": {
+        "meanPP": 3.053435114503817,
+        "lowPP": -0.3816793893129771,
+        "highPP": 6.488549618320611,
+        "replicates": 2000,
+        "scope": "95% paired percentile bootstrap over held-out questions, conditional on this fitted router, split and fixed random control; excludes training/seed uncertainty and dataset shift"
+      },
+      "learnedMinusExpectedRandom": {
+        "meanPP": 1.7335819590932924,
+        "lowPP": -0.45757822970689366,
+        "highPP": 3.8760124701357737,
+        "replicates": 2000,
+        "scope": "95% paired percentile bootstrap over questions versus the exact matched-quota random expectation; quota and fitted router held fixed. Does not include fitting, random-allocation or dataset-shift uncertainty."
+      },
+      "randomSeedVariation": {
+        "count": 20,
+        "meanAccuracyPct": 81.29770992366414,
+        "minAccuracyPct": 79.77099236641222,
+        "maxAccuracyPct": 83.20610687022901,
+        "scope": "Descriptive variation over all predeclared matched-budget random seeds; not a confidence interval"
+      },
+      "energyJ": null,
+      "latencyMs": null,
+      "scope": "Retrospective within-GSM8K holdout. Labels are cached model outcomes; no new LLM inference. All test results are now inspectable and must not be reused for further tuning as untouched data.",
+      "checks": {
+        "sameTestQuestions": true,
+        "matchedWeakBudget": true,
+        "labelBlindDecision": true,
+        "noEnergyOrLatencyInvented": true
+      }
+    },
+    {
+      "targetWeakShare": 0.4,
+      "calibrationRealizedShare": 0.40229885057471265,
+      "threshold": 0.2024768668498271,
+      "testCount": 262,
+      "weakCalls": 89,
+      "strongCalls": 173,
+      "realizedWeakShare": 0.33969465648854963,
+      "accuraciesPct": {
+        "strong": 83.96946564885496,
+        "weak": 64.12213740458014,
+        "random": 74.04580152671755,
+        "randomExpected": 77.22743429870059,
+        "learned": 81.67938931297711
+      },
+      "learnedMinusStrong": {
+        "meanPP": -2.2900763358778624,
+        "lowPP": -6.106870229007634,
+        "highPP": 1.5267175572519085,
+        "replicates": 2000,
+        "scope": "95% paired percentile bootstrap over held-out questions, conditional on this fitted router, split and fixed random control; excludes training/seed uncertainty and dataset shift"
+      },
+      "learnedMinusRandom": {
+        "meanPP": 7.633587786259542,
+        "lowPP": 2.6717557251908395,
+        "highPP": 12.595419847328245,
+        "replicates": 2000,
+        "scope": "95% paired percentile bootstrap over held-out questions, conditional on this fitted router, split and fixed random control; excludes training/seed uncertainty and dataset shift"
+      },
+      "learnedMinusExpectedRandom": {
+        "meanPP": 4.451955014276565,
+        "lowPP": 1.0386923838937134,
+        "highPP": 7.764699026863243,
+        "replicates": 2000,
+        "scope": "95% paired percentile bootstrap over questions versus the exact matched-quota random expectation; quota and fitted router held fixed. Does not include fitting, random-allocation or dataset-shift uncertainty."
+      },
+      "randomSeedVariation": {
+        "count": 20,
+        "meanAccuracyPct": 77.15648854961833,
+        "minAccuracyPct": 74.04580152671755,
+        "maxAccuracyPct": 79.38931297709924,
+        "scope": "Descriptive variation over all predeclared matched-budget random seeds; not a confidence interval"
+      },
+      "energyJ": null,
+      "latencyMs": null,
+      "scope": "Retrospective within-GSM8K holdout. Labels are cached model outcomes; no new LLM inference. All test results are now inspectable and must not be reused for further tuning as untouched data.",
+      "checks": {
+        "sameTestQuestions": true,
+        "matchedWeakBudget": true,
+        "labelBlindDecision": true,
+        "noEnergyOrLatencyInvented": true
+      }
+    },
+    {
+      "targetWeakShare": 0.6,
+      "calibrationRealizedShare": 0.6015325670498084,
+      "threshold": 0.22468206101574364,
+      "testCount": 262,
+      "weakCalls": 162,
+      "strongCalls": 100,
+      "realizedWeakShare": 0.6183206106870229,
+      "accuraciesPct": {
+        "strong": 83.96946564885496,
+        "weak": 64.12213740458014,
+        "random": 70.99236641221374,
+        "randomExpected": 71.69745352834919,
+        "learned": 74.80916030534351
+      },
+      "learnedMinusStrong": {
+        "meanPP": -9.16030534351145,
+        "lowPP": -14.885496183206106,
+        "highPP": -3.435114503816794,
+        "replicates": 2000,
+        "scope": "95% paired percentile bootstrap over held-out questions, conditional on this fitted router, split and fixed random control; excludes training/seed uncertainty and dataset shift"
+      },
+      "learnedMinusRandom": {
+        "meanPP": 3.816793893129771,
+        "lowPP": -1.1450381679389312,
+        "highPP": 8.778625954198473,
+        "replicates": 2000,
+        "scope": "95% paired percentile bootstrap over held-out questions, conditional on this fitted router, split and fixed random control; excludes training/seed uncertainty and dataset shift"
+      },
+      "learnedMinusExpectedRandom": {
+        "meanPP": 3.1117067769943465,
+        "lowPP": -0.32340772682244495,
+        "highPP": 6.6229386399394015,
+        "replicates": 2000,
+        "scope": "95% paired percentile bootstrap over questions versus the exact matched-quota random expectation; quota and fitted router held fixed. Does not include fitting, random-allocation or dataset-shift uncertainty."
+      },
+      "randomSeedVariation": {
+        "count": 20,
+        "meanAccuracyPct": 71.94656488549617,
+        "minAccuracyPct": 69.46564885496184,
+        "maxAccuracyPct": 74.04580152671755,
+        "scope": "Descriptive variation over all predeclared matched-budget random seeds; not a confidence interval"
+      },
+      "energyJ": null,
+      "latencyMs": null,
+      "scope": "Retrospective within-GSM8K holdout. Labels are cached model outcomes; no new LLM inference. All test results are now inspectable and must not be reused for further tuning as untouched data.",
+      "checks": {
+        "sameTestQuestions": true,
+        "matchedWeakBudget": true,
+        "labelBlindDecision": true,
+        "noEnergyOrLatencyInvented": true
+      }
+    }
+  ],
+  "scheduling": [
+    {
+      "policy": "fifo_first",
+      "slots": 8,
+      "arrivalScale": 1,
+      "reservations": 1991,
+      "released": 1991,
+      "pendingAtEnd": 0,
+      "meanWaitSeconds": 0,
+      "p95WaitSeconds": 0,
+      "maxWaitSeconds": 0,
+      "makespanSeconds": 2936328,
+      "requestedGpuSeconds": 3266943.8000000026,
+      "meanReservedCapacityPct": 13.907437282210989,
+      "peakReservedCapacityPct": 77.125,
+      "peakPendingBeforeDispatch": 2,
+      "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+      "checks": {
+        "allReservationsAccounted": true,
+        "noOversubscription": true,
+        "nonnegativeWait": true
+      }
+    },
+    {
+      "policy": "fifo_best",
+      "slots": 8,
+      "arrivalScale": 1,
+      "reservations": 1991,
+      "released": 1991,
+      "pendingAtEnd": 0,
+      "meanWaitSeconds": 0,
+      "p95WaitSeconds": 0,
+      "maxWaitSeconds": 0,
+      "makespanSeconds": 2936328,
+      "requestedGpuSeconds": 3266943.8000000026,
+      "meanReservedCapacityPct": 13.907437282210989,
+      "peakReservedCapacityPct": 77.125,
+      "peakPendingBeforeDispatch": 2,
+      "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+      "checks": {
+        "allReservationsAccounted": true,
+        "noOversubscription": true,
+        "nonnegativeWait": true
+      }
+    },
+    {
+      "policy": "backfill_first",
+      "slots": 8,
+      "arrivalScale": 1,
+      "reservations": 1991,
+      "released": 1991,
+      "pendingAtEnd": 0,
+      "meanWaitSeconds": 0,
+      "p95WaitSeconds": 0,
+      "maxWaitSeconds": 0,
+      "makespanSeconds": 2936328,
+      "requestedGpuSeconds": 3266943.8000000026,
+      "meanReservedCapacityPct": 13.907437282210989,
+      "peakReservedCapacityPct": 77.125,
+      "peakPendingBeforeDispatch": 2,
+      "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+      "checks": {
+        "allReservationsAccounted": true,
+        "noOversubscription": true,
+        "nonnegativeWait": true
+      }
+    },
+    {
+      "policy": "backfill_best",
+      "slots": 8,
+      "arrivalScale": 1,
+      "reservations": 1991,
+      "released": 1991,
+      "pendingAtEnd": 0,
+      "meanWaitSeconds": 0,
+      "p95WaitSeconds": 0,
+      "maxWaitSeconds": 0,
+      "makespanSeconds": 2936328,
+      "requestedGpuSeconds": 3266943.8000000026,
+      "meanReservedCapacityPct": 13.907437282210989,
+      "peakReservedCapacityPct": 77.125,
+      "peakPendingBeforeDispatch": 2,
+      "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+      "checks": {
+        "allReservationsAccounted": true,
+        "noOversubscription": true,
+        "nonnegativeWait": true
+      }
+    },
+    {
+      "policy": "fifo_first",
+      "slots": 8,
+      "arrivalScale": 0.1,
+      "reservations": 1991,
+      "released": 1991,
+      "pendingAtEnd": 0,
+      "meanWaitSeconds": 90795.52702159727,
+      "p95WaitSeconds": 162713.94999999998,
+      "maxWaitSeconds": 166675.39999999997,
+      "makespanSeconds": 481300.3,
+      "requestedGpuSeconds": 3266943.8000000026,
+      "meanReservedCapacityPct": 84.84681497185859,
+      "peakReservedCapacityPct": 100,
+      "peakPendingBeforeDispatch": 643,
+      "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+      "checks": {
+        "allReservationsAccounted": true,
+        "noOversubscription": true,
+        "nonnegativeWait": true
+      }
+    },
+    {
+      "policy": "fifo_best",
+      "slots": 8,
+      "arrivalScale": 0.1,
+      "reservations": 1991,
+      "released": 1991,
+      "pendingAtEnd": 0,
+      "meanWaitSeconds": 90633.22440984436,
+      "p95WaitSeconds": 162525,
+      "maxWaitSeconds": 166487.39999999997,
+      "makespanSeconds": 481110.3,
+      "requestedGpuSeconds": 3266943.8000000026,
+      "meanReservedCapacityPct": 84.88032266197591,
+      "peakReservedCapacityPct": 100,
+      "peakPendingBeforeDispatch": 643,
+      "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+      "checks": {
+        "allReservationsAccounted": true,
+        "noOversubscription": true,
+        "nonnegativeWait": true
+      }
+    },
+    {
+      "policy": "backfill_first",
+      "slots": 8,
+      "arrivalScale": 0.1,
+      "reservations": 1991,
+      "released": 1991,
+      "pendingAtEnd": 0,
+      "meanWaitSeconds": 85370.22913108973,
+      "p95WaitSeconds": 156972.69999999998,
+      "maxWaitSeconds": 160934.5,
+      "makespanSeconds": 475538.6,
+      "requestedGpuSeconds": 3266943.800000004,
+      "meanReservedCapacityPct": 85.87483224285064,
+      "peakReservedCapacityPct": 100,
+      "peakPendingBeforeDispatch": 623,
+      "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+      "checks": {
+        "allReservationsAccounted": true,
+        "noOversubscription": true,
+        "nonnegativeWait": true
+      }
+    },
+    {
+      "policy": "backfill_best",
+      "slots": 8,
+      "arrivalScale": 0.1,
+      "reservations": 1991,
+      "released": 1991,
+      "pendingAtEnd": 0,
+      "meanWaitSeconds": 85370.22913108973,
+      "p95WaitSeconds": 156972.69999999998,
+      "maxWaitSeconds": 160934.5,
+      "makespanSeconds": 475538.6,
+      "requestedGpuSeconds": 3266943.800000004,
+      "meanReservedCapacityPct": 85.87483224285064,
+      "peakReservedCapacityPct": 100,
+      "peakPendingBeforeDispatch": 623,
+      "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+      "checks": {
+        "allReservationsAccounted": true,
+        "noOversubscription": true,
+        "nonnegativeWait": true
+      }
+    },
+    {
+      "policy": "fifo_first",
+      "slots": 16,
+      "arrivalScale": 1,
+      "reservations": 1991,
+      "released": 1991,
+      "pendingAtEnd": 0,
+      "meanWaitSeconds": 0,
+      "p95WaitSeconds": 0,
+      "maxWaitSeconds": 0,
+      "makespanSeconds": 2936328,
+      "requestedGpuSeconds": 3266943.8000000026,
+      "meanReservedCapacityPct": 6.953718641105494,
+      "peakReservedCapacityPct": 38.5625,
+      "peakPendingBeforeDispatch": 2,
+      "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+      "checks": {
+        "allReservationsAccounted": true,
+        "noOversubscription": true,
+        "nonnegativeWait": true
+      }
+    },
+    {
+      "policy": "fifo_best",
+      "slots": 16,
+      "arrivalScale": 1,
+      "reservations": 1991,
+      "released": 1991,
+      "pendingAtEnd": 0,
+      "meanWaitSeconds": 0,
+      "p95WaitSeconds": 0,
+      "maxWaitSeconds": 0,
+      "makespanSeconds": 2936328,
+      "requestedGpuSeconds": 3266943.8000000026,
+      "meanReservedCapacityPct": 6.953718641105494,
+      "peakReservedCapacityPct": 38.5625,
+      "peakPendingBeforeDispatch": 2,
+      "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+      "checks": {
+        "allReservationsAccounted": true,
+        "noOversubscription": true,
+        "nonnegativeWait": true
+      }
+    },
+    {
+      "policy": "backfill_first",
+      "slots": 16,
+      "arrivalScale": 1,
+      "reservations": 1991,
+      "released": 1991,
+      "pendingAtEnd": 0,
+      "meanWaitSeconds": 0,
+      "p95WaitSeconds": 0,
+      "maxWaitSeconds": 0,
+      "makespanSeconds": 2936328,
+      "requestedGpuSeconds": 3266943.8000000026,
+      "meanReservedCapacityPct": 6.953718641105494,
+      "peakReservedCapacityPct": 38.5625,
+      "peakPendingBeforeDispatch": 2,
+      "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+      "checks": {
+        "allReservationsAccounted": true,
+        "noOversubscription": true,
+        "nonnegativeWait": true
+      }
+    },
+    {
+      "policy": "backfill_best",
+      "slots": 16,
+      "arrivalScale": 1,
+      "reservations": 1991,
+      "released": 1991,
+      "pendingAtEnd": 0,
+      "meanWaitSeconds": 0,
+      "p95WaitSeconds": 0,
+      "maxWaitSeconds": 0,
+      "makespanSeconds": 2936328,
+      "requestedGpuSeconds": 3266943.8000000026,
+      "meanReservedCapacityPct": 6.953718641105494,
+      "peakReservedCapacityPct": 38.5625,
+      "peakPendingBeforeDispatch": 2,
+      "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+      "checks": {
+        "allReservationsAccounted": true,
+        "noOversubscription": true,
+        "nonnegativeWait": true
+      }
+    },
+    {
+      "policy": "fifo_first",
+      "slots": 16,
+      "arrivalScale": 0.1,
+      "reservations": 1991,
+      "released": 1991,
+      "pendingAtEnd": 0,
+      "meanWaitSeconds": 941.9070818684086,
+      "p95WaitSeconds": 3871.75,
+      "maxWaitSeconds": 4452,
+      "makespanSeconds": 319619.5,
+      "requestedGpuSeconds": 3266943.8000000026,
+      "meanReservedCapacityPct": 63.883457517454396,
+      "peakReservedCapacityPct": 95.25,
+      "peakPendingBeforeDispatch": 73,
+      "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+      "checks": {
+        "allReservationsAccounted": true,
+        "noOversubscription": true,
+        "nonnegativeWait": true
+      }
+    },
+    {
+      "policy": "fifo_best",
+      "slots": 16,
+      "arrivalScale": 0.1,
+      "reservations": 1991,
+      "released": 1991,
+      "pendingAtEnd": 0,
+      "meanWaitSeconds": 941.5045705675548,
+      "p95WaitSeconds": 3871.75,
+      "maxWaitSeconds": 4452,
+      "makespanSeconds": 319619.5,
+      "requestedGpuSeconds": 3266943.8000000026,
+      "meanReservedCapacityPct": 63.883457517454396,
+      "peakReservedCapacityPct": 95.25,
+      "peakPendingBeforeDispatch": 73,
+      "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+      "checks": {
+        "allReservationsAccounted": true,
+        "noOversubscription": true,
+        "nonnegativeWait": true
+      }
+    },
+    {
+      "policy": "backfill_first",
+      "slots": 16,
+      "arrivalScale": 0.1,
+      "reservations": 1991,
+      "released": 1991,
+      "pendingAtEnd": 0,
+      "meanWaitSeconds": 867.3152687091929,
+      "p95WaitSeconds": 3845.7000000000226,
+      "maxWaitSeconds": 4693.5999999999985,
+      "makespanSeconds": 319619.5,
+      "requestedGpuSeconds": 3266943.8000000026,
+      "meanReservedCapacityPct": 63.883457517454396,
+      "peakReservedCapacityPct": 95.25,
+      "peakPendingBeforeDispatch": 73,
+      "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+      "checks": {
+        "allReservationsAccounted": true,
+        "noOversubscription": true,
+        "nonnegativeWait": true
+      }
+    },
+    {
+      "policy": "backfill_best",
+      "slots": 16,
+      "arrivalScale": 0.1,
+      "reservations": 1991,
+      "released": 1991,
+      "pendingAtEnd": 0,
+      "meanWaitSeconds": 874.3727272727288,
+      "p95WaitSeconds": 3861.100000000006,
+      "maxWaitSeconds": 4855.199999999997,
+      "makespanSeconds": 319619.5,
+      "requestedGpuSeconds": 3266943.8000000026,
+      "meanReservedCapacityPct": 63.883457517454396,
+      "peakReservedCapacityPct": 95.25,
+      "peakPendingBeforeDispatch": 73,
+      "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+      "checks": {
+        "allReservationsAccounted": true,
+        "noOversubscription": true,
+        "nonnegativeWait": true
+      }
+    },
+    {
+      "policy": "fifo_first",
+      "slots": 32,
+      "arrivalScale": 1,
+      "reservations": 1991,
+      "released": 1991,
+      "pendingAtEnd": 0,
+      "meanWaitSeconds": 0,
+      "p95WaitSeconds": 0,
+      "maxWaitSeconds": 0,
+      "makespanSeconds": 2936328,
+      "requestedGpuSeconds": 3266943.8000000026,
+      "meanReservedCapacityPct": 3.476859320552747,
+      "peakReservedCapacityPct": 19.28125,
+      "peakPendingBeforeDispatch": 2,
+      "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+      "checks": {
+        "allReservationsAccounted": true,
+        "noOversubscription": true,
+        "nonnegativeWait": true
+      }
+    },
+    {
+      "policy": "fifo_best",
+      "slots": 32,
+      "arrivalScale": 1,
+      "reservations": 1991,
+      "released": 1991,
+      "pendingAtEnd": 0,
+      "meanWaitSeconds": 0,
+      "p95WaitSeconds": 0,
+      "maxWaitSeconds": 0,
+      "makespanSeconds": 2936328,
+      "requestedGpuSeconds": 3266943.8000000026,
+      "meanReservedCapacityPct": 3.476859320552747,
+      "peakReservedCapacityPct": 19.28125,
+      "peakPendingBeforeDispatch": 2,
+      "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+      "checks": {
+        "allReservationsAccounted": true,
+        "noOversubscription": true,
+        "nonnegativeWait": true
+      }
+    },
+    {
+      "policy": "backfill_first",
+      "slots": 32,
+      "arrivalScale": 1,
+      "reservations": 1991,
+      "released": 1991,
+      "pendingAtEnd": 0,
+      "meanWaitSeconds": 0,
+      "p95WaitSeconds": 0,
+      "maxWaitSeconds": 0,
+      "makespanSeconds": 2936328,
+      "requestedGpuSeconds": 3266943.8000000026,
+      "meanReservedCapacityPct": 3.476859320552747,
+      "peakReservedCapacityPct": 19.28125,
+      "peakPendingBeforeDispatch": 2,
+      "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+      "checks": {
+        "allReservationsAccounted": true,
+        "noOversubscription": true,
+        "nonnegativeWait": true
+      }
+    },
+    {
+      "policy": "backfill_best",
+      "slots": 32,
+      "arrivalScale": 1,
+      "reservations": 1991,
+      "released": 1991,
+      "pendingAtEnd": 0,
+      "meanWaitSeconds": 0,
+      "p95WaitSeconds": 0,
+      "maxWaitSeconds": 0,
+      "makespanSeconds": 2936328,
+      "requestedGpuSeconds": 3266943.8000000026,
+      "meanReservedCapacityPct": 3.476859320552747,
+      "peakReservedCapacityPct": 19.28125,
+      "peakPendingBeforeDispatch": 2,
+      "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+      "checks": {
+        "allReservationsAccounted": true,
+        "noOversubscription": true,
+        "nonnegativeWait": true
+      }
+    },
+    {
+      "policy": "fifo_first",
+      "slots": 32,
+      "arrivalScale": 0.1,
+      "reservations": 1991,
+      "released": 1991,
+      "pendingAtEnd": 0,
+      "meanWaitSeconds": 0,
+      "p95WaitSeconds": 0,
+      "maxWaitSeconds": 0,
+      "makespanSeconds": 316051.4,
+      "requestedGpuSeconds": 3266943.8000000026,
+      "meanReservedCapacityPct": 32.302338717689615,
+      "peakReservedCapacityPct": 81.28125,
+      "peakPendingBeforeDispatch": 2,
+      "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+      "checks": {
+        "allReservationsAccounted": true,
+        "noOversubscription": true,
+        "nonnegativeWait": true
+      }
+    },
+    {
+      "policy": "fifo_best",
+      "slots": 32,
+      "arrivalScale": 0.1,
+      "reservations": 1991,
+      "released": 1991,
+      "pendingAtEnd": 0,
+      "meanWaitSeconds": 0,
+      "p95WaitSeconds": 0,
+      "maxWaitSeconds": 0,
+      "makespanSeconds": 316051.4,
+      "requestedGpuSeconds": 3266943.8000000026,
+      "meanReservedCapacityPct": 32.302338717689615,
+      "peakReservedCapacityPct": 81.28125,
+      "peakPendingBeforeDispatch": 2,
+      "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+      "checks": {
+        "allReservationsAccounted": true,
+        "noOversubscription": true,
+        "nonnegativeWait": true
+      }
+    },
+    {
+      "policy": "backfill_first",
+      "slots": 32,
+      "arrivalScale": 0.1,
+      "reservations": 1991,
+      "released": 1991,
+      "pendingAtEnd": 0,
+      "meanWaitSeconds": 0,
+      "p95WaitSeconds": 0,
+      "maxWaitSeconds": 0,
+      "makespanSeconds": 316051.4,
+      "requestedGpuSeconds": 3266943.8000000026,
+      "meanReservedCapacityPct": 32.302338717689615,
+      "peakReservedCapacityPct": 81.28125,
+      "peakPendingBeforeDispatch": 2,
+      "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+      "checks": {
+        "allReservationsAccounted": true,
+        "noOversubscription": true,
+        "nonnegativeWait": true
+      }
+    },
+    {
+      "policy": "backfill_best",
+      "slots": 32,
+      "arrivalScale": 0.1,
+      "reservations": 1991,
+      "released": 1991,
+      "pendingAtEnd": 0,
+      "meanWaitSeconds": 0,
+      "p95WaitSeconds": 0,
+      "maxWaitSeconds": 0,
+      "makespanSeconds": 316051.4,
+      "requestedGpuSeconds": 3266943.8000000026,
+      "meanReservedCapacityPct": 32.302338717689615,
+      "peakReservedCapacityPct": 81.28125,
+      "peakPendingBeforeDispatch": 2,
+      "scope": "GPU-only counterfactual reservation replay; recorded residence is a duration proxy, not service time. Released reservations are not successful completed jobs. Requested capacity is not measured utilization. Greedy backfill has no head-of-line start-time guarantee.",
+      "checks": {
+        "allReservationsAccounted": true,
+        "noOversubscription": true,
+        "nonnegativeWait": true
+      }
+    }
+  ]
+}

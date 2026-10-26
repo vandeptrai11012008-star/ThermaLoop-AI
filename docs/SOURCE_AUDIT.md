@@ -14,6 +14,16 @@ Scientific assumptions include invented GPU idle/dynamic power and per-request G
 
 The extension adds `science/model.js`, `science/dashboard.js`, its scoped stylesheet and a locally bundled dataset. The original inline programs are byte-for-byte preserved. Source-specific measured power/throughput and published correctness outcomes replace invented proxies in the **new evidence experiments**; the earlier labs remain clearly labeled as synthetic. Existing camera models, GPU mesh/pipe code, external destinations and earlier exports remain active.
 
+## Additional workload evaluation
+
+The separate `workloads/` preparer uses the pinned raw routing/trace sources,
+with a committed Alibaba timestamp-documentation snapshot. Its source hashes,
+fitted router, split manifest and numerical reservation subset are published
+under `science/workloads/`. `science/workload-model.js` is shared by Node and
+the new browser lab. Previously archived modules and the original four
+scientific experiments are not replaced; see `PUBLIC_WORKLOADS.md` for the
+new holdout and residence-proxy limits.
+
 ## Archive modules
 
 | Archive | Modules and purpose | Scientific findings / integration decision |
