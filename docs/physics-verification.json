@@ -1,0 +1,32 @@
+{
+  "scope": "Local physical-law/numerical verification; full website release gate is independent pinned-browser CI",
+  "baseCommit": "8a0a4de1989b8a7b4c66b37d356f692a64ae5cd1",
+  "resultSHA256": "1b7fb9993fb6cb6b98c6225e1bf69df61676443d2923740e9f6099a3bccb2d9d",
+  "python": {
+    "passed": 88,
+    "failed": 0
+  },
+  "node": {
+    "passed": 63,
+    "failed": 0
+  },
+  "physicalGatesPassed": 8,
+  "freshProtocolRerun": {
+    "temperatureDifference_C": 0,
+    "integratedHeatDifference_J": 0,
+    "otherNumericDifference": 0
+  },
+  "localDefaultMotion": {
+    "invalidResetCycles": 4,
+    "flowSelections": 12,
+    "exports": 3,
+    "uncaughtErrors": 0,
+    "status": "passed targeted checks"
+  },
+  "localFullBrowser": {
+    "status": "not verified",
+    "reason": "Legacy click/scroll timeouts using Playwright 1.56 with system Chromium 154; supported Chromium 141 download blocked by proxy",
+    "releaseGate": "Full default-motion GitHub CI with installed Playwright browser"
+  },
+  "measuredPredictionMAE_C": null
+}

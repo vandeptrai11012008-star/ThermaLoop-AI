@@ -35,7 +35,8 @@ async def run(base, artifacts):
     checks, errors, limitations = CheckLog(), [], []
     navigations, request_failures, console_errors = [], [], []
     async with async_playwright() as p:
-        executable = shutil.which("chromium") or shutil.which("chromium-browser")
+        pinned_browser=Path(p.chromium.executable_path).is_file()
+        executable = None if pinned_browser else (shutil.which("chromium") or shutil.which("chromium-browser"))
         browser = await p.chromium.launch(executable_path=executable, headless=True, args=[
             "--use-gl=angle", "--use-angle=swiftshader", "--enable-webgl", "--enable-unsafe-swiftshader"])
         page = await browser.new_page(viewport={"width": 1440, "height": 1000}, accept_downloads=True)
@@ -63,10 +64,19 @@ async def run(base, artifacts):
             assert not dataset_requests, "Dataset verification should run only on user request"
             assert await page.locator("#sciSyncStatus").get_attribute("data-state") == "unchecked"
             assert "NOT CONNECTED" in await page.locator(".science-data-status").inner_text()
+            async def click_dataset_check():
+                # A real user enters/focuses the panel before pressing its button.
+                # Explicit instant navigation avoids Chromium auto-scroll stalls
+                # after downloads/status-height changes; actionability is retained.
+                await page.bring_to_front()
+                button=page.locator("#sciCheckSync")
+                await button.evaluate("e=>e.scrollIntoView({block:'center',behavior:'instant'})")
+                await page.evaluate("() => new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))")
+                await button.click()
             baseline = await page.evaluate("window.ThermaScientificDashboard.getResult()")
             dataset_bytes = (ROOT / "science/data/evidence.json").read_bytes()
             expected_hash = hashlib.sha256(dataset_bytes).hexdigest()
-            await page.locator("#sciCheckSync").click()
+            await click_dataset_check()
             await page.wait_for_function("window.ThermaDataStatus.getReport().verification.state === 'matched'")
             report = await page.evaluate("window.ThermaDataStatus.getReport()")
             assert report["verification"]["observedSHA256"] == expected_hash
@@ -87,7 +97,7 @@ async def run(base, artifacts):
 
             dataset_url = "**/science/data/evidence.json"
             await page.route(dataset_url, changed_dataset)
-            await page.locator("#sciCheckSync").click()
+            await click_dataset_check()
             await page.wait_for_function("window.ThermaDataStatus.getReport().verification.state === 'mismatch'")
             await page.unroute(dataset_url, changed_dataset)
 
@@ -95,7 +105,7 @@ async def run(base, artifacts):
                 await route.fulfill(status=503, body="Unavailable")
 
             await page.route(dataset_url, failed_dataset)
-            await page.locator("#sciCheckSync").click()
+            await click_dataset_check()
             await page.wait_for_function("window.ThermaDataStatus.getReport().verification.state === 'unavailable'")
             report = await page.evaluate("window.ThermaDataStatus.getReport()")
             assert report["verification"]["observedSHA256"] is None
@@ -106,20 +116,20 @@ async def run(base, artifacts):
                 await route.abort("internetdisconnected")
 
             await page.route(dataset_url, disconnected_dataset)
-            await page.locator("#sciCheckSync").click()
+            await click_dataset_check()
             await page.wait_for_function("window.ThermaDataStatus.getReport().verification.state === 'unavailable'")
             assert await page.locator("#sciCheckSync").is_enabled()
             assert await page.locator("#sciExportJSON").is_enabled()
             await page.unroute(dataset_url, disconnected_dataset)
-            await page.locator("#sciCheckSync").click()
+            await click_dataset_check()
             await page.wait_for_function("window.ThermaDataStatus.getReport().verification.state === 'matched'")
             assert baseline == await page.evaluate("window.ThermaScientificDashboard.getResult()")
             for _ in range(3):
                 await page.route(dataset_url, disconnected_dataset)
-                await page.locator("#sciCheckSync").click()
+                await click_dataset_check()
                 await page.wait_for_function("window.ThermaDataStatus.getReport().verification.state === 'unavailable'")
                 await page.unroute(dataset_url, disconnected_dataset)
-                await page.locator("#sciCheckSync").click()
+                await click_dataset_check()
                 await page.wait_for_function("window.ThermaDataStatus.getReport().verification.state === 'matched'")
                 assert await page.locator("#sciCheckSync").is_enabled()
             checks.append("Dataset status/export, SHA-256 match, altered bytes, HTTP failure, disconnection and recovery; experiment inputs stay unchanged")
@@ -422,6 +432,77 @@ async def run(base, artifacts):
             await page.set_viewport_size({"width":1440,"height":1000})
             checks.append("Public-workload workspace desktop/tablet/mobile controls and charts without page overflow")
 
+            # Enter each added lab explicitly after responsive checks.
+            await page.locator("#physical-model").evaluate("e=>e.scrollIntoView({block:'start',behavior:'instant'})")
+            await page.evaluate("() => new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))")
+            await page.wait_for_function("window.ThermaPhysicsDashboard?.getReport()")
+            stable_workload=await page.evaluate("window.ThermaWorkloadDashboard.getReport()")
+            stable_science=await page.evaluate("window.ThermaScientificDashboard.getResult()")
+            physical=await page.evaluate("window.ThermaPhysicsDashboard.getReport()")
+            assert physical["selectedPrimaryFlow_kg_s"]==.48
+            assert physical["evidence"]["measured_prediction_MAE_C"] is None
+            assert all(physical["evidence"]["gates"].values())
+            assert "1 L" in await page.locator("#physAssumptions").inner_text()
+            assert "not measured" in await page.locator("#physAssumptions").inner_text()
+            for flow in ["0.06","0.12","0.24","0.96"]:
+                await page.locator("#physFlow").select_option(flow)
+                assert await page.evaluate("window.ThermaPhysicsDashboard.getReport().selectedPrimaryFlow_kg_s")==float(flow)
+            await page.locator("#physFlow").select_option("0.06")
+            assert "87.53" in await page.locator("#physSteadyMetrics").inner_text()
+            assert "71.39" in await page.locator("#physSteadyMetrics").inner_text()
+            await page.locator("#physRefinementDetails > summary").click()
+            assert await page.locator("#physMeshRows tr").count()==8
+            assert await page.locator("#physVolumeRows tr").count()==3
+            assert "640" in await page.locator("#physMeshNote").inner_text()
+            assert "Above" in await page.locator("#physMeshRows tr").first.inner_text()
+            assert stable_workload==await page.evaluate("window.ThermaWorkloadDashboard.getReport()")
+            assert stable_science==await page.evaluate("window.ThermaScientificDashboard.getResult()")
+            checks.append("Finite-capacity physical model flow cases, explicit hold-up, retained grid error, refinement and independent existing engines")
+            for export_id in ["physExportJSON","physExportCSV","physExportSVG"]:
+                async with page.expect_download() as event:
+                    await page.locator("#"+export_id).click()
+                download=await event.value;destination=artifacts/download.suggested_filename
+                await download.save_as(destination);text=destination.read_text()
+                if export_id=="physExportJSON":
+                    exported=json.loads(text)
+                    assert exported["selectedPrimaryFlow_kg_s"]==.06
+                    assert len(exported["evidence"]["cases"])==5
+                    assert exported["evidence"]["measured_prediction_MAE_C"] is None
+                    assert exported["build"]["sha256"]==hashlib.sha256((ROOT/"science/physics/results.json").read_bytes()).hexdigest()
+                elif export_id=="physExportCSV":
+                    assert "not measurements" in text and "Pump work" in text and "SHA-256" in text
+                    assert len(list(csv.reader(io.StringIO(text))))>2400
+                else:
+                    import xml.etree.ElementTree as ET
+                    ET.fromstring(text)
+                    assert "not experimental validation" in text and "No new measurements" in text
+            checks.append("Physical-model JSON/CSV/SVG exports preserve inputs, source identity, assumptions and non-experimental scope")
+            await page.locator("#physReset").click()
+            assert await page.evaluate("window.ThermaPhysicsDashboard.getReport().selectedPrimaryFlow_kg_s")==.48
+            await page.locator("#physRefinementDetails > summary").click()
+            await page.locator("#physical-model").evaluate("e=>e.scrollIntoView({block:'start',behavior:'instant'})")
+            await page.screenshot(path=str(artifacts/"physics-desktop.png"))
+            for width in [768,390]:
+                await page.set_viewport_size({"width":width,"height":844})
+                await page.locator("#physical-model").evaluate("e=>e.scrollIntoView({block:'start',behavior:'instant'})")
+                assert await page.evaluate("document.documentElement.scrollWidth<=innerWidth+1")
+                await page.screenshot(path=str(artifacts/f"physics-{width}.png"))
+            await page.set_viewport_size({"width":1440,"height":1000})
+            checks.append("Finite-capacity physical model desktop/tablet/mobile controls and charts without overflow")
+
+            bad_physics=await browser.new_context()
+            bad_page=await bad_physics.new_page();bad_errors=[]
+            bad_page.on("pageerror",lambda error:bad_errors.append(str(error)))
+            await bad_page.route("**/science/physics-data.js",lambda route:route.fulfill(status=200,content_type="application/javascript",body="globalThis.ThermaPhysicsData={schemaVersion:999};"))
+            await bad_page.goto(base)
+            await bad_page.wait_for_function("window.ThermaPhysicsDashboard?.status==='unavailable' && window.ThermaScientificDashboard?.getResult() && window.ThermaWorkloadDashboard?.getReport() && window.ThermaCompare?.getExperiment()")
+            for export_id in ["physExportJSON","physExportCSV","physExportSVG"]:
+                assert await bad_page.locator("#"+export_id).is_disabled()
+            assert await bad_page.evaluate("window.ThermaPhysicsDashboard.getReport()") is None
+            assert not bad_errors,bad_errors
+            await bad_physics.close()
+            checks.append("Incompatible physical-model artifacts disable exports without uncaught errors or breaking existing engines")
+
             mixed_context = await browser.new_context(viewport={"width":1440,"height":1000})
             mixed_page = await mixed_context.new_page()
             mixed_errors=[]
@@ -504,11 +585,12 @@ async def run(base, artifacts):
             filepage = await offline.new_page()
             filepage.on("pageerror", lambda error: errors.append(str(error)))
             await filepage.goto(base)
-            await filepage.wait_for_function("window.ThermaScientificDashboard?.getResult() && window.ThermaCompare?.getExperiment() && window.ThermaValidationDashboard?.getReport() && window.ThermaNumericalDashboard?.getReport() && window.ThermaWorkloadDashboard?.getReport()")
+            await filepage.wait_for_function("window.ThermaScientificDashboard?.getResult() && window.ThermaCompare?.getExperiment() && window.ThermaValidationDashboard?.getReport() && window.ThermaNumericalDashboard?.getReport() && window.ThermaWorkloadDashboard?.getReport() && window.ThermaPhysicsDashboard?.getReport()")
             assert await filepage.evaluate("Object.values(window.ThermaScientificDashboard.getResult().checks).every(Boolean)")
             assert await filepage.evaluate("window.ThermaValidationDashboard.getReport().comparison.rows.length") == 4
             assert await filepage.evaluate("Object.values(window.ThermaNumericalDashboard.getReport().gates).every(Boolean)")
             assert await filepage.evaluate("Object.values(window.ThermaWorkloadDashboard.getReport().checks).every(Boolean)")
+            assert await filepage.evaluate("Object.values(window.ThermaPhysicsDashboard.getReport().evidence.gates).every(Boolean)")
             await offline.close()
             checks.append("Offline browser context with local static resource fulfillment; both experiment engines work")
             assert not errors, errors
@@ -527,6 +609,7 @@ async def run(base, artifacts):
         finally:
             await browser.close()
     return {"status": "passed", "checks": checks, "checkCount": len(checks), "pageErrors": errors,
+            "browserVersion":browser.version,"browserSource":"playwright-pinned" if pinned_browser else "system-fallback",
             "limitations": limitations}
 
 

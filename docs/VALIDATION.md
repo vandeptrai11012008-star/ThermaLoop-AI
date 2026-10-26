@@ -1,10 +1,48 @@
 # Validation evidence
 
-Current website verification includes the public-workload extension built on
-main commit `63acf44db1447fbb02b3a3bf66ea3456fb3c6aa9`. Earlier sections retain
-their original scope. These are software, numerical and retrospective replay
-checks, not validation of real-world energy savings. Release/CI outcomes are
-verified separately from local tests.
+Current work includes the finite-capacity physical-model extension based on
+main `8a0a4de1989b8a7b4c66b37d356f692a64ae5cd1`. Earlier sections retain their
+historical scope. Numerical consistency and public-record replay are not
+validation of real-world energy savings or measured predictive accuracy.
+
+## Finite-capacity physical model
+
+Local verification passed **88 Python tests** and **63 Node tests**, all five
+source/bundle checks, and a full fresh physical-protocol rerun. Compared
+temperature, integrated-heat and other numeric values reproduced with zero
+differences in this environment; all eight declared checks passed. Adversarial
+tests found and corrected four failures involving output-window initialization,
+callable heat input and an uncertifiable matrix-reference forcing assumption.
+
+Independent checks cover counterflow enthalpy balance/bounds, exact discrete
+and continuum equal-capacity limits, infinite-primary recovery of the legacy
+bath, reduced-UA response, first-law closure for non-equilibrium states,
+primary storage, reverse heat exchange, zero heat with facility-supplied
+energy, explicit missing/invalid input rejection, convection applicability,
+all-state time integration and rejection of corrupted saved heat/entropy/
+temperature values. No new measurements or independent experimental calibration
+are claimed. See [FINITE_CAPACITY_PHYSICS.md](FINITE_CAPACITY_PHYSICS.md).
+
+A separate default-motion local browser run passed four invalid-input/reset
+cycles, twelve recorded-flow selections, desktop/tablet/mobile layouts and
+three exports without uncaught JavaScript errors. Full local long-session
+runs encountered click/scroll timeouts in unchanged legacy controls (including
+one reduced-motion attempt); these are **not counted as passes**. One interim
+run was deliberately stopped before regenerating changed-source evidence.
+Local Playwright 1.56 was using system Chromium 154 rather than supported
+bundled Chromium 141; downloading the pinned browser was blocked by the
+network proxy (HTTP 403, domain forbidden). This establishes an unsupported
+local test configuration, not a definitive cause for every timeout.
+
+The runners now prefer Playwright's pinned browser when installed and record
+browser version/source. CI installs that browser and runs the **complete
+website suite at default motion**, plus `tests/browser_physics.py`. No legacy
+assertion was removed, forced clicks substituted, timeout increased or
+motion preference relaxed for the release gate. A full CI pass is required
+before main deployment; consult GitHub Actions / the release PR for that
+independent result. `validation-browser.json` remains the last successful
+local full-suite report from the preceding release, not evidence that these
+new physical-model checks passed locally as a full suite.
 
 ## Public-workload extension
 

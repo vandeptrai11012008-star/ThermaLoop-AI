@@ -41,6 +41,15 @@ separate from the original four experiments below: their data, defaults and
 results remain unchanged. It is not a trained RouteLLM reproduction, measured
 GPU execution or end-to-end deployment validation.
 
+## Finite-capacity physical extension
+
+[The two-stream CDU model](FINITE_CAPACITY_PHYSICS.md) replaces the ideal
+primary bath in a separate explicit 1D reference option. It includes finite
+primary enthalpy flow/storage, counterflow transport and a declared return
+buffer; paired model cases, analytical limits, energy accounting and grid
+error are inspectable on the website. The earlier engines/results below
+remain unchanged. This supplies no new field observations or 3D validation.
+
 ## Four independent experiments
 
 ### 1. Routing: published outcome replay

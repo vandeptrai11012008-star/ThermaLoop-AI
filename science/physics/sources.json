@@ -1,0 +1,14 @@
+[
+  {
+    "id": "epsilon_ntuZ-upstream.mo",
+    "url": "https://raw.githubusercontent.com/lbl-srg/modelica-buildings/7c8f588f462d0080945fc9dffdf7988551853fb7/Buildings/Fluid/HeatExchangers/BaseClasses/epsilon_ntuZ.mo",
+    "repository": "lbl-srg/modelica-buildings",
+    "commit": "7c8f588f462d0080945fc9dffdf7988551853fb7",
+    "sha256": "e41802e0a5c7eeda775738921d1a5ca812a5a9676d2756708738f3ca9a7fb8be",
+    "bytes": 4092,
+    "kind": "Published counterflow epsilon-NTU equation implementation; theoretical reference, not experimental data",
+    "license": "Modelica Buildings BSD-3-Clause; existing science/data/BUILDINGS-LICENSE.html",
+    "verification": "Retrieved over TLS and pinned byte-for-byte. Modelica library is not executed by this workflow.",
+    "limitation": "The upstream function regularizes capacity ratio above 0.97. This project uses the exact Cr=1 analytical limit and does not claim bitwise agreement with that regularization."
+  }
+]
