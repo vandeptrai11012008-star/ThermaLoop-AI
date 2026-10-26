@@ -237,6 +237,67 @@ async def run(base, artifacts):
             await page.locator("#sciReset").click()
             checks.append("Scientific parameters, 70B hardware scope, summer data, infeasibility, invalid-input rejection and reset")
 
+            await page.wait_for_function("window.ThermaValidationDashboard?.getReport().comparison")
+            workspace = await page.evaluate("window.ThermaValidationDashboard.getReport()")
+            assert workspace["comparison"]["calibrationCount"] == 1
+            assert workspace["comparison"]["evaluationCount"] == 3
+            assert workspace["comparison"]["independentValidationCount"] == 0
+            assert workspace["registry"]["anchor"]["primarySourceVerified"] is False
+            assert await page.locator("#valCoverage tr").count() == 9
+            await page.select_option("#valExponent", "0.8")
+            assert "Incompatible" in await page.locator("#valApplicability").inner_text()
+            await page.select_option("#valExponent", "0.3333333333333333")
+            assert "unknown without conductivity" in await page.locator("#valApplicability").inner_text()
+            await page.select_option("#valExponent", "0")
+            await page.locator("#valReportExample").click()
+            calc = await page.evaluate("window.ThermaValidationDashboard.getReport().illustrativeMeasurement")
+            assert abs(calc["R_Tin_electrical_K_W"] - 53/750) < 1e-12
+            assert calc["Q_fluid_W"] is None
+            assert calc["reportedResistanceArithmeticConsistent"] is False
+            assert "inconsistent" in await page.locator("#valMeasurementStatus").inner_text()
+            await page.locator("#valPower").fill("0")
+            assert await page.evaluate("window.ThermaValidationDashboard.getReport().illustrativeMeasurement") is None
+            assert "No current calculation" in await page.locator("#valMeasurementMetrics").inner_text()
+            await page.locator("#valResetExample").click()
+            await page.locator("#valTout").fill("45")
+            assert await page.evaluate("window.ThermaValidationDashboard.getReport().illustrativeMeasurement") is None
+            await page.locator("#valResetExample").click()
+            await page.locator("#valMassFlow").fill("0.1")
+            assert await page.evaluate("window.ThermaValidationDashboard.getReport().illustrativeMeasurement.captureFraction") == 2
+            assert "heat differ" in await page.locator("#valMeasurementStatus").inner_text()
+            await page.locator("#valResetExample").click()
+            assert await page.evaluate("window.ThermaValidationDashboard.getReport().illustrativeMeasurement.Q_fluid_W") == 1000
+            assert await page.evaluate("window.ThermaScientificDashboard.getResult().parameters.itlLimitMs") == 40
+            checks.append("Research partition/source statuses, exponent applicability, report arithmetic, null/invalid inputs, heat imbalance and independent calculator reset")
+
+            research_downloads = {}
+            for id in ["valExportJSON", "valExportCSV", "valExportSVG"]:
+                async with page.expect_download() as event:
+                    await page.locator("#"+id).click()
+                download = await event.value
+                destination = artifacts/download.suggested_filename
+                await download.save_as(destination)
+                research_downloads[id] = destination.read_text()
+            research = json.loads(research_downloads["valExportJSON"])
+            assert research["comparison"]["metrics"]["n"] == 3
+            assert research["comparison"]["coverage"] is None
+            assert research["illustrativeMeasurement"]["kind"].startswith("User-entered illustrative")
+            assert "SHA-256" in research_downloads["valExportCSV"]
+            assert "same_source_evaluation" in research_downloads["valExportCSV"]
+            assert "primary source unverified" in research_downloads["valExportSVG"]
+            checks.append("Research JSON, CSV and SVG exports preserve provenance, partition, unavailable intervals and illustrative-input labels")
+            await page.locator("#scientific-validation").evaluate("e=>e.scrollIntoView({block:'start',behavior:'instant'})")
+            await page.screenshot(path=str(artifacts/"validation-desktop.png"))
+            for width in [768,390]:
+                await page.set_viewport_size({"width":width,"height":844})
+                await page.locator("#scientific-validation").evaluate("e=>e.scrollIntoView({block:'start',behavior:'instant'})")
+                assert await page.evaluate("document.documentElement.scrollWidth<=innerWidth+1")
+                await page.screenshot(path=str(artifacts/f"validation-{width}.png"))
+            await page.locator("#valResetExample").scroll_into_view_if_needed()
+            await page.screenshot(path=str(artifacts/"validation-calculator-mobile.png"))
+            await page.set_viewport_size({"width":1440,"height":1000})
+            checks.append("Research workspace desktop/tablet/mobile controls and charts without horizontal page overflow")
+
             # Every same-origin document link must resolve; external sites are preserved, not claimed as tested deployments.
             for href in set(links):
                 if href.startswith(("#", "http:", "https:", "blob:")):
@@ -291,6 +352,7 @@ async def run(base, artifacts):
             await filepage.goto(base)
             await filepage.wait_for_function("window.ThermaScientificDashboard?.getResult() && window.ThermaCompare?.getExperiment()")
             assert await filepage.evaluate("Object.values(window.ThermaScientificDashboard.getResult().checks).every(Boolean)")
+            assert await filepage.evaluate("window.ThermaValidationDashboard.getReport().comparison.rows.length") == 4
             await offline.close()
             checks.append("Offline browser context with local static resource fulfillment; both experiment engines work")
             assert not errors, errors
