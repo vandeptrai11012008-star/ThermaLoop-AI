@@ -294,6 +294,16 @@
 
 <section id="scientific-evidence" class="science-lab" aria-labelledby="sciTitle">
   <div class="science-heading"><div><div class="science-kicker">SCIENTIFIC EVIDENCE · REPRODUCIBLE EXPERIMENTS</div><h2 id="sciTitle">Scientific Evidence Dashboard</h2><p>Public benchmark records, explicit system boundaries, and a baseline vs. ThermaLoop candidate you can inspect and export.</p></div><div class="science-header-meta"><span class="science-badge assumed">RESEARCH MODEL · NOT FIELD CALIBRATED</span><small id="sciSourceCount">8 pinned source files · offline ready</small></div></div>
+  <section class="science-data-status" aria-labelledby="sciDataTitle">
+    <div class="science-data-heading"><div><span class="science-kicker">DATA CONNECTIONS</span><h3 id="sciDataTitle">Know what is connected</h3></div><a href="#sciSourceDetails">Inspect source catalogue ↓</a></div>
+    <div class="science-connection-grid">
+      <div><span class="science-connection-tag">BUNDLED SNAPSHOT</span><h4>Public scientific records</h4><p>Source files retrieved <time id="sciRetrieved">—</time>. Fixed upstream commits; no automatic source updates.</p></div>
+      <div><span class="science-connection-tag assumed">SIMULATION</span><h4>3D campus &amp; earlier labs</h4><p>Synthetic readings and scenarios. Scientific controls recalculate separate experiments; they do not calibrate the 3D campus.</p></div>
+      <div><span class="science-connection-tag missing">NOT CONNECTED</span><h4>Live GPU &amp; greenhouse sensors</h4><p>No site meters or field telemetry. Live sensor timestamps and measured prediction error are unavailable.</p></div>
+    </div>
+    <div class="science-data-check"><div><strong>Dataset consistency</strong><p id="sciSyncStatus" role="status" aria-live="polite" data-state="unchecked">Not checked. Compare this page's bundled data with the dataset served by this website.</p></div><div class="science-data-buttons"><button id="sciCheckSync" type="button" class="btn">Check dataset sync</button><button id="sciExportDataStatus" type="button" class="btn">Export data status · JSON</button></div></div>
+    <p class="science-data-boundary">A matching checksum confirms identical dataset bytes. It does not confirm upstream freshness, scientific accuracy, live sensors or synchronization of every website file.</p>
+  </section>
   <div class="science-coverage" aria-label="Evidence dataset coverage">
     <div><small>Paired evaluations</small><strong id="sciCoveragePairs">1,307</strong><span>GSM8K · decontaminated</span></div>
     <div><small>GPU operating points</small><strong id="sciCoverageGPU">23</strong><span>Published H100 benchmarks</span></div>
@@ -1164,5 +1174,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 <script src="science/evidence-data.js"></script>
 <script src="science/model.js"></script>
+<script src="science/data-status.js"></script>
 <script src="science/dashboard.js"></script>
 </body></html>

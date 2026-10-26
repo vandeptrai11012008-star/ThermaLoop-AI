@@ -4,6 +4,12 @@ Validation applies to the current-instance branch implementation based on main c
 
 ## Active static website and scientific extension
 
+### Dataset-status improvement based on main `222c65d`
+
+The data-connections panel adds explicit snapshot/simulation/disconnected-telemetry labels, source retrieval dates, a user-requested dataset identity check and a separate JSON verification export. It does not connect hardware, refresh upstream data, modify the scientific engine or change the original simulator programs.
+
+Local verification: all 21 scientific tests pass; `build_evidence.py --check` passes with the unchanged canonical dataset SHA-256; the real Chromium runner passes 19 check groups with zero uncaught JavaScript exceptions. The new browser group verifies no automatic dataset request, independent SHA-256 agreement, JSON-report content, detection of changed bytes even for equivalent JSON, HTTP 503, a disconnected request, recovery, and unchanged scientific inputs/results through all checks. Desktop/tablet/mobile layouts and the existing website regression groups also pass. See `validation-browser.json`. Direct `file://` navigation remains unverified under this environment's administrator restriction. These are local verification results, not a claim that this improvement is deployed or field calibrated.
+
 | Check | Outcome | What it demonstrates |
 |---|---|---|
 | `python3 scripts/build_evidence.py --check` | PASS | Canonical evidence and offline browser bundle match |
