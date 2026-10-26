@@ -4,6 +4,31 @@ Validation applies to the current-instance branch implementation based on main c
 
 ## Active static website and scientific extension
 
+### Observable-first research workspace
+
+The supplied research report is applied through `science/validation-model.js`,
+the Cooling Validation Workspace and `docs/RESEARCH_VALIDATION.md`. Local
+verification passes **35 Node tests** (21 existing + 14 new), **22 Chromium
+check groups**, both offline-bundle checks, duplicate-ID and whitespace checks.
+The original-file preservation test still passes. The existing scientific
+engine and canonical evidence bytes are unchanged.
+
+New checks cover source snapshot identity; calibration/evaluation separation;
+unknown measurements/intervals; independent Python-reference predictions;
+laminar Re and deliberately incompatible exponent comparison; MAE/RMSE/bias
+definitions; stable LMTD and zero-rise limits; separate electrical/liquid heat
+bases; missing/invalid inputs; the report's arithmetic inconsistency; and
+new JSON/CSV/SVG exports. Real-browser tests also exercise new controls,
+source/coverage labels and desktop/tablet/mobile layouts, with zero uncaught
+JavaScript errors. `validation-browser.json` records the current check groups.
+The managed browser's direct-file restriction remains explicitly unverified.
+
+Pinned repository snapshots establish content provenance, not independent
+verification of paper figures. Primary sources/uncertainty remain unverified;
+three same-source points are reused for model comparison. There is no claim
+of independent experimental validation, new field telemetry, OCP conformity,
+new Morris/Sobol results or a deployed release until separately verified.
+
 ### Dataset-status improvement based on main `222c65d`
 
 The data-connections panel adds explicit snapshot/simulation/disconnected-telemetry labels, source retrieval dates, a user-requested dataset identity check and a separate JSON verification export. It does not connect hardware, refresh upstream data, modify the scientific engine or change the original simulator programs.

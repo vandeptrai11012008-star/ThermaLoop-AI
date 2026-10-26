@@ -1,0 +1,264 @@
+{
+  "schemaVersion": 1,
+  "scope": "Observable-first validation workspace; separate from legacy 3D simulator and existing evidence experiments.",
+  "researchBrief": {
+    "sha256": "41d477ed47f739955a9dc7167561b5beeb08a3ae4ef560b58f35929c961edb74",
+    "status": "User-supplied research recommendations; unresolved citation tokens are not independently verifiable references.",
+    "arithmeticIssue": "Illustrative YAML: (85-32)/750 = 0.0706667 K/W, inconsistent with its listed 0.085 K/W; not imported as an experimental point."
+  },
+  "provenance": {
+    "repository": "Walla17x/thermaloop",
+    "commit": "3a5ffe9fa127b5810b712fff2dcfe7e81f30753f",
+    "snapshots": [
+      {
+        "file": "villanova-upstream.yaml",
+        "url": "https://raw.githubusercontent.com/Walla17x/thermaloop/3a5ffe9fa127b5810b712fff2dcfe7e81f30753f/configs/validation/villanova_coldplate.yaml",
+        "sha256": "5153e4d5b3f4749d58913d65b4e21f0cc827a8cc8c70968bedbb74428e74d19e"
+      },
+      {
+        "file": "fluids-upstream.py",
+        "url": "https://raw.githubusercontent.com/Walla17x/thermaloop/3a5ffe9fa127b5810b712fff2dcfe7e81f30753f/thermaloop/fluids.py",
+        "sha256": "dd96fc7d6d364ef3b9f1d591324ece1abe4fdcbe9b7666212b6858137dbe9733"
+      },
+      {
+        "file": "UPSTREAM-LICENSE",
+        "url": "https://raw.githubusercontent.com/Walla17x/thermaloop/3a5ffe9fa127b5810b712fff2dcfe7e81f30753f/LICENSE",
+        "sha256": "4bb5fba75f935d2edda6d5d1352e559b35d00c882808e7a2ea921fdfdf8f610d"
+      }
+    ],
+    "license": "MIT for repository snapshots; underlying publication data license not established."
+  },
+  "anchor": {
+    "id": "villanova-2024-repository-digitization",
+    "kind": "Repository-supplied digitized cold-plate/TIM resistance; not independently re-digitized",
+    "primarySourceVerified": false,
+    "paperDOIReported": "10.1115/1.4066101",
+    "geometry": {
+      "n_channels": 120,
+      "channel_width_m": 0.0002,
+      "channel_height_m": 0.004,
+      "channel_length_m": 0.043
+    },
+    "conditions": {
+      "power_W": 1000,
+      "Tin_C": 32,
+      "fluid": "pg25",
+      "compositionBasis": "25% PG by mass assumed by upstream property code; paper concentration basis not independently confirmed",
+      "TIM": "grease, 15 PSI as reported by repository"
+    },
+    "propertyModel": {
+      "source": "fluids-upstream.py",
+      "kind": "Engineering approximations, fixed at Tin; not measured properties",
+      "thermalConductivity_W_mK": null
+    },
+    "R_LMTD_K_W": 0.023,
+    "calibrationFlow_L_min": 2,
+    "points": [
+      {
+        "id": "S-1",
+        "flow_L_min": 1,
+        "R_Tin_K_W": 0.0415,
+        "role": "same_source_evaluation",
+        "Tout_C": null,
+        "case_C": null,
+        "die_C": null,
+        "delta_p_Pa": null
+      },
+      {
+        "id": "S-2",
+        "flow_L_min": 2,
+        "R_Tin_K_W": 0.037,
+        "role": "calibration",
+        "Tout_C": null,
+        "case_C": null,
+        "die_C": null,
+        "delta_p_Pa": null
+      },
+      {
+        "id": "S-3",
+        "flow_L_min": 3,
+        "R_Tin_K_W": 0.035,
+        "role": "same_source_evaluation",
+        "Tout_C": null,
+        "case_C": null,
+        "die_C": null,
+        "delta_p_Pa": null
+      },
+      {
+        "id": "S-4",
+        "flow_L_min": 4,
+        "R_Tin_K_W": 0.034,
+        "role": "same_source_evaluation",
+        "Tout_C": null,
+        "case_C": null,
+        "die_C": null,
+        "delta_p_Pa": null
+      }
+    ],
+    "uncertainty": {
+      "reportedDigitizationBound_K_W": 0.002,
+      "reportedMeasurementFraction": 0.1,
+      "confidenceLevel": null,
+      "verifiedFromPrimary": false
+    },
+    "partitionNote": "R_fixed fitted only at 2 L/min. The remaining three points compare exponents and are reused for model selection; no untouched independent validation set exists."
+  },
+  "sources": [
+    {
+      "id": "villanova-2024",
+      "title": "Villanova thermal metrology (2024)",
+      "url": "https://doi.org/10.1115/1.4066101",
+      "observable": "Cold-plate/TIM resistance; definitions and measurement uncertainty",
+      "status": "primary_not_retrieved",
+      "verification": "Primary source requests blocked by environment HTTP 403; public availability is not disproved.",
+      "numericImported": true,
+      "limitation": "Repository digitization imported; primary paper and extraction metadata remain unverified.",
+      "primaryDocumentSHA256": null,
+      "rawDataLicense": null
+    },
+    {
+      "id": "villanova-2025",
+      "title": "Villanova resistance definitions (2025)",
+      "url": "https://doi.org/10.1016/j.ijheatmasstransfer.2025.127128",
+      "observable": "Inlet-based versus LMTD-based resistance",
+      "status": "primary_not_retrieved",
+      "verification": "Primary source requests blocked by environment HTTP 403; public availability is not disproved.",
+      "numericImported": false,
+      "limitation": "Research-report reference only; no experimental points imported.",
+      "primaryDocumentSHA256": null,
+      "rawDataLicense": null
+    },
+    {
+      "id": "ocp-2026",
+      "title": "OCP cold-plate test specification, reported v1.0.0",
+      "url": "https://www.opencompute.org/wp-content/uploads/2026/10/OCP-Cold-Plate-Test-Specification-V1.0.0.pdf",
+      "observable": "Experimental protocol; not a measurement dataset",
+      "status": "primary_not_retrieved",
+      "verification": "Primary source requests blocked by environment HTTP 403; public availability is not disproved.",
+      "numericImported": false,
+      "limitation": "Version, test requirements and license need primary-source verification; no OCP certification claimed.",
+      "primaryDocumentSHA256": null,
+      "rawDataLicense": null
+    },
+    {
+      "id": "heydari-2024",
+      "title": "Heydari rack/CDU experiment (2024)",
+      "url": "https://doi.org/10.1016/j.applthermaleng.2023.122122",
+      "observable": "CDU/rack heat and effectiveness",
+      "status": "primary_not_retrieved",
+      "verification": "Primary source requests blocked by environment HTTP 403; public availability is not disproved.",
+      "numericImported": false,
+      "limitation": "Reference proposed for future comparison; not GPU die-temperature validation and not transferred to this campus.",
+      "primaryDocumentSHA256": null,
+      "rawDataLicense": null
+    },
+    {
+      "id": "itherm-2018",
+      "title": "Ramakrishnan cold-plate experiment (2018)",
+      "url": "https://par.nsf.gov/servlets/purl/10058150",
+      "observable": "Case temperatures, pressure drop and thermal boundary conditions",
+      "status": "primary_not_retrieved",
+      "verification": "Primary source requests blocked by environment HTTP 403; public availability is not disproved.",
+      "numericImported": false,
+      "limitation": "Candidate independent laboratory source; no numeric data imported.",
+      "primaryDocumentSHA256": null,
+      "rawDataLicense": null
+    },
+    {
+      "id": "rack-2017",
+      "title": "DLC rack pressure distribution (2017)",
+      "url": "https://par.nsf.gov/servlets/purl/10058219",
+      "observable": "Flow and component pressure boundaries",
+      "status": "primary_not_retrieved",
+      "verification": "Primary source requests blocked by environment HTTP 403; public availability is not disproved.",
+      "numericImported": false,
+      "limitation": "Candidate hydraulic evidence; no measured pressure-flow curve imported.",
+      "primaryDocumentSHA256": null,
+      "rawDataLicense": null
+    },
+    {
+      "id": "xylem-d5",
+      "title": "Xylem/Laing D5 Vario pump brochure",
+      "url": "https://www.xylem.com/siteassets/brand/lowara/resources/brochure/cat_ecocirc_d5vario_uk_web.pdf",
+      "observable": "Manufacturer pump head/flow curve",
+      "status": "primary_not_retrieved",
+      "verification": "Primary source requests blocked by environment HTTP 403; public availability is not disproved.",
+      "numericImported": false,
+      "limitation": "Manufacturer curve candidate; no digitized curve or pump/system intersection is claimed.",
+      "primaryDocumentSHA256": null,
+      "rawDataLicense": null
+    }
+  ],
+  "coverage": [
+    {
+      "layer": "AI routing",
+      "observable": "GSM8K correctness",
+      "status": "External benchmark replay",
+      "current": "Paired records; outcome-blind seeded routing control",
+      "gap": "No trained-router, serving-latency or energy validation."
+    },
+    {
+      "layer": "GPU scheduling",
+      "observable": "Requested GPU capacity",
+      "status": "Trace replay / numerical accounting",
+      "current": "First-fit and best-fit admission replay",
+      "gap": "No measured execution, pressure, temperature or scheduling-energy series."
+    },
+    {
+      "layer": "GPU power",
+      "observable": "H100 board W and J/output token",
+      "status": "Published benchmark aggregates",
+      "current": "Fixed-output projections from measured configurations",
+      "gap": "No site-meter validation or repeat-run uncertainty."
+    },
+    {
+      "layer": "Cold-plate + TIM",
+      "observable": "Reported inlet-referenced resistance",
+      "status": "Repository digitization replay",
+      "current": "One calibration point; three same-source evaluation points",
+      "gap": "Primary extraction unverified; model comparison reuses evaluation points. Independent validation: none."
+    },
+    {
+      "layer": "Hydraulics / pump",
+      "observable": "Pressure drop and operating flow",
+      "status": "Unsupported experimentally",
+      "current": "Legacy flow is an input; pump energy uses assumed scaling",
+      "gap": "No imported measured pressure curve, tare boundary or pump curve."
+    },
+    {
+      "layer": "CDU",
+      "observable": "Measured effectiveness/capacity",
+      "status": "Candidate source only",
+      "current": "Heydari reference identified in the supplied report",
+      "gap": "No CDU experimental dataset compared with this website model."
+    },
+    {
+      "layer": "Heat recovery",
+      "observable": "Heat-pump Q/P at one catalogue point",
+      "status": "Catalogue reference / modeled scenario",
+      "current": "Explicit electricity boundary and numerical heat balance",
+      "gap": "Off-design COP and plant heat recovery remain uncalibrated."
+    },
+    {
+      "layer": "Greenhouse",
+      "observable": "Geometry and historical weather",
+      "status": "Reference parameters / modeled scenario",
+      "current": "Published dimensions and selected TMY hours",
+      "gap": "No measured demand or greenhouse temperature error."
+    },
+    {
+      "layer": "Temperature transients",
+      "observable": "Time-resolved case/die temperature",
+      "status": "Unsupported experimentally",
+      "current": "Legacy synthetic animation and dynamics",
+      "gap": "No synchronized power/flow/Tin/Tout/case/die experimental time series."
+    }
+  ],
+  "uncertaintyLimits": [
+    "Numerical conservation is not experimental accuracy.",
+    "Parameter sensitivity is not an experimental confidence interval.",
+    "Digitization, experimental uncertainty and structural uncertainty remain separate.",
+    "No bootstrap interval or coverage claim is asserted from three reused evaluation points.",
+    "Morris/Sobol analyses and pump operating-point validation are future work, not computed results."
+  ]
+}

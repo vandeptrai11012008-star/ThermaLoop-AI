@@ -16,12 +16,15 @@
     "Finance lab tabs and existing scale calculation",
     "All five legacy exports and three scientific exports contain valid results",
     "Scientific parameters, 70B hardware scope, summer data, infeasibility, invalid-input rejection and reset",
+    "Research partition/source statuses, exponent applicability, report arithmetic, null/invalid inputs, heat imbalance and independent calculator reset",
+    "Research JSON, CSV and SVG exports preserve provenance, partition, unavailable intervals and illustrative-input labels",
+    "Research workspace desktop/tablet/mobile controls and charts without horizontal page overflow",
     "All local evidence, methods and audit links resolve",
     "Sidebar navigation and responsive desktop/tablet/mobile evidence layout",
     "Offline browser context with local static resource fulfillment; both experiment engines work",
     "No uncaught browser JavaScript exceptions"
   ],
-  "checkCount": 19,
+  "checkCount": 22,
   "pageErrors": [],
   "limitations": [
     "Direct file:// navigation is blocked by this Chromium administrator policy; file-loader validation is unverified"

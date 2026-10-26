@@ -13,7 +13,8 @@ jobs:
         with:
           python-version: '3.12'
       - run: python scripts/build_evidence.py --check
-      - run: node --test tests/science.test.cjs
+      - run: python scripts/build_validation.py --check
+      - run: node --test tests/*.test.cjs
       - run: pip install -r requirements-dev.txt
       - run: python -m playwright install --with-deps chromium
       - run: python tests/browser_smoke.py --artifacts /tmp/thermaloop-browser-results
