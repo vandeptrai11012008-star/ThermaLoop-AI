@@ -616,13 +616,16 @@ async def run(base, artifacts):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--artifacts", type=Path, default=Path("/tmp/thermaloop-browser-results"))
+    parser.add_argument("--base-url", help="Verify a deployed website against this checkout; offline checks still use local source bytes")
     args = parser.parse_args()
     args.artifacts.mkdir(parents=True, exist_ok=True)
     handler = functools.partial(QuietHandler, directory=str(ROOT))
     server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
     threading.Thread(target=server.serve_forever, daemon=True).start()
     try:
-        result = asyncio.run(run(f"http://127.0.0.1:{server.server_port}", args.artifacts))
+        base=args.base_url.rstrip('/') if args.base_url else f"http://127.0.0.1:{server.server_port}"
+        result = asyncio.run(run(base, args.artifacts))
+        result["target"]=base
         (args.artifacts / "browser-report.json").write_text(json.dumps(result, indent=2) + "\n")
         print(json.dumps(result, indent=2))
     finally:

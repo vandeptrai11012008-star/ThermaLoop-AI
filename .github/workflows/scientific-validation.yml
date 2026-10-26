@@ -1,5 +1,5 @@
 name: Scientific evidence and website regression
-on: [push, pull_request]
+on: [push, pull_request, workflow_dispatch]
 jobs:
   validate:
     # Playwright 1.56 supports Ubuntu 24.04; do not follow the Ubuntu 26 runner migration.
@@ -35,6 +35,10 @@ jobs:
       - run: pip install -r requirements-dev.txt
       - run: python -m playwright install --with-deps chromium
       - run: python tests/browser_smoke.py --artifacts /tmp/thermaloop-browser-results
+        if: github.event_name != 'workflow_dispatch'
+      - name: Verify the deployed main website with the pinned browser
+        if: github.event_name == 'workflow_dispatch'
+        run: python tests/browser_smoke.py --base-url https://thermaloop-ai-5.onrender.com --artifacts /tmp/thermaloop-browser-results
       - run: python tests/browser_physics.py --artifacts /tmp/thermaloop-browser-results/physics-default-motion
       - uses: actions/upload-artifact@v4
         if: always()

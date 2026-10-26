@@ -186,3 +186,12 @@ for other compared numeric diagnostics. Roundoff-budget ratios must remain
 within [0,1]; exact solver evaluation counts and roundoff-level steady RHS
 rates are not promised bitwise portable. Browser results are saved Python
 cases, not a SciPy runtime, sensor feed or validated 3D temperature field.
+
+
+The browser runners prefer the browser installed by the pinned Playwright
+package. CI's manual `workflow_dispatch` reruns the same full default-motion
+suite against the deployed main URL using `--base-url`; byte/provenance and
+behavior assertions still refer to the checked-out main revision. Offline
+checks continue to fulfill exact local files and are labeled separately.
+This allows a supported-browser release check when the local system browser
+is incompatible and the proxy blocks downloading the supported binary.
