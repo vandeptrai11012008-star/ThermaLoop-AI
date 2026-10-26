@@ -14,8 +14,14 @@ def compare(a,b):
         if a[key]!=b[key]:raise ValueError("Physical-model identity differs: "+key)
     temp=[];heat=[];dimensionless=[]
     def near(x,y,path=""):
-        if path.endswith("evaluations"):return
+        # Classify the actual metric, not an enclosing study name such as
+        # primary_volume_sensitivity (which contains temperatures and time).
+        field=next((part for part in reversed(path.split('/')) if part and not part.isdigit()),'')
+        if field=="evaluations":return
         if isinstance(x,dict):
+            if field=="controls":
+                if x!=y:raise ValueError("Solver controls differ")
+                return
             if set(x)!=set(y):raise ValueError("Result keys differ: "+path)
             for k in x:near(x[k],y[k],path+"/"+k)
         elif isinstance(x,list):
@@ -24,14 +30,14 @@ def compare(a,b):
         elif isinstance(x,(int,float)) and not isinstance(x,bool):
             if not isinstance(y,(int,float)) or not math.isfinite(y):raise ValueError("Nonfinite/invalid saved value: "+path)
             # Roundoff-level diagnostics/evaluation counts are not exactly portable.
-            if "roundoff" in path:
+            if "roundoff" in field:
                 if not 0<=y<=1:raise ValueError("Saved differential energy check violates roundoff budget")
                 return
-            if "max_steady_rate" in path:return
+            if "max_steady_rate" in field:return
             delta=abs(x-y)
-            if any(k in path for k in ["_J","/input_J","/rejected_J","/stored_change_J"]):heat.append(delta)
-            elif any(k in path for k in ["effectiveness","entropy","residual","capacity","time_s","_flow","_volume","/cells","/primary_cells","state_count","/solver/controls"]):dimensionless.append(delta)
-            else:temp.append(delta)
+            if field.endswith('_J'):heat.append(delta)
+            elif field.endswith('_C'):temp.append(delta)
+            else:dimensionless.append(delta)
         elif x!=y:raise ValueError("Saved result differs: "+path)
     for key in ["cases","primary_volume_sensitivity","spatial"]:near(a[key],b[key],key)
     maxima={"temperature_C":max(temp,default=0),"integrated_heat_J":max(heat,default=0),"other_numeric":max(dimensionless,default=0)}

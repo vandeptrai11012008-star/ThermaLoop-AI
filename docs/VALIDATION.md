@@ -7,12 +7,18 @@ validation of real-world energy savings or measured predictive accuracy.
 
 ## Finite-capacity physical model
 
-Local verification passed **88 Python tests** and **63 Node tests**, all five
+Local verification passed **91 Python tests** and **63 Node tests**, all five
 source/bundle checks, and a full fresh physical-protocol rerun. Compared
 temperature, integrated-heat and other numeric values reproduced with zero
 differences in this environment; all eight declared checks passed. Adversarial
 tests found and corrected four failures involving output-window initialization,
 callable heat input and an uncertifiable matrix-reference forcing assumption.
+The first independent CI run then exposed a unit-classification bug in the
+reproduction comparator: the enclosing `primary_volume_sensitivity` name
+caused its temperature metrics to use the wrong budget. Classification now
+uses the actual metric field, with three regression checks preserving the
+original temperature/heat/other budgets. The solver, physical targets and
+reported reference conditions were not changed to obtain a pass.
 
 Independent checks cover counterflow enthalpy balance/bounds, exact discrete
 and continuum equal-capacity limits, infinite-primary recovery of the legacy

@@ -193,3 +193,24 @@ def test_saved_result_corruption_is_rejected_without_changing_metadata(path):
     elif path=="entropy":changed["cases"][0]["energy"]["min_interfacial_entropy_generation_W_K"]=-1
     else:changed["cases"][0]["trace"]["die_C"][1]+=.01
     with pytest.raises(ValueError,match="reproduction"):compare(changed,saved)
+
+
+def test_cross_machine_temperature_budget_is_not_changed_by_volume_study_name():
+    from scripts.run_physics_verification import compare
+    import copy
+    saved=json.loads((Path(__file__).resolve().parents[1]/"science/physics/results.json").read_text())
+    changed=copy.deepcopy(saved);changed["primary_volume_sensitivity"][0]["trace"]["die_C"][1]+=1e-6
+    result=compare(changed,saved)
+    assert result["temperature_C"]==pytest.approx(1e-6,abs=1e-12)
+    assert result["other_numeric"]==0
+
+
+@pytest.mark.parametrize("field",["time_s","primary_volume_m3"])
+def test_volume_study_still_checks_non_temperature_units_at_their_own_budget(field):
+    from scripts.run_physics_verification import compare
+    import copy
+    saved=json.loads((Path(__file__).resolve().parents[1]/"science/physics/results.json").read_text())
+    changed=copy.deepcopy(saved)
+    if field=="time_s":changed["primary_volume_sensitivity"][0]["trace"][field][1]+=1e-6
+    else:changed["primary_volume_sensitivity"][0][field]+=1e-6
+    with pytest.raises(ValueError,match="reproduction"):compare(changed,saved)
