@@ -60,6 +60,12 @@ async def run(base, artifacts):
             assert await page.evaluate("!!document.getElementById('glCanvas').getContext('webgl')")
             checks.append("WebGL 3D context and all three original external destinations preserved")
 
+            async def enter(anchor):
+                # Follow a real document hash; the workspace router reveals its owner.
+                await page.evaluate("h => {location.hash=h}", "#"+anchor)
+                await page.wait_for_function("id => !!document.getElementById(id)?.getClientRects().length", arg=anchor)
+            await enter("scientific-evidence")
+
             # Identity checks must not claim a connection or silently update scientific inputs.
             assert not dataset_requests, "Dataset verification should run only on user request"
             assert await page.locator("#sciSyncStatus").get_attribute("data-state") == "unchecked"
@@ -134,6 +140,7 @@ async def run(base, artifacts):
                 assert await page.locator("#sciCheckSync").is_enabled()
             checks.append("Dataset status/export, SHA-256 match, altered bytes, HTTP failure, disconnection and recovery; experiment inputs stay unchanged")
 
+            await enter("digital-twin")
             before = await page.locator("#clock").inner_text()
             await page.locator("#step").click()
             assert before != await page.locator("#clock").inner_text()
@@ -160,6 +167,7 @@ async def run(base, artifacts):
                 result = await page.evaluate("(() => {const e=window.ThermaCompare.getExperiment(); return {b:e.before.history.length,a:e.after.history.length,finite:Number.isFinite(e.after.site)}})()")
                 assert result == {"b": 60, "a": 60, "finite": True}, (scenario, result)
             checks.append("All five legacy scenarios run complete 60-minute A/B histories")
+            await enter("comparison")
             for id, value in [("demand", 125), ("outside", 10), ("renewable", 30), ("bufferCap", 140)]:
                 await page.locator("#" + id).evaluate("(e, v) => {e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));}", value)
             await page.locator("#compareReRun").click()
@@ -168,6 +176,7 @@ async def run(base, artifacts):
             await page.locator("#compareJump").click()
             checks.append("All four live parameter sliders, explicit A/B rerun and 3D jump")
 
+            await enter("control")
             for flag in ["routing", "dvfs", "disagg", "thermal", "diagnostics"]:
                 if await page.locator("#" + flag + "Toggle").is_checked():
                     # The original styled switch covers its native checkbox; click the visible label surface.
@@ -176,6 +185,7 @@ async def run(base, artifacts):
             await page.locator("#enableAll").click()
             await page.wait_for_function("Object.values(window.ThermaCompare.getExperiment().selected).every(Boolean)")
             checks.append("Five individual policy toggles and enable-all")
+            await enter("experiment-studio")
             for case in ["routing", "dvfs", "disagg", "thermal", "diagnostics", "all"]:
                 await page.locator(f'.fusion-preset[data-case="{case}"]').click()
                 assert "active" in (await page.locator(f'.fusion-preset[data-case="{case}"]').get_attribute("class"))
@@ -186,6 +196,7 @@ async def run(base, artifacts):
             await page.locator("#fusionPlay").click()
             checks.append("All six experiment presets, minute scrubbing and paired playback")
 
+            await enter("gpu-lab")
             await page.locator("#gpuDeviceSelect").select_option("63")
             assert "64" in await page.locator("#gpuActiveId").inner_text()
             await page.locator("#gpuRackSelect").select_option("3")
@@ -198,10 +209,12 @@ async def run(base, artifacts):
             await page.locator("#gpuFocusBtn").click()
             assert "open" in (await page.locator("#inspector").get_attribute("class"))
             await page.locator("#closeInspector").click()
+            await enter("digital-twin")
             await page.locator('[data-cascade="greenhouse"]').click()
             assert "open" in (await page.locator("#inspector").get_attribute("class"))
             checks.append("Per-GPU selection, GPU minute history, hottest GPU, 3D inspector and thermal cascade")
 
+            await enter("control")
             await page.locator("#injectFault").click()
             assert "flow" in (await page.locator("#events").inner_text()).lower()
             await page.locator("#clearFault").click()
@@ -210,6 +223,7 @@ async def run(base, artifacts):
             await page.locator("#clearEvents").click()
             assert await page.locator("#events .event").count() == 0
             checks.append("Cooling-fault injection/reset and legacy energy benchmark")
+            await enter("scale-lab")
             for panel in ["conditions", "hours", "method", "overview"]:
                 button = page.locator(f'[data-scale-page="{panel}"]')
                 await button.click()
@@ -217,7 +231,9 @@ async def run(base, artifacts):
             checks.append("Finance lab tabs and existing scale calculation")
 
             downloads = {}
+            export_panels={"compareExport":"comparison","fusionDownload":"experiment-studio","gpuGpuExport":"gpu-lab","scExport":"scale-lab","sciExportJSON":"scientific-evidence","sciExportCSV":"scientific-evidence","sciExportSVG":"scientific-evidence"}
             for id in ["export", "compareExport", "fusionDownload", "gpuGpuExport", "scExport", "sciExportJSON", "sciExportCSV", "sciExportSVG"]:
+                if id in export_panels: await enter(export_panels[id])
                 async with page.expect_download() as event:
                     await page.locator("#" + id).click()
                 download = await event.value
@@ -259,6 +275,7 @@ async def run(base, artifacts):
             await page.locator("#sciReset").click()
             checks.append("Scientific parameters, 70B hardware scope, summer data, infeasibility, invalid-input rejection and reset")
 
+            await enter("scientific-validation")
             await page.wait_for_function("window.ThermaValidationDashboard?.getReport().comparison")
             workspace = await page.evaluate("window.ThermaValidationDashboard.getReport()")
             assert workspace["comparison"]["calibrationCount"] == 1
@@ -320,6 +337,7 @@ async def run(base, artifacts):
             await page.set_viewport_size({"width":1440,"height":1000})
             checks.append("Research workspace desktop/tablet/mobile controls and charts without horizontal page overflow")
 
+            await enter("numerical-verification")
             await page.wait_for_function("window.ThermaNumericalDashboard?.getReport()")
             numerical = await page.evaluate("window.ThermaNumericalDashboard.getReport()")
             assert all(numerical["gates"].values())
@@ -364,6 +382,7 @@ async def run(base, artifacts):
             await page.set_viewport_size({"width":1440,"height":1000})
             checks.append("Numerical workspace responsive charts and controls at desktop/tablet/mobile widths")
 
+            await enter("public-workloads")
             # Settle the restored desktop layout and enter the lab explicitly;
             # preceding checks finish at the bottom of the numerical section.
             await page.locator("#public-workloads").evaluate("e=>e.scrollIntoView({block:'start',behavior:'instant'})")
@@ -432,6 +451,7 @@ async def run(base, artifacts):
             await page.set_viewport_size({"width":1440,"height":1000})
             checks.append("Public-workload workspace desktop/tablet/mobile controls and charts without page overflow")
 
+            await enter("physical-model")
             # Enter each added lab explicitly after responsive checks.
             await page.locator("#physical-model").evaluate("e=>e.scrollIntoView({block:'start',behavior:'instant'})")
             await page.evaluate("() => new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))")
@@ -542,8 +562,9 @@ async def run(base, artifacts):
                     assert response.status == 200, href
             checks.append("All local evidence, methods and audit links resolve")
             for href in ["#digital-twin", "#comparison", "#experiment-studio", "#gpu-lab", "#analytics", "#control", "#diagnostics", "#scale-lab", "#scientific-evidence"]:
-                await page.locator(f'a.menu-item[href="{href}"]').click()
-                assert await page.locator(f'a[href="{href}"][aria-current="location"]').count() == 1
+                await enter(href[1:])
+                assert await page.locator('.workspace-panel:visible').count() == 1
+                assert await page.locator('.side a[aria-current="page"]').count() == 1
             await page.locator("#scientific-evidence").evaluate("e => e.scrollIntoView({block:'start',behavior:'instant'})")
             await page.screenshot(path=str(artifacts / "scientific-desktop.png"))
             for width in [768, 390]:

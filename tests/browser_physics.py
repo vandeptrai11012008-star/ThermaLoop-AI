@@ -25,11 +25,16 @@ async def main():
    async def click(id):
     await page.bring_to_front();button=page.locator('#'+id);await button.evaluate("e=>e.scrollIntoView({block:'center',behavior:'instant'})")
     started=time.monotonic();await button.click();return time.monotonic()-started
+   async def enter(anchor):
+    await page.evaluate('h=>{location.hash=h}', '#'+anchor)
+    await page.wait_for_function('id=>!!document.getElementById(id)?.getClientRects().length',arg=anchor)
+   await enter('scientific-evidence')
    for i in range(4):
     await page.locator('#sciITL').fill('');await click('sciRun');assert await page.locator('#sciExportJSON').is_disabled()
     seconds=await click('sciReset');assert await page.evaluate('window.ThermaScientificDashboard.getResult().gpu.feasible')
     records.append({'case':'invalid_then_reset','seconds':seconds});print(records[-1],flush=True)
     await click('sciCheckSync');await page.wait_for_function("window.ThermaDataStatus.getReport().verification.state==='matched'")
+   await enter('physical-model')
    await page.locator('#physical-model').evaluate("e=>e.scrollIntoView({block:'start',behavior:'instant'})")
    for i in range(12):
     flow=['0.06','0.12','0.24','0.48','0.96'][i%5];started=time.monotonic();await page.locator('#physFlow').select_option(flow)
