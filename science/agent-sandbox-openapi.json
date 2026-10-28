@@ -1,17 +1,76 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "ThermaLoop Agent Simulation API",
-    "version": "1.1.0",
-    "description": "Uncalibrated reduced-order simulation. Passing these checks is not authorization or evidence of safety for real building control."
+    "title": "ThermaLoop Remote Agent Simulation API",
+    "version": "1.2.0",
+    "description": "Uncalibrated reduced-order simulation. Passing these checks is not authorization or evidence of safety for real building control. The hosted API is a separate Node service, not the Render Static Site. Never embed a Bearer token in browser code."
   },
   "servers": [
     {
       "url": "http://127.0.0.1:8787",
-      "description": "Optional local server; not the static website"
+      "description": "Local default; replace with the separately deployed HTTPS API hostname"
     }
   ],
   "paths": {
+    "/healthz": {
+      "get": {
+        "operationId": "healthCheck",
+        "summary": "Unauthenticated liveness check",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "API process running; not a physics-validation result"
+          }
+        }
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "operationId": "getAgentApiHealth",
+        "summary": "Authenticated API status",
+        "responses": {
+          "200": {
+            "description": "API and engine versions"
+          }
+        }
+      }
+    },
+    "/api/v1/schema": {
+      "get": {
+        "operationId": "getAgentSchema",
+        "summary": "Simulation controls and bounds",
+        "responses": {
+          "200": {
+            "description": "Control schema"
+          }
+        }
+      }
+    },
+    "/api/v1/openapi.json": {
+      "get": {
+        "operationId": "getAgentOpenApi",
+        "summary": "This machine-readable contract",
+        "responses": {
+          "200": {
+            "description": "OpenAPI schema"
+          }
+        }
+      }
+    },
+    "/api/v1/usage": {
+      "get": {
+        "operationId": "getAgentQuota",
+        "summary": "Current token quota and session usage",
+        "responses": {
+          "200": {
+            "description": "Per-principal quotas and usage"
+          },
+          "429": {
+            "description": "Request quota reached"
+          }
+        }
+      }
+    },
     "/api/v1/simulations/evaluate": {
       "post": {
         "operationId": "evaluateBuildingControlPlan",
@@ -240,6 +299,9 @@
           "415": {
             "description": "JSON content type required"
           },
+          "429": {
+            "description": "Per-principal quota reached"
+          },
           "503": {
             "description": "Simulation capacity reached"
           },
@@ -252,7 +314,7 @@
     "/api/v1/episodes": {
       "post": {
         "operationId": "startPhysicsEpisode",
-        "summary": "Start a bounded, in-memory physical experiment",
+        "summary": "Start a bounded physical experiment",
         "requestBody": {
           "required": true,
           "content": {
@@ -383,8 +445,11 @@
           "400": {
             "description": "Invalid scenario"
           },
+          "429": {
+            "description": "Per-principal session quota reached"
+          },
           "503": {
-            "description": "Session capacity reached"
+            "description": "Session capacity or storage unavailable"
           }
         }
       }
@@ -495,7 +560,7 @@
                   "expectedMinute": {
                     "type": "integer",
                     "minimum": 0,
-                    "maximum": 359
+                    "maximum": 360
                   },
                   "minutes": {
                     "type": "integer",
@@ -597,6 +662,9 @@
           },
           "404": {
             "description": "Missing/expired episode"
+          },
+          "409": {
+            "description": "Stale expectedMinute"
           }
         }
       }
@@ -632,12 +700,11 @@
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer",
-        "description": "Required when server token is configured; mandatory for non-loopback binding."
+        "description": "Mandatory for public services. Use a server-side secret, not browser JavaScript."
       }
     }
   },
   "security": [
-    {},
     {
       "bearerAuth": []
     }

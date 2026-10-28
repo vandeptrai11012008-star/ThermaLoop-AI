@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Optional local agent API. Render Static Site continues to use index.html as before.
+// Local or separately hosted simulation-only API; never connects to hardware.
 'use strict';
 const http = require('node:http');
 const fs = require('node:fs/promises');
@@ -7,20 +7,52 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const {Worker,isMainThread,parentPort,workerData} = require('node:worker_threads');
 const engine = require('../science/agent-sandbox-model.js');
+const {createEpisodeStore,restoreEpisode,snapshotEpisode} = require('./episode-store.cjs');
 const ROOT = path.resolve(__dirname,'..');
 const MAX_BODY = 65536;
 const MAX_EPISODES = 16;
 const EPISODE_IDLE_MS = 30*60*1000;
+const API_VERSION='1.2.0';
 function equalToken(a,b) {
-  const x=Buffer.from(a),y=Buffer.from(b);
-  return x.length===y.length && crypto.timingSafeEqual(x,y);
+  const x=crypto.createHash('sha256').update(a).digest(),y=crypto.createHash('sha256').update(b).digest();
+  return crypto.timingSafeEqual(x,y);
 }
-function createServer({token=process.env.THERMALOOP_API_TOKEN??'',maxWorkers=2}={}) {
+function configuredKeys(token,apiKeys) {
+  const keys=[];
+  if(token)keys.push(['owner',token]);
+  if(apiKeys){
+    if(typeof apiKeys!=='object'||Array.isArray(apiKeys))throw new Error('THERMALOOP_API_KEYS must be a JSON object');
+    for(const [name,value] of Object.entries(apiKeys)){
+      if(!/^[a-zA-Z0-9_-]{1,48}$/.test(name)||typeof value!=='string'||!value)
+        throw new Error('Invalid named API key');
+      if(name==='owner'||keys.some(([id])=>id===name))throw new Error('Duplicate API key name');
+      keys.push([name,value]);
+    }
+  }
+  if(new Set(keys.map(([,value])=>value)).size!==keys.length)throw new Error('API key values must be unique');
+  return keys;
+}
+function validateRemoteConfig(host,keys) {
+  if(['127.0.0.1','localhost','::1'].includes(host))return;
+  if(!keys.length||keys.some(([,value])=>Buffer.byteLength(value,'utf8')<32))
+    throw new Error('Public binding requires a random API secret of at least 32 bytes for every principal');
+}
+function createServer({token=process.env.THERMALOOP_API_TOKEN??'',apiKeys=process.env.THERMALOOP_API_KEYS?
+  JSON.parse(process.env.THERMALOOP_API_KEYS):{},maxWorkers=2,maxRequestsPerMinute=120,
+  maxEvaluationsPerMinute=12,maxEpisodesPerPrincipal=16,
+  storePath=process.env.THERMALOOP_EPISODE_STORE??''}={}) {
+  for(const [name,n] of Object.entries({maxWorkers,maxRequestsPerMinute,maxEvaluationsPerMinute,maxEpisodesPerPrincipal}))
+    if(!Number.isInteger(n)||n<1||n>10000)throw new Error('Invalid limit: '+name);
+  const keys=configuredKeys(token,apiKeys);
   let active=0;
   const workers=new Set();
-  const episodes=new Map();
+  const persistence=createEpisodeStore(storePath,ROOT);
+  let episodes=new Map(persistence.load().filter(e=>Date.now()-e.touched<=EPISODE_IDLE_MS).map(e=>[e.id,e]));
+  const quotas=new Map();
   const server=http.createServer(async (req,res)=>{
     res.setHeader('X-Content-Type-Options','nosniff');
+    res.setHeader('Referrer-Policy','no-referrer');
+    res.setHeader('X-Frame-Options','DENY');
     const json=(status,value)=>{if(!res.destroyed){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(value));}};
     const readJSON=async()=>{
       if(!(req.headers['content-type']??'').toLowerCase().startsWith('application/json')){
@@ -34,57 +66,110 @@ function createServer({token=process.env.THERMALOOP_API_TOKEN??'',maxWorkers=2}=
     };
     let pathname;
     try {pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);} catch {json(400,{error:'Invalid URL'});return;}
+    if(pathname==='/healthz'&&req.method==='GET'){
+      json(200,{status:'ready',apiVersion:API_VERSION,mode:'simulation-only',hardwareConnected:false});return;
+    }
     if (pathname.startsWith('/api/')) {
       if (req.headers.origin) {
         let same=false;try{same=new URL(req.headers.origin).host===req.headers.host;}catch{}
         if(!same){json(403,{error:'Cross-origin API access is disabled'});return;}
       }
-      if (token && !equalToken(req.headers.authorization??'','Bearer '+token)) {json(401,{error:'Bearer token required'});return;}
-      if(req.method==='GET'&&pathname==='/api/v1/health'){json(200,{status:'ready',engineVersion:engine.VERSION,mode:'simulation-only',hardwareConnected:false});return;}
+      let owner='local';
+      if(keys.length){
+        const authorization=req.headers.authorization??'';
+        const matched=keys.find(([,value])=>equalToken(authorization,'Bearer '+value));
+        if(!matched){json(401,{error:'Bearer token required'});return;}
+        owner=matched[0];
+      }
+      const now=Date.now(),bucket=quotas.get(owner);
+      const usage=bucket&&now-bucket.started<60000?bucket:{started:now,requests:0,evaluations:0};
+      quotas.set(owner,usage);
+      res.setHeader('RateLimit-Limit',String(maxRequestsPerMinute));
+      res.setHeader('RateLimit-Remaining',String(Math.max(0,maxRequestsPerMinute-usage.requests-1)));
+      if(usage.requests>=maxRequestsPerMinute){
+        res.setHeader('Retry-After',String(Math.max(1,Math.ceil((60000-(now-usage.started))/1000))));
+        json(429,{error:'Agent request quota reached; retry later'});return;
+      }
+      usage.requests++;
+      if(req.method==='GET'&&pathname==='/api/v1/health'){
+        json(200,{status:'ready',apiVersion:API_VERSION,engineVersion:engine.VERSION,
+          mode:'simulation-only',hardwareConnected:false,persistence:storePath?'local-file':'memory'});return;
+      }
       if(req.method==='GET'&&pathname==='/api/v1/schema'){json(200,engine.schema());return;}
       if(req.method==='GET'&&pathname==='/api/v1/openapi.json'){json(200,engine.openapi());return;}
+      if(req.method==='GET'&&pathname==='/api/v1/usage'){
+        json(200,{apiVersion:API_VERSION,principal:owner,requestsInWindow:usage.requests,
+          requestsPerMinute:maxRequestsPerMinute,evaluationsInWindow:usage.evaluations,
+          evaluationsPerMinute:maxEvaluationsPerMinute,activeEpisodes:[...episodes.values()].filter(e=>e.owner===owner).length,
+          maxEpisodesPerPrincipal,globalEpisodes:episodes.size,maxGlobalEpisodes:MAX_EPISODES,
+          windowResetsInSeconds:Math.max(1,Math.ceil((60000-(now-usage.started))/1000))});return;
+      }
       const episodeCollection=pathname==='/api/v1/episodes';
       const episodeMatch=/^\/api\/v1\/episodes\/([0-9a-f-]{36})(?:\/(step|report))?$/.exec(pathname);
       if(episodeCollection||episodeMatch){
         // A session is an ephemeral simulation, never a durable device-control handle.
-        for(const [id,entry] of episodes)if(Date.now()-entry.touched>EPISODE_IDLE_MS)episodes.delete(id);
+        const live=new Map([...episodes].filter(([,entry])=>now-entry.touched<=EPISODE_IDLE_MS));
+        if(live.size!==episodes.size){try{persistence.save(live);episodes=live;}
+          catch{json(503,{error:'Episode storage temporarily unavailable'});return;}}
         if(episodeCollection){
           if(req.method!=='POST'){res.setHeader('Allow','POST');json(405,{error:'Use POST to create an episode'});return;}
           if(episodes.size>=MAX_EPISODES){json(503,{error:'Episode capacity reached'});return;}
+          if([...episodes.values()].filter(e=>e.owner===owner).length>=maxEpisodesPerPrincipal){
+            json(429,{error:'Principal episode quota reached'});return;
+          }
           try{
             const input=await readJSON(),episode=engine.startEpisode(input),id=crypto.randomUUID();
-            episodes.set(id,{episode,touched:Date.now()});
+            const updated=new Map(episodes);updated.set(id,{episode,owner,touched:Date.now()});
+            persistence.save(updated);episodes=updated;
             json(201,{episodeId:id,...engine.observeEpisode(episode)});
-          }catch(e){json(e.status??400,{error:e.message});}
+          }catch(e){json(e.status??(e instanceof TypeError||e instanceof RangeError||e instanceof SyntaxError?400:503),
+            {error:e.status||e instanceof TypeError||e instanceof RangeError||e instanceof SyntaxError?e.message:'Episode storage temporarily unavailable'});}
           return;
         }
         const [ ,id,action]=episodeMatch;
         const entry=episodes.get(id);
-        if(!entry){json(404,{error:'Episode not found or expired'});return;}
-        entry.touched=Date.now();
-        if(!action&&req.method==='GET'){json(200,{episodeId:id,...engine.observeEpisode(entry.episode)});return;}
-        if(!action&&req.method==='DELETE'){episodes.delete(id);json(200,{episodeId:id,discarded:true});return;}
-        if(action==='report'&&req.method==='GET'){
-          json(200,{episodeId:id,...engine.episodeReport(entry.episode)});return;
-        }
+        if(!entry||entry.owner!==owner){json(404,{error:'Episode not found or expired'});return;}
         if(action==='step'&&req.method==='POST'){
           try{
             const input=await readJSON();
             if(!input||!Number.isInteger(input.expectedMinute))throw new RangeError('HTTP step requires integer expectedMinute');
-            json(200,{episodeId:id,...engine.stepEpisode(entry.episode,input)});
-          }
-          catch(e){json(e.status??400,{error:e.message});}
+            // Persist before replacing the live session, so a failed disk write never advances it.
+            const draft=storePath?restoreEpisode(snapshotEpisode(entry.episode)):entry.episode;
+            const observation=engine.stepEpisode(draft,input);
+            const updated=new Map(episodes);updated.set(id,{episode:draft,owner,touched:Date.now()});
+            persistence.save(updated);episodes=updated;
+            json(200,{episodeId:id,...observation});
+          }catch(e){const bad=e instanceof TypeError||e instanceof RangeError||e instanceof SyntaxError;
+            json(e.status??(bad?400:503),{error:bad?e.message:'Episode storage temporarily unavailable'});}
           return;
+        }
+        if(!action&&req.method==='DELETE'){
+          try{const updated=new Map(episodes);updated.delete(id);persistence.save(updated);episodes=updated;
+            json(200,{episodeId:id,discarded:true});}
+          catch{json(503,{error:'Episode storage temporarily unavailable'});}return;
+        }
+        // Read access also renews idle expiry. Only commit it once persistence succeeds.
+        if(req.method==='GET'){
+          try{const updated=new Map(episodes);updated.set(id,{...entry,touched:Date.now()});
+            persistence.save(updated);episodes=updated;}
+          catch{json(503,{error:'Episode storage temporarily unavailable'});return;}
+        }
+        if(!action&&req.method==='GET'){json(200,{episodeId:id,...engine.observeEpisode(entry.episode)});return;}
+        if(action==='report'&&req.method==='GET'){
+          json(200,{episodeId:id,...engine.episodeReport(entry.episode)});return;
         }
         json(405,{error:'Unsupported episode method'});return;
       }
       if(pathname!=='/api/v1/simulations/evaluate'){json(404,{error:'Unknown endpoint; no hardware control endpoints exist'});return;}
       if(req.method!=='POST'){res.setHeader('Allow','POST');json(405,{error:'Use POST'});return;}
+      if(usage.evaluations>=maxEvaluationsPerMinute){res.setHeader('Retry-After',String(Math.max(1,Math.ceil((60000-(now-usage.started))/1000))));
+        json(429,{error:'Evaluation quota reached; retry later'});return;}
       if(active>=maxWorkers){json(503,{error:'Simulation capacity reached; retry later'});return;}
       try {
         const input=await readJSON();
         engine.normalize(input); // reject invalid actions before reserving a worker
         if(active>=maxWorkers){json(503,{error:'Simulation capacity reached; retry later'});return;}
+        usage.evaluations++;
         const worker=new Worker(__filename,{workerData:{input}});active++;workers.add(worker);
         let settled=false;
         const finish=(status,data)=>{if(settled)return;settled=true;clearTimeout(timer);active--;workers.delete(worker);json(status,data);worker.terminate();};
@@ -116,9 +201,12 @@ if(!isMainThread){
   try{parentPort.postMessage({ok:true,result:engine.evaluate(workerData.input)});}catch(e){parentPort.postMessage({ok:false,error:e.message});}
 } else if(require.main===module){
   const host=process.env.HOST??'127.0.0.1',port=Number(process.env.PORT??8787);
-  if(!['127.0.0.1','localhost','::1'].includes(host)&&!process.env.THERMALOOP_API_TOKEN){
-    console.error('Set THERMALOOP_API_TOKEN before binding beyond loopback. Use TLS termination for remote access.');process.exit(1);
-  }
-  createServer().listen(port,host,()=>console.log(`ThermaLoop simulation API: http://${host}:${port} — no hardware connection`));
+  try{
+    const token=process.env.THERMALOOP_API_TOKEN??'';
+    const apiKeys=process.env.THERMALOOP_API_KEYS?JSON.parse(process.env.THERMALOOP_API_KEYS):{};
+    validateRemoteConfig(host,configuredKeys(token,apiKeys));
+    createServer({token,apiKeys,maxEpisodesPerPrincipal:Number(process.env.THERMALOOP_MAX_EPISODES_PER_AGENT??16)})
+      .listen(port,host,()=>console.log(`ThermaLoop v${API_VERSION} simulation API listening on ${host}:${port} — no hardware connection`));
+  }catch(e){console.error('Refusing to start: '+e.message);process.exit(1);}
 }
-module.exports={createServer};
+module.exports={createServer,validateRemoteConfig,configuredKeys};

@@ -20,7 +20,7 @@ Controls: GPU power limit, pump speed, dry-cooler fan speed, heat-recovery valve
 
 The original deployment remains a buildless Render Static Site. That host runs browser JavaScript; it does **not** run the optional API server. A public agent cannot POST to the static site's `/api` path and expect simulation execution.
 
-For local agent integration, install Node 22 or newer and run from the repository root:
+For local agent integration, install Node 22 or newer and run from the repository root. For a separately deployed, HTTPS-protected multi-agent API and an opt-in Render Blueprint, see [Remote Agent Environment v1.2](REMOTE_AGENT_ENVIRONMENT.md):
 
 ```sh
 node scripts/serve-agent-sandbox.cjs
@@ -33,6 +33,7 @@ This serves the existing website and API at `http://127.0.0.1:8787`.
 | `GET /api/v1/health` | Engine version and explicit disconnected-hardware status |
 | `GET /api/v1/schema` | Controls, bounds, defaults and example |
 | `GET /api/v1/openapi.json` | OpenAPI 3.1 tool contract |
+| `GET /api/v1/usage` | Current principal's per-minute requests, evaluations and episode quotas |
 | `POST /api/v1/simulations/evaluate` | Paired simulation and evidence report |
 | `POST /api/v1/episodes` | Create an in-memory episode and receive its initial observation |
 | `GET /api/v1/episodes/{id}` | Observe current temperatures, controls, disturbance and accumulated metrics |
@@ -97,7 +98,7 @@ Paired evaluation requests are stateless and bounded to 360 minutes, 50 schedule
 
 An integration should inspect `verdict.constraintsPassed`, `verdict.serviceMaintained`, all violations and model limitations. `hardwareAuthorized` is always `false`. There is deliberately no endpoint for applying a result to hardware.
 
-For remote agents, host this Node service separately behind TLS. Non-loopback binding requires `THERMALOOP_API_TOKEN`; callers send it as a Bearer token. Do not place the token in the website or a committed file. Cross-origin browser calls are refused. The server bounds concurrent workers and execution time, but is a research/local integration server: production multi-user quotas, persistent experiment storage, audit retention and building-specific authorization are not implemented.
+For remote agents, host this Node service separately behind TLS. Non-loopback binding requires a random 32-byte-or-longer token (`THERMALOOP_API_TOKEN`) or named keys (`THERMALOOP_API_KEYS`); callers send one as a Bearer token. Do not place the token in the website or a committed file. Cross-origin browser calls are refused. v1.2 adds per-key ownership isolation, in-process quotas, an unauthenticated `/healthz` probe, and optional single-instance filesystem replay storage. Public-host provisioning remains a separate Render account action. Free Render services have ephemeral memory/files; this is not durable multi-user infrastructure, production audit retention or hardware authorization.
 
 ## Physical model and units
 
