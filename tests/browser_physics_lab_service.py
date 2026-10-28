@@ -20,7 +20,8 @@ async def run(base,out):
             await page.wait_for_function('window.ThermaPhysicsLab?.getEpisodeReport() !== null')
             assert 'v1.4' in await page.title()
             assert await page.locator('#minuteBadge').inner_text()=='0 / 60 min'
-            assert await page.locator('#svgGpu').inner_text()=='55.00 °C'
+            # SVGTextElement is not an HTMLElement; Playwright inner_text() rejects it.
+            assert (await page.locator('#svgGpu').text_content()).strip()=='55.00 °C'
             assert 'not calibrated' in (await page.locator('footer').inner_text()).lower()
             await page.locator('#pump').evaluate("el=>{el.value=90;el.dispatchEvent(new Event('input',{bubbles:true}));}")
             await page.locator('#stepFive').click()
