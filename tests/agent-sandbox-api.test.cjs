@@ -31,3 +31,43 @@ test('configured token protects simulation endpoints',()=>withServer({token:'tes
 test('request size is bounded',()=>withServer({},async base=>{
   const r=await fetch(base+'/api/v1/simulations/evaluate',post({padding:'x'.repeat(70000)}));assert.equal(r.status,413);
 }));
+test('an agent can observe, act, step and export a faithful in-memory physical episode',()=>withServer({},async base=>{
+  const scenario={preset:'pump-fault',seed:9,horizonMinutes:38};
+  const started=await fetch(base+'/api/v1/episodes',post({scenario}));assert.equal(started.status,201);
+  const initial=await started.json(),url=base+'/api/v1/episodes/'+initial.episodeId;
+  assert.equal(initial.minute,0);assert.equal(initial.hardwareAuthorized,false);
+  assert.deepEqual(await(await fetch(url)).json(),initial);
+  const a=await fetch(url+'/step',post({expectedMinute:0,minutes:22,controls:{pumpPct:90,fanPct:85}}));
+  assert.equal(a.status,200);assert.equal((await a.json()).minute,22);
+  assert.equal((await fetch(url+'/step',post({expectedMinute:0,minutes:1}))).status,409);
+  assert.equal((await(await fetch(url)).json()).minute,22);
+  const b=await fetch(url+'/step',post({expectedMinute:22,minutes:16,controls:{heatRecoveryPct:95}}));
+  assert.equal(b.status,200);assert.equal((await b.json()).done,true);
+  const report=await(await fetch(url+'/report')).json();
+  assert.equal(report.trace.length,39);
+  const batch=model.evaluate(report.replayRequest).candidate;
+  assert.deepEqual(report.trace,batch.trace);assert.deepEqual(report.metrics,batch.metrics);
+  assert.deepEqual(report.events,batch.events);assert.deepEqual(report.violations,batch.violations);
+  assert.equal((await fetch(url+'/step',post({expectedMinute:38,minutes:1}))).status,400);
+  assert.equal((await fetch(url+'/hardware/apply',post({}))).status,404);
+  assert.equal((await fetch(url,{method:'DELETE'})).status,200);
+  assert.equal((await fetch(url)).status,404);
+}));
+test('episode API enforces bounds, token, cross-origin and a capacity ceiling',()=>withServer({token:'episode-token'},async base=>{
+  const collection=base+'/api/v1/episodes';
+  assert.equal((await fetch(collection,post({}))).status,401);
+  const secured=body=>{const opts=post(body);opts.headers.authorization='Bearer episode-token';return opts;};
+  assert.equal((await fetch(collection,{...secured({}),headers:{...secured({}).headers,origin:'https://other.example'}})).status,403);
+  assert.equal((await fetch(collection,secured({plan:[]}))).status,400);
+  const created=await fetch(collection,secured({scenario:{horizonMinutes:3}}));assert.equal(created.status,201);
+  const url=collection+'/'+(await created.json()).episodeId;
+  assert.equal((await fetch(url+'/step',secured({minutes:1}))).status,400);
+  assert.equal((await fetch(url+'/step',secured({expectedMinute:0,minutes:0}))).status,400);
+  assert.equal((await fetch(url+'/step',secured({expectedMinute:0,controls:{gpuPowerLimitPct:101}}))).status,400);
+  assert.equal((await fetch(url+'/step',secured({expectedMinute:0,minutes:2}))).status,200);
+  assert.equal((await fetch(url+'/step',secured({expectedMinute:0,minutes:1}))).status,409);
+  assert.equal((await fetch(url+'/step',secured({expectedMinute:2,minutes:2}))).status,400);
+  assert.equal((await(await fetch(url,{headers:{authorization:'Bearer episode-token'}})).json()).minute,2);
+  for(let i=1;i<16;i++)assert.equal((await fetch(collection,secured({scenario:{horizonMinutes:1}}))).status,201);
+  assert.equal((await fetch(collection,secured({}))).status,503);
+}));

@@ -78,3 +78,74 @@ test('OpenAPI example executes with matching engine version',()=>{
   assert.equal(api.info.version,M.VERSION);assert.equal(api.openapi,'3.1.0');
   assert.equal(M.evaluate(op.requestBody.content['application/json'].example).mode,'simulation-only');
 });
+test('closed-loop episode reproduces the identical batch trajectory without restarting physics',()=>{
+  const scenario={preset:'pump-fault',seed:7,horizonMinutes:65};
+  const e=M.startEpisode({scenario});
+  assert.equal(M.observeEpisode(e).minute,0);
+  M.stepEpisode(e,{minutes:10,controls:{pumpPct:80}});
+  M.stepEpisode(e,{minutes:22,controls:{fanPct:90}});
+  const partial=M.episodeReport(e),prefix=structuredClone(partial.replayRequest);
+  prefix.scenario.horizonMinutes=partial.minute;
+  assert.deepEqual(partial.trace,M.evaluate(prefix).candidate.trace);
+  M.stepEpisode(e,{minutes:1,controls:{heatRecoveryPct:95}});
+  const final=M.stepEpisode(e,{minutes:32});
+  assert.equal(final.done,true);assert.equal(final.minute,65);
+  assert.equal(final.hardwareAuthorized,false);
+  const report=M.episodeReport(e),batch=M.evaluate(report.replayRequest).candidate;
+  assert.deepEqual(report.trace,batch.trace);
+  assert.deepEqual(report.metrics,batch.metrics);
+  assert.deepEqual(report.violations,batch.violations);
+  assert.deepEqual(report.events,batch.events);
+  assert.ok(report.maxEnergyResidualKJ<1e-5);
+  assert.equal(report.replayRequest.plan.length,3);
+  assert.deepEqual(report.replayRequest.scenario.initialState,scenario.initialState??{gpuC:55,coolantC:32,buildingC:21});
+});
+test('episode patches are incremental, deterministic and do not mutate observations',()=>{
+  const e=M.startEpisode({scenario:{horizonMinutes:4}}),initial=M.observeEpisode(e);
+  const action={minutes:2,controls:{pumpPct:80,fanPct:70}};
+  const first=M.stepEpisode(e,action);
+  assert.equal(first.controls.pumpPct,80);
+  first.state.gpuC=-999;first.events.push({type:'injected'});
+  assert.notEqual(M.observeEpisode(e).state.gpuC,-999);
+  assert.equal(e.request.plan.length,1);
+  M.stepEpisode(e,{minutes:1,controls:{pumpPct:80}}); // no-op patch does not count
+  assert.equal(e.request.plan.length,1);
+  assert.throws(()=>M.stepEpisode(e,{expectedMinute:0,minutes:1}),/Stale episode observation/);
+  assert.equal(M.observeEpisode(e).minute,3);
+  M.stepEpisode(e,{minutes:1});
+  assert.equal(M.observeEpisode(e).done,true);
+  assert.equal(initial.minute,0);assert.equal(action.controls.pumpPct,80);
+  const duplicate=M.startEpisode({scenario:{horizonMinutes:4}});
+  M.stepEpisode(duplicate,action);M.stepEpisode(duplicate,{minutes:1,controls:{pumpPct:80}});M.stepEpisode(duplicate,{minutes:1});
+  assert.deepEqual(M.episodeReport(e),M.episodeReport(duplicate));
+});
+test('episode refuses invalid actions, post-horizon steps, and action overflow without advancing state',()=>{
+  for(const x of [{plan:[]},{scenario:{horizonMinutes:361}},{schemaVersion:2},null])assert.throws(()=>M.startEpisode(x));
+  const e=M.startEpisode({scenario:{horizonMinutes:60}});
+  for(const x of [{minutes:0},{minutes:2.5},{minutes:61},{controls:{pumpPct:0}},
+    {controls:{unknownControl:1}},{extra:1},null])assert.throws(()=>M.stepEpisode(e,x));
+  assert.equal(M.observeEpisode(e).minute,0);
+  for(let i=0;i<50;i++)M.stepEpisode(e,{controls:{pumpPct:i%2?70:80}});
+  assert.equal(e.request.plan.length,50);
+  assert.throws(()=>M.stepEpisode(e,{controls:{pumpPct:75}}),/50 control changes/);
+  assert.equal(M.observeEpisode(e).minute,50);
+  M.stepEpisode(e,{minutes:10});
+  assert.throws(()=>M.stepEpisode(e),/minutes/);
+  assert.equal(M.observeEpisode(e).minute,60);
+});
+test('checkpoint continuation matches batch physics across scenarios and many step partitions',()=>{
+  const presets=['winter','summer','burst','pump-fault'];
+  for(let seed=0;seed<12;seed++){
+    const scenario={preset:presets[seed%4],seed,horizonMinutes:61},e=M.startEpisode({scenario});
+    let elapsed=0;
+    for(const duration of [1,7,2,14,3,20,14]){
+      const controls=elapsed%2===0?{pumpPct:60+seed,fanPct:50+seed}:{heatRecoveryPct:70+seed};
+      M.stepEpisode(e,{minutes:duration,controls});elapsed+=duration;
+    }
+    assert.equal(elapsed,61);
+    const episode=M.episodeReport(e),reference=M.evaluate(episode.replayRequest).candidate;
+    assert.deepEqual(episode.trace,reference.trace,scenario.preset+' trace');
+    assert.deepEqual(episode.metrics,reference.metrics,scenario.preset+' metrics');
+    assert.deepEqual(episode.violations,reference.violations,scenario.preset+' violations');
+  }
+});
