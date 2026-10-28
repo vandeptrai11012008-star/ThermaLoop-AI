@@ -8,12 +8,13 @@ const crypto = require('node:crypto');
 const {Worker,isMainThread,parentPort,workerData} = require('node:worker_threads');
 const engine = require('../science/agent-sandbox-model.js');
 const research = require('../science/agent-research-model.js');
+const validatedResearch = require('../service/validated-research.js');
 const {createEpisodeStore,restoreEpisode,snapshotEpisode} = require('./episode-store.cjs');
 const ROOT = path.resolve(__dirname,'..');
 const MAX_BODY = 65536;
 const MAX_EPISODES = 16;
 const EPISODE_IDLE_MS = 30*60*1000;
-const API_VERSION='1.3.0';
+const API_VERSION='1.4.0';
 function equalToken(a,b) {
   const x=crypto.createHash('sha256').update(a).digest(),y=crypto.createHash('sha256').update(b).digest();
   return crypto.timingSafeEqual(x,y);
@@ -97,7 +98,18 @@ function createServer({token=process.env.THERMALOOP_API_TOKEN??'',apiKeys=proces
           mode:'simulation-only',hardwareConnected:false,persistence:storePath?'local-file':'memory'});return;
       }
       if(req.method==='GET'&&pathname==='/api/v1/schema'){json(200,engine.schema());return;}
-      if(req.method==='GET'&&pathname==='/api/v1/openapi.json'){json(200,engine.openapi());return;}
+      if(req.method==='GET'&&pathname==='/api/v1/openapi.json'){
+        const document=engine.openapi();document.info.version=API_VERSION;
+        const entry=structuredClone(document.paths['/api/v1/research/optimize']);
+        entry.post.operationId='runTerminalMatchedResearch';
+        entry.post.summary='Bounded research requiring comparable terminal thermal states';
+        entry.post.description='Web Service v1.4 research: nominal final GPU, coolant and building temperatures must match the paired baseline within explicit illustrative bands; synthetic and uncalibrated, no hardware access.';
+        document.paths['/api/v1/research/validated']=entry;
+        document.paths['/physics-lab']={get:{operationId:'openWebServicePhysicsLab',
+          summary:'Web Service-only browser-local physical experiment laboratory',security:[],
+          responses:{'200':{description:'Isometric thermal-state experiment website; not a hardware control interface'}}}};
+        json(200,document);return;
+      }
       if(req.method==='GET'&&pathname==='/api/v1/usage'){
         json(200,{apiVersion:API_VERSION,principal:owner,requestsInWindow:usage.requests,
           requestsPerMinute:maxRequestsPerMinute,evaluationsInWindow:usage.evaluations,
@@ -162,7 +174,8 @@ function createServer({token=process.env.THERMALOOP_API_TOKEN??'',apiKeys=proces
         }
         json(405,{error:'Unsupported episode method'});return;
       }
-      const isResearch=pathname==='/api/v1/research/optimize';
+      const isValidatedResearch=pathname==='/api/v1/research/validated';
+      const isResearch=isValidatedResearch||pathname==='/api/v1/research/optimize';
       if(!isResearch&&pathname!=='/api/v1/simulations/evaluate'){
         json(404,{error:'Unknown endpoint; no hardware control endpoints exist'});return;}
       if(req.method!=='POST'){res.setHeader('Allow','POST');json(405,{error:'Use POST'});return;}
@@ -175,7 +188,8 @@ function createServer({token=process.env.THERMALOOP_API_TOKEN??'',apiKeys=proces
         if(isResearch)research.normalize(input);else engine.normalize(input); // reject before reserving a worker
         if(active>=maxWorkers){json(503,{error:'Simulation capacity reached; retry later'});return;}
         if(isResearch)usage.researches=(usage.researches??0)+1;else usage.evaluations++;
-        const worker=new Worker(__filename,{workerData:{input,kind:isResearch?'research':'evaluate'}});active++;workers.add(worker);
+        const worker=new Worker(__filename,{workerData:{input,
+          kind:isValidatedResearch?'validated':isResearch?'research':'evaluate'}});active++;workers.add(worker);
         let settled=false;
         const finish=(status,data)=>{if(settled)return;settled=true;clearTimeout(timer);active--;workers.delete(worker);json(status,data);worker.terminate();};
         const timer=setTimeout(()=>finish(504,{error:'Simulation time budget exceeded'}),15000);
@@ -187,14 +201,20 @@ function createServer({token=process.env.THERMALOOP_API_TOKEN??'',apiKeys=proces
       return;
     }
     if(!['GET','HEAD'].includes(req.method)){json(405,{error:'Read-only static server'});return;}
-    const relative=pathname==='/'?'index.html':pathname.replace(/^\//,'');
+    const relative=pathname==='/'?'index.html':pathname==='/physics-lab'?'service/physics-lab.html':pathname.replace(/^\//,'');
     const ext=path.extname(relative).toLowerCase();
     const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.md':'text/plain','.txt':'text/plain'};
     if(relative.split('/').some(p=>p.startsWith('.'))||!mime[ext]){json(404,{error:'Not found'});return;}
     try {
       const target=await fs.realpath(path.resolve(ROOT,relative));
       if(!target.startsWith(ROOT+path.sep)){json(404,{error:'Not found'});return;}
-      const content=await fs.readFile(target);
+      let content=await fs.readFile(target);
+      if(relative==='index.html'){
+        // This shortcut exists only in the Web Service response; the legacy
+        // Static Site index.html and its pinned inline scripts stay untouched.
+        const label='<a class="btn btn-primary" href="/physics-lab" style="font-size:10px;white-space:nowrap">PHYSICS LAB v1.4 ↗</a>';
+        content=Buffer.from(content.toString('utf8').replace('<div class="top-right">','<div class="top-right">'+label));
+      }
       res.writeHead(200,{'Content-Type':mime[ext]+'; charset=utf-8'});res.end(req.method==='HEAD'?undefined:content);
     } catch{json(404,{error:'Not found'});}
   });
@@ -203,8 +223,9 @@ function createServer({token=process.env.THERMALOOP_API_TOKEN??'',apiKeys=proces
   return server;
 }
 if(!isMainThread){
-  try{parentPort.postMessage({ok:true,result:workerData.kind==='research'?
-    research.run(workerData.input):engine.evaluate(workerData.input)});}catch(e){parentPort.postMessage({ok:false,error:e.message});}
+  try{parentPort.postMessage({ok:true,result:workerData.kind==='validated'?
+    validatedResearch.run(workerData.input):workerData.kind==='research'?
+      research.run(workerData.input):engine.evaluate(workerData.input)});}catch(e){parentPort.postMessage({ok:false,error:e.message});}
 } else if(require.main===module){
   const host=process.env.HOST??'127.0.0.1',port=Number(process.env.PORT??8787);
   try{

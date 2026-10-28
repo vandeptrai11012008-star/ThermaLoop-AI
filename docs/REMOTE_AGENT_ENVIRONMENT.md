@@ -1,4 +1,10 @@
-# ThermaLoop v1.3 — Remote Agent Environment + Research Lab
+# ThermaLoop v1.4 Web Service — Remote Agent Environment + Physics Lab
+
+The Node Web Service also serves an isolated `/physics-lab` route and
+authenticated `POST /api/v1/research/validated` with explicit nominal
+terminal-state comparison. The original v1.3 research endpoint is unchanged;
+the numerical thermal engine remains v1.1.0. See
+[Web Service Physics Lab v1.4](WEB_SERVICE_PHYSICS_LAB_V14.md).
 
 The **Remote Agent Environment** is a Node 22+ API for synthetic, deterministic thermal-control experiments. The new Render Web Service can serve **both the website and API on the same origin**; the older Static Site can still run the browser-only simulation. A static site by itself **does not run** the Node API and adding `render.yaml` to GitHub does **not provision** a service by itself.
 

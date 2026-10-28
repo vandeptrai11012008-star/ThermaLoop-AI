@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#08121e">
+  <meta name="description" content="ThermaLoop Web Service: stateful GPU, coolant and building thermal experiments for agents, with end-state-matched research checks.">
+  <title>Physics Lab · ThermaLoop AI v1.4</title>
+  <link rel="stylesheet" href="/service/physics-lab.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a href="/" class="brand" aria-label="ThermaLoop main website"><span class="brand-symbol">⬡</span><span>THERMALOOP <em>AI</em><small>PHYSICAL SIMULATION ENVIRONMENT</small></span></a>
+      <div class="header-actions"><span class="version">WEB SERVICE · v1.4</span><a class="back" href="/#agent-research">← Research dashboard</a></div>
+    </header>
+    <main>
+      <section class="hero">
+        <div><p class="eyebrow">PHYSICS LAB / THERMAL WORLD 01</p><h1>Experiment with <span>consequences.</span></h1>
+          <p class="lead">Control one simulated GPU thermal node, one coolant node and one occupied room. Observe their shared physical state, advance time, inspect a trace and test agent proposals against the same engine.</p></div>
+        <div class="hero-status"><span class="status-dot"></span><strong>SIMULATION ONLY</strong><small>Uncalibrated · no live equipment</small></div>
+      </section>
+      <div class="layout">
+        <div class="main-column">
+          <section class="card world-card" aria-labelledby="worldTitle">
+            <div class="card-head"><div><p class="eyebrow">01 / UNIFIED PHYSICAL STATE</p><h2 id="worldTitle">Thermal world</h2><p>Isometric topology schematic · three lumped temperatures, not spatial CFD or 64 independent GPUs.</p></div><div class="scene-clock"><small>SIMULATED TIME</small><strong id="minuteBadge">0 / 60 min</strong></div></div>
+            <div class="scene" id="worldScene">
+              <svg viewBox="0 0 900 420" role="img" aria-label="An isometric physical topology: aggregate GPU connected to coolant and building thermal nodes; labels update from the same simulation state" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                  <linearGradient id="floorGrad" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#142d40"/><stop offset="1" stop-color="#0b1c2b"/></linearGradient>
+                  <linearGradient id="gpuGrad" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f5ac75"/><stop offset="1" stop-color="#925440"/></linearGradient>
+                  <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#68dcf5"/><stop offset="1" stop-color="#176787"/></linearGradient>
+                  <linearGradient id="roomGrad" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#a8e9c3"/><stop offset="1" stop-color="#357f77"/></linearGradient>
+                  <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="14" stdDeviation="14" flood-opacity=".42"/></filter>
+                  <marker id="flowArrow" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0 0 L8 3 L0 6 Z" fill="#79d6f0"/></marker>
+                </defs>
+                <path d="M52 283 L446 89 L845 284 L452 414 Z" fill="url(#floorGrad)" stroke="#2b5065" stroke-width="2"/>
+                <g opacity=".24" stroke="#4a8da7" stroke-width="1"><path d="M147 237 L537 390 M249 187 L644 350 M347 139 L742 305 M144 324 L535 132 M245 370 L637 179 M345 409 L738 223"/></g>
+                <path d="M253 273 Q305 254 340 276" fill="none" stroke="#0b283a" stroke-width="18" stroke-linecap="round"/>
+                <path d="M253 273 Q305 254 340 276" fill="none" stroke="#65bfe6" stroke-width="7" stroke-linecap="round" stroke-dasharray="12 9" marker-end="url(#flowArrow)"/>
+                <path d="M546 279 Q607 261 657 275" fill="none" stroke="#0b283a" stroke-width="18" stroke-linecap="round"/>
+                <path d="M546 279 Q607 261 657 275" fill="none" stroke="#74dbc4" stroke-width="7" stroke-linecap="round" stroke-dasharray="12 9" marker-end="url(#flowArrow)"/>
+                <g class="machine" data-node="gpu" tabindex="0" role="button" aria-label="Inspect aggregate GPU node" filter="url(#shadow)">
+                  <path d="M90 247 L173 212 L255 245 L173 283 Z" fill="#573c35"/><path d="M91 128 L173 92 L253 126 L173 163 Z" fill="#e6ae81"/><path d="M91 128 L173 163 L173 282 L91 246 Z" fill="#83503e"/><path d="M173 163 L253 126 L253 245 L173 282 Z" fill="url(#gpuGrad)"/>
+                  <path d="M186 178 L244 151 M186 199 L244 171 M186 220 L244 192 M186 241 L244 213" stroke="#4b2b27" stroke-width="7"/><path d="M190 176 L231 157 M190 197 L231 178 M190 218 L231 199 M190 239 L231 220" stroke="#ffc899" stroke-width="2"/>
+                </g>
+                <g class="machine" data-node="coolant" tabindex="0" role="button" aria-label="Inspect coolant node" filter="url(#shadow)">
+                  <ellipse cx="447" cy="149" rx="65" ry="31" fill="#65d7ec"/><path d="M382 149 L382 290 Q447 328 512 290 L512 149 Q447 181 382 149 Z" fill="url(#waterGrad)"/><ellipse cx="447" cy="290" rx="65" ry="30" fill="#17657b"/><ellipse cx="447" cy="149" rx="65" ry="30" fill="#9aeafa"/><path d="M394 190 Q445 207 500 190 M394 240 Q447 262 500 240" fill="none" stroke="#b7f9ff" opacity=".65" stroke-width="5"/>
+                </g>
+                <g class="machine" data-node="building" tabindex="0" role="button" aria-label="Inspect room node" filter="url(#shadow)">
+                  <path d="M664 173 L741 138 L815 173 L738 209 Z" fill="#b4e6c9"/><path d="M664 173 L738 209 L738 300 L664 264 Z" fill="#366d6a"/><path d="M738 209 L815 173 L815 264 L738 300 Z" fill="url(#roomGrad)"/><path d="M759 217 L791 202 L791 249 L759 264 Z" fill="#b7f4dc" opacity=".8"/><path d="M679 200 L719 220 L719 263 L679 244 Z" fill="#214e56" stroke="#75c7b2" stroke-width="2"/>
+                </g>
+                <g class="scene-label"><rect x="78" y="38" width="189" height="55" rx="12"/><text x="96" y="59" class="label-title">GPU / AGGREGATE</text><text x="96" y="81" class="label-value" id="svgGpu">55.00 °C</text></g>
+                <g class="scene-label"><rect x="353" y="45" width="188" height="55" rx="12"/><text x="370" y="66" class="label-title">COOLANT LOOP</text><text x="370" y="89" class="label-value" id="svgCoolant">32.00 °C</text></g>
+                <g class="scene-label"><rect x="646" y="42" width="194" height="55" rx="12"/><text x="663" y="63" class="label-title">OCCUPIED ROOM</text><text x="663" y="86" class="label-value" id="svgBuilding">21.00 °C</text></g>
+                <text x="297" y="319" class="pipe-note" text-anchor="middle">GPU → COOLANT</text><text x="604" y="319" class="pipe-note" text-anchor="middle">HEAT RECOVERY</text>
+                <text x="460" y="395" text-anchor="middle" class="footnote">SCHEMATIC 3-STATE RC MODEL · NOT PHYSICAL GEOMETRY</text>
+              </svg>
+              <div class="node-inspector" id="nodeInspector" aria-live="polite">Select a component to inspect its simulated temperature and scope.</div>
+            </div>
+            <div class="readings" id="stateReadings" aria-live="polite"></div>
+          </section>
+          <section class="card trace-card" aria-labelledby="traceTitle">
+            <div class="card-head"><div><p class="eyebrow">02 / EXPERIMENT TRACE</p><h2 id="traceTitle">Temperatures over time</h2><p>Replaying an earlier minute changes the display only; it never rewinds the active episode.</p></div><button id="exportEpisode" type="button" disabled>Export evidence ↓</button></div>
+            <div class="legend"><span class="legend-gpu">GPU</span><span class="legend-water">Coolant</span><span class="legend-room">Room</span></div>
+            <svg id="traceChart" viewBox="0 0 800 230" aria-label="Three simulated temperature traces" role="img"></svg>
+            <label class="trace-control" for="replayMinute">Inspect minute <strong id="replayLabel">0</strong><input id="replayMinute" type="range" min="0" max="0" value="0"></label>
+            <p id="traceMessage" class="status-text">Start an episode to record its thermal trajectory.</p>
+          </section>
+        </div>
+        <div class="side-column">
+          <section class="card control-card"><p class="eyebrow">03 / EXPERIMENT CONTROLS</p><h2>Create an episode</h2>
+            <div class="fields"><label>Scenario<select id="preset"><option value="winter">Winter heating</option><option value="burst">GPU compute burst</option><option value="summer">Summer cooling</option><option value="pump-fault">Pump degradation</option></select></label><label>Seed<input id="seed" type="number" min="0" max="4294967295" step="1" value="42"></label><label>Horizon (minutes)<input id="horizon" type="number" min="1" max="120" step="1" value="60"></label></div>
+            <div class="control-sliders">
+              <label>Pump command <strong id="pumpLabel">75%</strong><input id="pump" type="range" min="20" max="100" step="5" value="75"></label>
+              <label>Cooling fan <strong id="fanLabel">70%</strong><input id="fan" type="range" min="0" max="100" step="5" value="70"></label>
+              <label>Heat recovery <strong id="recoveryLabel">70%</strong><input id="recovery" type="range" min="0" max="100" step="5" value="70"></label>
+              <label>Room heating setpoint <strong id="setpointLabel">21 °C</strong><input id="setpoint" type="range" min="16" max="25" step="0.5" value="21"></label>
+            </div>
+            <p class="hint">Slider changes apply on the next step; physical states are computed by the shared ThermaLoop engine. GPU power stays 100% and ventilation stays 0.6 ACH.</p>
+            <div class="actions"><button class="primary" id="start">Start / reset</button><button id="stepOne" disabled>Step 1 min</button><button id="stepFive" disabled>Step 5 min</button><button id="feedback" disabled>10 feedback steps</button></div>
+            <p id="controlStatus" class="status-text" role="status">Ready to start a browser-local episode.</p>
+          </section>
+          <section class="card research-card"><p class="eyebrow">04 / BOUNDED AGENT RESEARCH</p><h2>Compare fairly</h2><p>Search only eligible control plans. A winner must also finish near the baseline GPU, coolant and room temperatures.</p>
+            <label>Candidate trials (2–30)<input id="trials" type="number" min="2" max="30" step="1" value="20"></label>
+            <div class="actions"><button id="runResearch" class="primary">Run fair search</button><button id="cancelResearch" disabled>Cancel</button><button id="exportResearch" disabled>Export JSON ↓</button></div>
+            <progress id="researchProgress" value="0" max="20"></progress><p id="researchStatus" class="status-text" role="status">Uses the same physics model; no secret or remote AI cost.</p>
+            <div id="researchResults" hidden><div class="research-stats" id="researchStats"></div><p id="researchVerdict"></p><div id="researchHoldouts" class="holdouts"></div><button id="loadWinner" type="button" disabled>Load winner into controls</button><details><summary>Candidate table and terminal-state differences</summary><div class="table-wrap"><table><thead><tr><th>#</th><th>Eligible</th><th>kWh</th><th>Δ Room °C</th></tr></thead><tbody id="researchRows"></tbody></table></div></details></div>
+          </section>
+          <section class="card api-card"><p class="eyebrow">05 / AGENT ACCESS</p><h2>Remote AI interface</h2><p>Server-side agents can use authenticated episodes or request stricter research through <code>POST /api/v1/research/validated</code>.</p><a href="/api/v1/openapi.json" class="doc-link">OpenAPI contract ↗</a><p class="hint">Browser simulations are local. API requests require a private Bearer token; never put that token in frontend code.</p></section>
+        </div>
+      </div>
+      <footer><strong>SCIENTIFIC LIMITATION</strong> · The three-state plant is synthetic and not calibrated to a real facility. Passing modeled limits or terminal comparison tolerances does not establish real-world safety or energy savings. No hardware is connected.</footer>
+    </main>
+  </div>
+  <script src="/science/agent-sandbox-model.js"></script>
+  <script src="/science/agent-research-model.js"></script>
+  <script src="/service/validated-research.js"></script>
+  <script src="/service/physics-lab.js"></script>
+</body>
+</html>
