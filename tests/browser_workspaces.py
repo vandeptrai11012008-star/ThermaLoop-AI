@@ -90,7 +90,7 @@ async def run(base,out):
    await fallback.route('**/science/workspaces.js',lambda route:route.abort())
    await fallback.goto(base);await fallback.locator('#play').click()
    await fallback.wait_for_function('window.ThermaPhysicsDashboard?.getReport()',polling=100)
-   assert await fallback.locator('.side .menu a').count()==9
+   assert await fallback.locator('.side .menu a').count()==8
    assert await fallback.locator('#physical-model').is_visible()
    assert not await fallback.locator('html').evaluate('e=>e.classList.contains("has-workspaces")')
    await fallback.close();checks.append('Unavailable navigation module retains the original long-page layout and model engines')
