@@ -21,7 +21,7 @@ async def run(base,out):
             assert 'v1.4' in await page.title()
             assert await page.locator('#minuteBadge').inner_text()=='0 / 60 min'
             assert await page.locator('#svgGpu').inner_text()=='55.00 °C'
-            assert 'uncalibrated' in (await page.locator('footer').inner_text()).lower()
+            assert 'not calibrated' in (await page.locator('footer').inner_text()).lower()
             await page.locator('#pump').evaluate("el=>{el.value=90;el.dispatchEvent(new Event('input',{bubbles:true}));}")
             await page.locator('#stepFive').click()
             report=await page.evaluate('ThermaPhysicsLab.getEpisodeReport()')
