@@ -1,8 +1,8 @@
-# ThermaLoop v1.2 — Remote Agent Environment
+# ThermaLoop v1.3 — Remote Agent Environment + Research Lab
 
-The **Remote Agent Environment** is an optional, separately deployed Node 22+ API for synthetic, deterministic thermal-control experiments. The original Render Static Site still runs the browser-only interactive simulation. A static site **does not run** the Node API and adding `render.yaml` to GitHub does **not provision** a service by itself.
+The **Remote Agent Environment** is a Node 22+ API for synthetic, deterministic thermal-control experiments. The new Render Web Service can serve **both the website and API on the same origin**; the older Static Site can still run the browser-only simulation. A static site by itself **does not run** the Node API and adding `render.yaml` to GitHub does **not provision** a service by itself.
 
-There is **no physical hardware access**, trained controller, verified building model, or real GPU telemetry. All results are from an uncalibrated three-temperature RC plant. The numerical engine remains v1.1; the remote HTTP interface and controls are v1.2.
+There is **no physical hardware access**, trained controller, verified building model, or real GPU telemetry. All results are from an uncalibrated three-temperature RC plant. The numerical engine remains v1.1; the remote HTTP interface is now v1.3, with bounded deterministic research searches. See [Autonomous Research Lab](AUTONOMOUS_RESEARCH_LAB.md).
 
 ## Deploy safely on Render
 
@@ -27,6 +27,7 @@ All `/api/v1/*` routes require a Bearer token on a public service; `/healthz` is
 | `GET /api/v1/openapi.json` | OpenAPI 3.1 contract. |
 | `GET /api/v1/usage` | Per-principal quotas and current episode count. |
 | `POST /api/v1/simulations/evaluate` | Bounded paired baseline/candidate comparison. |
+| `POST /api/v1/research/optimize` | Up to 30 bounded deterministic candidate trials, best eligible training plan and two untouched holdout checks. |
 | `POST /api/v1/episodes` | Start a private, bounded simulation episode. |
 | `GET /api/v1/episodes/{id}` | Observe an episode you own. |
 | `POST /api/v1/episodes/{id}/step` | Mutate controls and advance simulation, using `expectedMinute`. |
@@ -56,7 +57,7 @@ Do not assume an episode ID is sufficient authorization. Every request checks th
 ## Session limits and secrets
 
 - Global maximum **16 episodes**; idle expiry **30 minutes**; each experiment up to **360 simulated minutes** and **50 effective control changes**.
-- Default **120 API requests/minute** and **12 evaluation requests/minute** per principal. The Render Blueprint limits each token to **4 active episodes**; local default is 16. In-memory quota counters reset after each 60-second window and after process restart. These are research safeguards, not distributed-scale abuse protection.
+- Default **120 API requests/minute**, **12 evaluation requests/minute**, and **2 research searches/minute** per principal. The Render Blueprint limits each token to **4 active episodes**; local default is 16. In-memory quota counters reset after each 60-second window and after process restart. These are research safeguards, not distributed-scale abuse protection.
 - Maximum JSON request body **64 KiB**, maximum **2 concurrent** evaluation workers, and **15-second** evaluation timeout. Step requests execute a bounded 5-second-increment thermal model in-process.
 - For separate researchers, set `THERMALOOP_API_KEYS` to a JSON object such as `{"alice":"RANDOM_SECRET_32_BYTES_OR_LONGER","bob":"ANOTHER_RANDOM_SECRET_32_BYTES_LONG"}` **in Render's secret configuration**. Each named key owns its own episodes. `THERMALOOP_API_TOKEN` (if set) is the separate `owner` principal. Values must be unique; key names are identifiers and are not sensitive.
 - An optional local file path via `THERMALOOP_EPISODE_STORE` saves only per-session owner ID, last-access time, minute and a deterministic replay request, with atomic replacement on successful writes. This supports **single-instance** restarts only when the filesystem itself is persistent. The API restores physical checkpoints by deterministic re-simulation. It is **not a distributed database**, and offers no guarantee against disk loss or corruption.

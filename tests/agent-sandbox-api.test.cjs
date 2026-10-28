@@ -12,6 +12,7 @@ test('HTTP evaluation is identical to the browser/CommonJS engine; schema is dis
   const input={scenario:{horizonMinutes:10},plan:[]};const response=await fetch(base+'/api/v1/simulations/evaluate',post(input));
   assert.equal(response.status,200);assert.deepEqual(await response.json(),model.evaluate(input));
   assert.equal((await fetch(base+'/')).status,200);assert.equal((await fetch(base+'/science/agent-sandbox-worker.js')).status,200);
+  assert.equal((await fetch(base+'/science/agent-research-worker.js')).status,200);
 }));
 test('API rejects invalid actions, malformed JSON, wrong methods and hardware requests',()=>withServer({},async base=>{
   const url=base+'/api/v1/simulations/evaluate';

@@ -30,7 +30,7 @@ test('remote agent keys cannot inspect, step or delete another principal episode
 },async base=>{
   const alice='a'.repeat(40),bob='b'.repeat(40),create=base+'/api/v1/episodes';
   const liveness=await(await fetch(base+'/healthz')).json();
-  assert.equal(liveness.apiVersion,'1.2.0');assert.equal(liveness.hardwareConnected,false);
+  assert.equal(liveness.apiVersion,'1.3.0');assert.equal(liveness.hardwareConnected,false);
   assert.equal((await fetch(base+'/api/v1/usage')).status,401);
   assert.equal((await fetch(create,post({scenario:{horizonMinutes:3}},alice))).status,201);
   const own=await(await fetch(base+'/api/v1/usage',auth(alice))).json();
@@ -60,6 +60,25 @@ test('request and evaluation quotas return 429 and Retry-After without executing
   for(let i=0;i<5;i++)assert.equal((await fetch(base+'/api/v1/health',auth(key))).status,200);
   const blocked=await fetch(base+'/api/v1/health',auth(key));
   assert.equal(blocked.status,429);
+}));
+
+test('v1.3 research is authenticated, bounded, replayable and independently rate limited',()=>withServer({
+  token:'research-private-key',maxResearchesPerMinute:1,maxEvaluationsPerMinute:2
+},async base=>{
+  const endpoint=base+'/api/v1/research/optimize',token='research-private-key';
+  const input={scenario:{preset:'winter',horizonMinutes:20,seed:15},trials:5};
+  assert.equal((await fetch(endpoint,post(input))).status,401);
+  assert.equal((await fetch(endpoint,post({...input,trials:31},token))).status,400);
+  const response=await fetch(endpoint,post(input,token));assert.equal(response.status,200);
+  const result=await response.json();assert.equal(result.version,'1.3.0');
+  assert.equal(result.hardwareAuthorized,false);assert.equal(result.trialCount,5);
+  assert.ok(result.bestReport);assert.deepEqual(result.bestReport,
+    engine.evaluate({scenario:result.config.scenario,plan:result.best.plan}));
+  const usage=await(await fetch(base+'/api/v1/usage',auth(token))).json();
+  assert.equal(usage.researchesInWindow,1);assert.equal(usage.evaluationsInWindow,0);
+  const blocked=await fetch(endpoint,post(input,token));assert.equal(blocked.status,429);
+  assert.ok(Number(blocked.headers.get('retry-after'))>=1);
+  assert.equal((await fetch(base+'/api/v1/simulations/evaluate',post({scenario:{horizonMinutes:1},plan:[]},token))).status,200);
 }));
 
 test('optional replay store recovers exact physical trajectory and preserves session ownership after restart',async()=>{

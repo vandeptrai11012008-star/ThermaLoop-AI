@@ -73,9 +73,10 @@ test('maximum horizon is bounded and produces finite results',()=>{
   assert.equal(r.candidate.trace.length,361);
   for(const v of Object.values(r.candidate.metrics))assert.ok(Number.isFinite(v));
 });
-test('v1.2 OpenAPI example runs against the unchanged v1.1 physical engine',()=>{
+test('v1.3 OpenAPI example runs against the unchanged v1.1 physical engine',()=>{
   const api=M.openapi(),op=api.paths['/api/v1/simulations/evaluate'].post;
-  assert.equal(api.info.version,'1.2.0');assert.equal(M.VERSION,'1.1.0');assert.equal(api.openapi,'3.1.0');
+  assert.equal(api.info.version,'1.3.0');assert.equal(M.VERSION,'1.1.0');assert.equal(api.openapi,'3.1.0');
+  assert.ok(api.paths['/api/v1/research/optimize']);
   assert.equal(M.evaluate(op.requestBody.content['application/json'].example).mode,'simulation-only');
 });
 test('closed-loop episode reproduces the identical batch trajectory without restarting physics',()=>{

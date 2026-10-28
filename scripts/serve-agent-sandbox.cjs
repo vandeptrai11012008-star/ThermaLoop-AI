@@ -7,12 +7,13 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const {Worker,isMainThread,parentPort,workerData} = require('node:worker_threads');
 const engine = require('../science/agent-sandbox-model.js');
+const research = require('../science/agent-research-model.js');
 const {createEpisodeStore,restoreEpisode,snapshotEpisode} = require('./episode-store.cjs');
 const ROOT = path.resolve(__dirname,'..');
 const MAX_BODY = 65536;
 const MAX_EPISODES = 16;
 const EPISODE_IDLE_MS = 30*60*1000;
-const API_VERSION='1.2.0';
+const API_VERSION='1.3.0';
 function equalToken(a,b) {
   const x=crypto.createHash('sha256').update(a).digest(),y=crypto.createHash('sha256').update(b).digest();
   return crypto.timingSafeEqual(x,y);
@@ -39,9 +40,9 @@ function validateRemoteConfig(host,keys) {
 }
 function createServer({token=process.env.THERMALOOP_API_TOKEN??'',apiKeys=process.env.THERMALOOP_API_KEYS?
   JSON.parse(process.env.THERMALOOP_API_KEYS):{},maxWorkers=2,maxRequestsPerMinute=120,
-  maxEvaluationsPerMinute=12,maxEpisodesPerPrincipal=16,
+  maxEvaluationsPerMinute=12,maxResearchesPerMinute=2,maxEpisodesPerPrincipal=16,
   storePath=process.env.THERMALOOP_EPISODE_STORE??''}={}) {
-  for(const [name,n] of Object.entries({maxWorkers,maxRequestsPerMinute,maxEvaluationsPerMinute,maxEpisodesPerPrincipal}))
+  for(const [name,n] of Object.entries({maxWorkers,maxRequestsPerMinute,maxEvaluationsPerMinute,maxResearchesPerMinute,maxEpisodesPerPrincipal}))
     if(!Number.isInteger(n)||n<1||n>10000)throw new Error('Invalid limit: '+name);
   const keys=configuredKeys(token,apiKeys);
   let active=0;
@@ -82,7 +83,7 @@ function createServer({token=process.env.THERMALOOP_API_TOKEN??'',apiKeys=proces
         owner=matched[0];
       }
       const now=Date.now(),bucket=quotas.get(owner);
-      const usage=bucket&&now-bucket.started<60000?bucket:{started:now,requests:0,evaluations:0};
+      const usage=bucket&&now-bucket.started<60000?bucket:{started:now,requests:0,evaluations:0,researches:0};
       quotas.set(owner,usage);
       res.setHeader('RateLimit-Limit',String(maxRequestsPerMinute));
       res.setHeader('RateLimit-Remaining',String(Math.max(0,maxRequestsPerMinute-usage.requests-1)));
@@ -100,7 +101,8 @@ function createServer({token=process.env.THERMALOOP_API_TOKEN??'',apiKeys=proces
       if(req.method==='GET'&&pathname==='/api/v1/usage'){
         json(200,{apiVersion:API_VERSION,principal:owner,requestsInWindow:usage.requests,
           requestsPerMinute:maxRequestsPerMinute,evaluationsInWindow:usage.evaluations,
-          evaluationsPerMinute:maxEvaluationsPerMinute,activeEpisodes:[...episodes.values()].filter(e=>e.owner===owner).length,
+          evaluationsPerMinute:maxEvaluationsPerMinute,researchesInWindow:usage.researches??0,
+          researchesPerMinute:maxResearchesPerMinute,activeEpisodes:[...episodes.values()].filter(e=>e.owner===owner).length,
           maxEpisodesPerPrincipal,globalEpisodes:episodes.size,maxGlobalEpisodes:MAX_EPISODES,
           windowResetsInSeconds:Math.max(1,Math.ceil((60000-(now-usage.started))/1000))});return;
       }
@@ -160,17 +162,20 @@ function createServer({token=process.env.THERMALOOP_API_TOKEN??'',apiKeys=proces
         }
         json(405,{error:'Unsupported episode method'});return;
       }
-      if(pathname!=='/api/v1/simulations/evaluate'){json(404,{error:'Unknown endpoint; no hardware control endpoints exist'});return;}
+      const isResearch=pathname==='/api/v1/research/optimize';
+      if(!isResearch&&pathname!=='/api/v1/simulations/evaluate'){
+        json(404,{error:'Unknown endpoint; no hardware control endpoints exist'});return;}
       if(req.method!=='POST'){res.setHeader('Allow','POST');json(405,{error:'Use POST'});return;}
-      if(usage.evaluations>=maxEvaluationsPerMinute){res.setHeader('Retry-After',String(Math.max(1,Math.ceil((60000-(now-usage.started))/1000))));
-        json(429,{error:'Evaluation quota reached; retry later'});return;}
+      if(isResearch?(usage.researches??0)>=maxResearchesPerMinute:usage.evaluations>=maxEvaluationsPerMinute){
+        res.setHeader('Retry-After',String(Math.max(1,Math.ceil((60000-(now-usage.started))/1000))));
+        json(429,{error:(isResearch?'Research':'Evaluation')+' quota reached; retry later'});return;}
       if(active>=maxWorkers){json(503,{error:'Simulation capacity reached; retry later'});return;}
       try {
         const input=await readJSON();
-        engine.normalize(input); // reject invalid actions before reserving a worker
+        if(isResearch)research.normalize(input);else engine.normalize(input); // reject before reserving a worker
         if(active>=maxWorkers){json(503,{error:'Simulation capacity reached; retry later'});return;}
-        usage.evaluations++;
-        const worker=new Worker(__filename,{workerData:{input}});active++;workers.add(worker);
+        if(isResearch)usage.researches=(usage.researches??0)+1;else usage.evaluations++;
+        const worker=new Worker(__filename,{workerData:{input,kind:isResearch?'research':'evaluate'}});active++;workers.add(worker);
         let settled=false;
         const finish=(status,data)=>{if(settled)return;settled=true;clearTimeout(timer);active--;workers.delete(worker);json(status,data);worker.terminate();};
         const timer=setTimeout(()=>finish(504,{error:'Simulation time budget exceeded'}),15000);
@@ -198,7 +203,8 @@ function createServer({token=process.env.THERMALOOP_API_TOKEN??'',apiKeys=proces
   return server;
 }
 if(!isMainThread){
-  try{parentPort.postMessage({ok:true,result:engine.evaluate(workerData.input)});}catch(e){parentPort.postMessage({ok:false,error:e.message});}
+  try{parentPort.postMessage({ok:true,result:workerData.kind==='research'?
+    research.run(workerData.input):engine.evaluate(workerData.input)});}catch(e){parentPort.postMessage({ok:false,error:e.message});}
 } else if(require.main===module){
   const host=process.env.HOST??'127.0.0.1',port=Number(process.env.PORT??8787);
   try{
