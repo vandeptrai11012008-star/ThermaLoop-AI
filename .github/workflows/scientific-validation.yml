@@ -19,6 +19,7 @@ jobs:
       - run: python scripts/build_physics.py --check
       - run: node scripts/run_workload_experiments.cjs --check
       - run: node --test tests/*.test.cjs
+      - run: node scripts/build_agent_contract.cjs --check
       - run: pip install -r requirements-workloads.txt
       - run: python -m pytest -q tests/test_numerical_reference.py tests/test_workload_router.py tests/test_physics_counterflow.py
         env:
@@ -46,6 +47,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         run: python tests/browser_workspaces.py --base-url https://thermaloop-ai-5.onrender.com --artifacts /tmp/thermaloop-browser-results/workspaces
       - run: python tests/browser_physics.py --artifacts /tmp/thermaloop-browser-results/physics-default-motion
+      - run: python tests/browser_agent_sandbox.py --artifacts /tmp/thermaloop-browser-results/agent-sandbox
       - uses: actions/upload-artifact@v4
         if: always()
         with:

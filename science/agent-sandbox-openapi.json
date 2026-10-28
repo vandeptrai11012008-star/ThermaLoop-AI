@@ -1,0 +1,268 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ThermaLoop Agent Simulation API",
+    "version": "1.0.0",
+    "description": "Uncalibrated reduced-order simulation. Passing these checks is not authorization or evidence of safety for real building control."
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:8787",
+      "description": "Optional local server; not the static website"
+    }
+  ],
+  "paths": {
+    "/api/v1/simulations/evaluate": {
+      "post": {
+        "operationId": "evaluateBuildingControlPlan",
+        "summary": "Simulate a proposed control plan against paired baselines",
+        "description": "No hardware action occurs. Body must be at most 64 KiB. Same engine as the browser workspace.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "schemaVersion": {
+                    "type": "integer",
+                    "const": 1
+                  },
+                  "scenario": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "preset": {
+                        "type": "string",
+                        "enum": [
+                          "winter",
+                          "burst",
+                          "summer",
+                          "pump-fault"
+                        ]
+                      },
+                      "seed": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 4294967295
+                      },
+                      "horizonMinutes": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 360
+                      },
+                      "outsideC": {
+                        "type": "number",
+                        "minimum": -20,
+                        "maximum": 40
+                      },
+                      "loadFraction": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      "occupants": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 200
+                      },
+                      "solarKW": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 30
+                      },
+                      "initialState": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "gpuC": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 120
+                          },
+                          "coolantC": {
+                            "type": "number",
+                            "minimum": 5,
+                            "maximum": 70
+                          },
+                          "buildingC": {
+                            "type": "number",
+                            "minimum": 5,
+                            "maximum": 40
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "plan": {
+                    "type": "array",
+                    "maxItems": 50,
+                    "description": "Increasing unique minute offsets, each less than horizonMinutes. Empty array preserves baseline. Omitted plan uses the example candidate.",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "atMinute",
+                        "controls"
+                      ],
+                      "properties": {
+                        "atMinute": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 359
+                        },
+                        "controls": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "gpuPowerLimitPct": {
+                              "type": "number",
+                              "minimum": 40,
+                              "maximum": 100
+                            },
+                            "pumpPct": {
+                              "type": "number",
+                              "minimum": 20,
+                              "maximum": 100
+                            },
+                            "fanPct": {
+                              "type": "number",
+                              "minimum": 0,
+                              "maximum": 100
+                            },
+                            "heatRecoveryPct": {
+                              "type": "number",
+                              "minimum": 0,
+                              "maximum": 100
+                            },
+                            "heatingSetpointC": {
+                              "type": "number",
+                              "minimum": 16,
+                              "maximum": 25
+                            },
+                            "ventilationACH": {
+                              "type": "number",
+                              "minimum": 0.2,
+                              "maximum": 3
+                            },
+                            "lightingPct": {
+                              "type": "number",
+                              "minimum": 0,
+                              "maximum": 100
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "example": {
+                "schemaVersion": 1,
+                "scenario": {
+                  "preset": "winter",
+                  "seed": 42,
+                  "horizonMinutes": 120
+                },
+                "plan": [
+                  {
+                    "atMinute": 0,
+                    "controls": {
+                      "pumpPct": 60,
+                      "fanPct": 55,
+                      "heatRecoveryPct": 90,
+                      "heatingSetpointC": 20.5
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Simulation report, not a deployment approval",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "schemaVersion",
+                    "engineVersion",
+                    "mode",
+                    "request",
+                    "baseline",
+                    "candidate",
+                    "stressTests",
+                    "verdict",
+                    "limitations"
+                  ],
+                  "properties": {
+                    "mode": {
+                      "const": "simulation-only"
+                    },
+                    "verdict": {
+                      "type": "object",
+                      "required": [
+                        "status",
+                        "hardwareAuthorized"
+                      ],
+                      "properties": {
+                        "status": {
+                          "enum": [
+                            "within_tested_envelope",
+                            "needs_revision"
+                          ]
+                        },
+                        "hardwareAuthorized": {
+                          "const": false
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid JSON, scenario or action"
+          },
+          "401": {
+            "description": "API token missing or incorrect when configured"
+          },
+          "403": {
+            "description": "Cross-origin request refused"
+          },
+          "413": {
+            "description": "Request exceeds 64 KiB"
+          },
+          "415": {
+            "description": "JSON content type required"
+          },
+          "503": {
+            "description": "Simulation capacity reached"
+          },
+          "504": {
+            "description": "Simulation time budget exceeded"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Required when server token is configured; mandatory for non-loopback binding."
+      }
+    }
+  },
+  "security": [
+    {},
+    {
+      "bearerAuth": []
+    }
+  ]
+}
