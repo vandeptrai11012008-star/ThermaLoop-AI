@@ -1,0 +1,20 @@
+# Opt-in Render Blueprint: create a SECOND service for remote agents.
+# The existing static site keeps its current deployment and URL.
+services:
+  - type: web
+    name: thermaloop-agent-api
+    runtime: node
+    plan: free
+    buildCommand: node scripts/build_agent_contract.cjs --check
+    startCommand: node scripts/serve-agent-sandbox.cjs
+    healthCheckPath: /healthz
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: HOST
+        value: 0.0.0.0
+      - key: THERMALOOP_API_TOKEN
+        generateValue: true
+      - key: THERMALOOP_MAX_EPISODES_PER_AGENT
+        value: 4
