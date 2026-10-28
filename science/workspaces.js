@@ -22,6 +22,9 @@
         {anchor:'scientific-validation', title:'Cooling validation', selectors:['#scientific-validation']},
         {anchor:'numerical-verification', title:'Numerical verification', selectors:['#numerical-verification']}
       ]},
+      {id:'agents', title:'Agent Sandbox', icon:'◇', note:'Propose building-control actions, simulate their physical consequences and export evidence. No real equipment is connected.', panels:[
+        {anchor:'agent-sandbox', title:'Control experiments', selectors:['#agent-sandbox']}
+      ]},
       {id:'economics', title:'Economics', icon:'＄', note:'Explore financial scenarios with explicit synthetic workload, hardware and electricity assumptions.', panels:[
         {anchor:'scale-lab', title:'Scale & financial impact', selectors:['#scale-lab']}
       ]},

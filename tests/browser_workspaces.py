@@ -29,14 +29,14 @@ async def run(base,out):
    async def enter(anchor,workspace,panel=None):
     await page.evaluate('(h)=>{location.hash=h}', '#'+anchor)
     await state(workspace,panel or anchor)
-   assert await page.locator('.side .menu a').count()==5
+   assert await page.locator('.side .menu a').count()==6
    await state('overview','digital-twin')
    original_height=await page.evaluate('document.documentElement.scrollHeight')
    assert original_height<6000,original_height
    assert await page.evaluate("!!document.getElementById('glCanvas').getContext('webgl')")
    await page.evaluate('scrollTo(0,0)')
    await page.screenshot(path=str(out/'overview-1440.png'))
-   checks.append('Five main destinations; one visible panel; compact desktop overview and preserved WebGL')
+   checks.append('Six main destinations; one visible panel; compact desktop overview and preserved WebGL')
    # All former anchors and their descendants still route to their owning screen.
    targets=[('analytics','overview','analytics'),('comparison','experiments','comparison'),('experiment-studio','experiments','experiment-studio'),('gpu-lab','experiments','gpu-lab'),('diagnostics','experiments','control'),('public-workloads','experiments','public-workloads'),('physical-model','thermal','physical-model'),('scientific-validation','thermal','scientific-validation'),('numerical-verification','thermal','numerical-verification'),('scale-lab','economics','scale-lab'),('scientific-evidence','evidence','scientific-evidence')]
    for anchor,group,panel in targets:
