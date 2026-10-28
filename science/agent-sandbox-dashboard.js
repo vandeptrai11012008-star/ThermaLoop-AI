@@ -4,7 +4,7 @@
   const M=globalThis.ThermaAgentSandbox,$=id=>document.getElementById(id);
   const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const fmt=(n,d=2)=>Number(n).toLocaleString('en-US',{maximumFractionDigits:d});
-  let report=null,busy=false;
+  let report=null,busy=false,episode=null,liveLog=[];
   function download(data,name){const u=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1500);}
   function request(){return {schemaVersion:1,scenario:{preset:$('agentPreset').value,
     seed:Number($('agentSeed').value),horizonMinutes:Number($('agentHorizon').value)},plan:JSON.parse($('agentPlan').value)};}
@@ -73,6 +73,58 @@
     try{report=await compute(input);render();}catch(e){report=null;$('agentStatus').textContent=e.message;$('agentStatus').dataset.error='true';}
     finally{busy=false;fields.forEach(e=>e.disabled=false);}
   }
+  function invalidateLive(){
+    episode=null;liveLog=[];
+    $('agentLiveStep').disabled=true;$('agentLiveAuto').disabled=true;$('agentLiveExport').disabled=true;
+    $('agentLiveState').textContent='No active episode. Start a simulation to observe its initial state.';
+    $('agentLiveHistory').textContent='';$('agentLiveStatus').textContent='Ready for a new simulated episode.';
+    $('agentLiveStatus').dataset.error='false';
+  }
+  function renderLive(){
+    const o=M.observeEpisode(episode),m=o.metrics;
+    $('agentLiveState').innerHTML=`<div><small>Simulated minute</small><strong>${o.minute} / ${o.horizonMinutes}</strong></div>`+
+      [['GPU',o.state.gpuC,'°C'],['Coolant',o.state.coolantC,'°C'],['Building',o.state.buildingC,'°C'],
+        ['Site energy',m?.siteElectricKWh??0,'kWh']].map(([label,value,unit])=>`<div><small>${label}</small><strong>${fmt(value)} ${unit}</strong></div>`).join('');
+    $('agentLiveStep').disabled=o.done;$('agentLiveAuto').disabled=o.done;$('agentLiveExport').disabled=false;
+    $('agentLiveHistory').textContent=liveLog.slice(-12).map(x=>`Minute ${x.at}: ${x.action}\n  → GPU ${fmt(x.gpu)} °C · coolant ${fmt(x.coolant)} °C · building ${fmt(x.building)} °C`).join('\n');
+    $('agentLiveStatus').dataset.error='false';
+    $('agentLiveStatus').textContent=`${o.done?'Episode finished.':'Plant ready for the next action.'} ${o.violations.length} constraint type(s) violated so far · energy residual ${o.maxEnergyResidualKJ.toExponential(2)} kJ. Synthetic data; no hardware connected.`;
+  }
+  function startLive(){
+    try{
+      if(!$('agentSeed').value.trim()||!$('agentHorizon').value.trim())throw new Error('Seed and horizon are required');
+      episode=M.startEpisode({schemaVersion:1,scenario:{preset:$('agentPreset').value,
+        seed:Number($('agentSeed').value),horizonMinutes:Number($('agentHorizon').value)}});
+      liveLog=[];renderLive();
+    }catch(e){invalidateLive();$('agentLiveStatus').textContent=e.message;$('agentLiveStatus').dataset.error='true';}
+  }
+  function advanceLive(minutes,controls,label){
+    const before=episode.minute;
+    const o=M.stepEpisode(episode,{minutes,controls});
+    liveLog.push({at:before,action:label,gpu:o.state.gpuC,coolant:o.state.coolantC,building:o.state.buildingC});
+    renderLive();
+    return o;
+  }
+  function stepLive(){
+    try{
+      if(!episode)throw new Error('Start an episode first');
+      const minutes=Number($('agentLiveMinutes').value),controls=JSON.parse($('agentLiveControls').value);
+      advanceLive(minutes,controls,`${minutes} min · ${JSON.stringify(controls)}`);
+    }catch(e){$('agentLiveStatus').textContent=e.message;$('agentLiveStatus').dataset.error='true';}
+  }
+  function autoLive(){
+    try{
+      if(!episode)throw new Error('Start an episode first');
+      // Transparent rule-based demonstration, not an LLM or learned optimal policy.
+      for(let i=0;i<10&&!M.observeEpisode(episode).done;i++){
+        const o=M.observeEpisode(episode);
+        const controls={pumpPct:o.state.gpuC>75?100:o.state.gpuC>65?85:70,
+          fanPct:o.state.coolantC>44?100:o.state.coolantC>38?90:70,
+          heatRecoveryPct:o.state.buildingC<20.8?95:50,ventilationACH:.6};
+        advanceLive(1,controls,'1 min · feedback demo');
+      }
+    }catch(e){$('agentLiveStatus').textContent=e.message;$('agentLiveStatus').dataset.error='true';}
+  }
   function setup(){
     const container=$('agent-sandbox');if(!container)return;
     if(!M){container.textContent='Agent Sandbox model unavailable. Reload after all assets have been deployed.';return;}
@@ -104,7 +156,15 @@
 curl http://127.0.0.1:8787/api/v1/schema
 curl -X POST http://127.0.0.1:8787/api/v1/simulations/evaluate \\
   -H 'Content-Type: application/json' \\
-  --data-binary @thermaloop-agent-request.json</pre><p>JavaScript agents can call <code>ThermaAgentSandbox.evaluate(request)</code> in the browser or require <code>science/agent-sandbox-model.js</code> in Node. The result includes time series, violations, sensitivity cases and <code>hardwareAuthorized: false</code>.</p><p>Model: three thermal-capacitance states (GPU, coolant, building), direct heat recovery, resistive backup heating, fixed-COP room cooling and a prescribed synthetic compute load. Controls are evaluated as an open-loop schedule. There is no LLM, trained controller, real telemetry or hardware execution in this workspace.</p><p><a href="docs/AGENT_SANDBOX.md" target="_blank" rel="noopener">Read equations, API examples and deployment limits ↗</a></p></details></div>`;
+  --data-binary @thermaloop-agent-request.json</pre><p>JavaScript agents can call <code>ThermaAgentSandbox.evaluate(request)</code> in the browser or require <code>science/agent-sandbox-model.js</code> in Node. The result includes time series, violations, sensitivity cases and <code>hardwareAuthorized: false</code>.</p><p>Model: three thermal-capacitance states (GPU, coolant, building), direct heat recovery, resistive backup heating, fixed-COP room cooling and a prescribed synthetic compute load. The comparison above accepts an open-loop schedule; the live experiment below supports closed-loop interaction. There is no LLM, trained controller, real telemetry or hardware execution in this workspace.</p><p><a href="docs/AGENT_SANDBOX.md" target="_blank" rel="noopener">Read equations, API examples and deployment limits ↗</a></p></details></div>
+      <div class="agent-card agent-api agent-live"><p class="agent-kicker">04 / INTERACTIVE PHYSICS ENVIRONMENT</p><h2>Observe → Act → Step → Repeat</h2><p>Run an experiment with persistent thermal states. Adjust a control based on the latest observation, advance simulated time, then inspect the consequence. The deterministic feedback demo is a sample rule-based controller—not a trained AI or an optimization claim.</p>
+        <div class="agent-live-grid"><div><label for="agentLiveMinutes">Advance · minutes<input id="agentLiveMinutes" type="number" min="1" max="360" step="1" value="5"></label><label for="agentLiveControls">Control patch · JSON<textarea id="agentLiveControls" spellcheck="false">{"pumpPct":80,"fanPct":75,"heatRecoveryPct":85}</textarea></label><div class="agent-actions"><button id="agentLiveStart" type="button" class="agent-primary">Start / Reset episode</button><button id="agentLiveStep" type="button" disabled>Apply & step</button><button id="agentLiveAuto" type="button" disabled>Run 10 feedback steps</button><button id="agentLiveExport" type="button" disabled>Export episode ↓</button></div><p class="agent-muted">Uses the environment, seed and horizon selected above. Every step continues the same physical state. Controls carry forward until changed.</p></div>
+          <div><div id="agentLiveState" class="agent-live-state" aria-live="polite"></div><p id="agentLiveStatus" class="agent-status" role="status" aria-live="polite"></p><h3>Recent simulated actions</h3><pre id="agentLiveHistory" aria-label="Recent episode actions"></pre></div></div>
+        <details><summary>External agent: stateful episode API</summary><pre>POST   /api/v1/episodes
+GET    /api/v1/episodes/{id}
+POST   /api/v1/episodes/{id}/step
+GET    /api/v1/episodes/{id}/report
+DELETE /api/v1/episodes/{id}</pre><p>The optional local Node server holds up to 16 simultaneous sessions for 30 minutes of inactivity. Each one is bounded to 360 simulated minutes and 50 control changes. The static website runs its own browser-local episode; neither endpoint nor UI can operate real equipment.</p></details></div>`;
     $('agentPlan').value=JSON.stringify(M.schema().example.plan,null,2);
     $('agentControls').textContent=JSON.stringify({ranges:M.schema().controls,baseline:M.schema().baseline},null,2);
     $('agentRun').addEventListener('click',run);
@@ -115,6 +175,12 @@ curl -X POST http://127.0.0.1:8787/api/v1/simulations/evaluate \\
     $('agentExport').addEventListener('click',()=>{if(report)download(report,'thermaloop-agent-report.json');});
     $('agentExportSchema').addEventListener('click',()=>download(M.openapi(),'thermaloop-agent-openapi.json'));
     $('agentExportRequest').addEventListener('click',()=>{try{const r=request();M.normalize(r);download(r,'thermaloop-agent-request.json');}catch(e){$('agentStatus').textContent=e.message;$('agentStatus').dataset.error='true';}});
+    $('agentLiveStart').addEventListener('click',startLive);
+    $('agentLiveStep').addEventListener('click',stepLive);
+    $('agentLiveAuto').addEventListener('click',autoLive);
+    $('agentLiveExport').addEventListener('click',()=>{if(episode)download(M.episodeReport(episode),'thermaloop-live-episode.json');});
+    for(const id of ['agentPreset','agentHorizon','agentSeed'])$(id).addEventListener('input',invalidateLive);
+    invalidateLive();
     globalThis.ThermaAgentSandboxDashboard={getReport:()=>report?JSON.parse(JSON.stringify(report)):null,run};
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);else setup();

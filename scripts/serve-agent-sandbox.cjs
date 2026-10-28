@@ -9,6 +9,8 @@ const {Worker,isMainThread,parentPort,workerData} = require('node:worker_threads
 const engine = require('../science/agent-sandbox-model.js');
 const ROOT = path.resolve(__dirname,'..');
 const MAX_BODY = 65536;
+const MAX_EPISODES = 16;
+const EPISODE_IDLE_MS = 30*60*1000;
 function equalToken(a,b) {
   const x=Buffer.from(a),y=Buffer.from(b);
   return x.length===y.length && crypto.timingSafeEqual(x,y);
@@ -16,9 +18,20 @@ function equalToken(a,b) {
 function createServer({token=process.env.THERMALOOP_API_TOKEN??'',maxWorkers=2}={}) {
   let active=0;
   const workers=new Set();
+  const episodes=new Map();
   const server=http.createServer(async (req,res)=>{
     res.setHeader('X-Content-Type-Options','nosniff');
     const json=(status,value)=>{if(!res.destroyed){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(value));}};
+    const readJSON=async()=>{
+      if(!(req.headers['content-type']??'').toLowerCase().startsWith('application/json')){
+        const e=new Error('Content-Type must be application/json');e.status=415;throw e;
+      }
+      let size=0;const chunks=[];
+      for await(const chunk of req){size+=chunk.length;if(size>MAX_BODY){
+        const e=new Error('Request exceeds 64 KiB');e.status=413;throw e;
+      }chunks.push(chunk);}
+      return JSON.parse(Buffer.concat(chunks).toString('utf8'));
+    };
     let pathname;
     try {pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);} catch {json(400,{error:'Invalid URL'});return;}
     if (pathname.startsWith('/api/')) {
@@ -30,14 +43,46 @@ function createServer({token=process.env.THERMALOOP_API_TOKEN??'',maxWorkers=2}=
       if(req.method==='GET'&&pathname==='/api/v1/health'){json(200,{status:'ready',engineVersion:engine.VERSION,mode:'simulation-only',hardwareConnected:false});return;}
       if(req.method==='GET'&&pathname==='/api/v1/schema'){json(200,engine.schema());return;}
       if(req.method==='GET'&&pathname==='/api/v1/openapi.json'){json(200,engine.openapi());return;}
+      const episodeCollection=pathname==='/api/v1/episodes';
+      const episodeMatch=/^\/api\/v1\/episodes\/([0-9a-f-]{36})(?:\/(step|report))?$/.exec(pathname);
+      if(episodeCollection||episodeMatch){
+        // A session is an ephemeral simulation, never a durable device-control handle.
+        for(const [id,entry] of episodes)if(Date.now()-entry.touched>EPISODE_IDLE_MS)episodes.delete(id);
+        if(episodeCollection){
+          if(req.method!=='POST'){res.setHeader('Allow','POST');json(405,{error:'Use POST to create an episode'});return;}
+          if(episodes.size>=MAX_EPISODES){json(503,{error:'Episode capacity reached'});return;}
+          try{
+            const input=await readJSON(),episode=engine.startEpisode(input),id=crypto.randomUUID();
+            episodes.set(id,{episode,touched:Date.now()});
+            json(201,{episodeId:id,...engine.observeEpisode(episode)});
+          }catch(e){json(e.status??400,{error:e.message});}
+          return;
+        }
+        const [ ,id,action]=episodeMatch;
+        const entry=episodes.get(id);
+        if(!entry){json(404,{error:'Episode not found or expired'});return;}
+        entry.touched=Date.now();
+        if(!action&&req.method==='GET'){json(200,{episodeId:id,...engine.observeEpisode(entry.episode)});return;}
+        if(!action&&req.method==='DELETE'){episodes.delete(id);json(200,{episodeId:id,discarded:true});return;}
+        if(action==='report'&&req.method==='GET'){
+          json(200,{episodeId:id,...engine.episodeReport(entry.episode)});return;
+        }
+        if(action==='step'&&req.method==='POST'){
+          try{
+            const input=await readJSON();
+            if(!input||!Number.isInteger(input.expectedMinute))throw new RangeError('HTTP step requires integer expectedMinute');
+            json(200,{episodeId:id,...engine.stepEpisode(entry.episode,input)});
+          }
+          catch(e){json(e.status??400,{error:e.message});}
+          return;
+        }
+        json(405,{error:'Unsupported episode method'});return;
+      }
       if(pathname!=='/api/v1/simulations/evaluate'){json(404,{error:'Unknown endpoint; no hardware control endpoints exist'});return;}
       if(req.method!=='POST'){res.setHeader('Allow','POST');json(405,{error:'Use POST'});return;}
-      if(!(req.headers['content-type']??'').toLowerCase().startsWith('application/json')){json(415,{error:'Content-Type must be application/json'});return;}
       if(active>=maxWorkers){json(503,{error:'Simulation capacity reached; retry later'});return;}
-      let size=0,body='';
       try {
-        for await(const chunk of req){size+=chunk.length;if(size>MAX_BODY){json(413,{error:'Request exceeds 64 KiB'});return;}body+=chunk.toString('utf8');}
-        const input=JSON.parse(body);
+        const input=await readJSON();
         engine.normalize(input); // reject invalid actions before reserving a worker
         if(active>=maxWorkers){json(503,{error:'Simulation capacity reached; retry later'});return;}
         const worker=new Worker(__filename,{workerData:{input}});active++;workers.add(worker);
@@ -48,7 +93,7 @@ function createServer({token=process.env.THERMALOOP_API_TOKEN??'',maxWorkers=2}=
         worker.once('error',()=>finish(500,{error:'Simulation worker failed'}));
         worker.once('exit',()=>{if(!settled)finish(500,{error:'Simulation worker exited without a result'});});
         res.once('close',()=>{if(!settled)finish(499,{error:'Client disconnected'});});
-      } catch(e){json(400,{error:e.message});}
+      } catch(e){json(e.status??400,{error:e.message});}
       return;
     }
     if(!['GET','HEAD'].includes(req.method)){json(405,{error:'Read-only static server'});return;}

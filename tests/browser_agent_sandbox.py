@@ -32,6 +32,26 @@ async def run(base, out):
             assert result['verdict']['hardwareAuthorized'] is False
             assert await page.locator('#agentGPUChart svg').count() == 1
             assert await page.locator('.workspace-screen:visible').count() == 1
+            await page.locator('#agentLiveStart').click()
+            assert '0 / 120' in await page.locator('#agentLiveState').inner_text()
+            await page.locator('#agentLiveMinutes').fill('3')
+            await page.locator('#agentLiveStep').click()
+            assert '3 / 120' in await page.locator('#agentLiveState').inner_text()
+            await page.locator('#agentLiveAuto').click()
+            assert '13 / 120' in await page.locator('#agentLiveState').inner_text()
+            async with page.expect_download() as episode_event:
+                await page.locator('#agentLiveExport').click()
+            episode_download = await episode_event.value
+            await episode_download.save_as(out/'episode-export.json')
+            episode = json.loads((out/'episode-export.json').read_text())
+            assert episode['hardwareAuthorized'] is False
+            assert episode['minute'] == 13
+            reference = await page.evaluate('''(episode) => {
+                const request = episode.replayRequest;
+                request.scenario.horizonMinutes = episode.minute;
+                return ThermaAgentSandbox.evaluate(request).candidate.trace;
+            }''', episode)
+            assert episode['trace'] == reference
             await page.screenshot(path=str(out/'desktop.png'), full_page=True)
             async with page.expect_download() as event:
                 await page.locator('#agentExport').click()
@@ -42,8 +62,10 @@ async def run(base, out):
             assert await page.locator('#glCanvas').is_visible()
             await page.locator('.side [data-workspace-link="agents"]').click()
             assert await page.evaluate('ThermaAgentSandboxDashboard.getReport()') == result
+            assert '13 / 120' in await page.locator('#agentLiveState').inner_text()
             await page.locator('#agentPreset').select_option('pump-fault')
             assert await page.locator('#agentResults').is_hidden()
+            assert await page.locator('#agentLiveStep').is_disabled()
             assert await page.locator('#agentExport').is_disabled()
             fault = await execute()
             assert fault['verdict']['status'] == 'needs_revision'
@@ -66,7 +88,7 @@ async def run(base, out):
                 await page.screenshot(path=str(out/f'layout-{width}.png'), full_page=True)
             assert not errors, errors
             (out/'browser-report.json').write_text(json.dumps({'status':'passed','browser':browser.version,
-                'checks':['paired simulation','fault rejection','stale results','input validation','JSON export',
+                'checks':['paired simulation','closed-loop episode','episode export parity','fault rejection','stale results','input validation','JSON export',
                     'workspace preservation','desktop and narrow layouts'],'pageErrors':errors},indent=2)+'\n')
         finally:
             await browser.close()

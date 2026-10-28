@@ -12,7 +12,7 @@ Open `index.html`, choose **Agent Sandbox**, select a scenario, edit the JSON ac
 
 The report compares a baseline with the proposal under identical initial conditions, weather, load, horizon and seed. It includes minute-resolution temperatures/power, the simulated action log, faults, violations, metrics, and two additional sensitivity cases. Export the report to retain the exact inputs and evidence. Editing inputs invalidates the previous report; switching workspaces preserves it.
 
-Controls: GPU power limit, pump speed, dry-cooler fan speed, heat-recovery valve fraction, heating setpoint, ventilation rate and lighting power. The action list is open-loop; an external agent can submit another experiment after inspecting the result.
+Controls: GPU power limit, pump speed, dry-cooler fan speed, heat-recovery valve fraction, heating setpoint, ventilation rate and lighting power. The paired comparison uses an open-loop action list. The **Interactive Physics Environment** panel below it also allows a human to start a persistent browser-local episode, observe temperatures, change controls, advance time, and repeat. Its 10-step rule-based feedback demo is not a learned AI or an optimized policy. The exported episode includes its full trajectory and a reproducible control schedule.
 
 **Baseline is not assumed safe.** In hot weather or fault scenarios, both policies may violate limits. Candidate status is absolute against the declared constraints and relative only for compute-service retention. Electricity reduction alone is never a passing criterion.
 
@@ -34,6 +34,11 @@ This serves the existing website and API at `http://127.0.0.1:8787`.
 | `GET /api/v1/schema` | Controls, bounds, defaults and example |
 | `GET /api/v1/openapi.json` | OpenAPI 3.1 tool contract |
 | `POST /api/v1/simulations/evaluate` | Paired simulation and evidence report |
+| `POST /api/v1/episodes` | Create an in-memory episode and receive its initial observation |
+| `GET /api/v1/episodes/{id}` | Observe current temperatures, controls, disturbance and accumulated metrics |
+| `POST /api/v1/episodes/{id}/step` | Apply optional control changes and advance 1–remaining integer minutes |
+| `GET /api/v1/episodes/{id}/report` | Export the trajectory and reproducible replay request |
+| `DELETE /api/v1/episodes/{id}` | Discard the in-memory episode |
 
 The static contract is also checked in at `science/agent-sandbox-openapi.json`. Generate it with `node scripts/build_agent_contract.cjs`; verify synchronization with `--check`.
 
@@ -65,7 +70,30 @@ console.log(result.verdict, result.candidate.violations);
 
 In the web page, the same interface is `ThermaAgentSandbox.evaluate(request)`.
 
-Requests are stateless and bounded to 360 minutes, 50 scheduled patches and 64 KiB. Offsets must be unique, increasing integers within the horizon. Empty `plan: []` preserves the baseline. Omitting `plan` selects the documented example; callers should send an explicit plan. Omitted controls retain their previous value. Unknown fields, nonfinite values, invalid ranges and invalid ordering are rejected, not silently clipped.
+### Closed-loop agent interaction
+
+An external controller no longer needs to predict an entire schedule upfront. Start an episode, read the initial state, choose controls, and step the same plant forward. A new observation includes simulated temperatures, current controls, prescribed weather/load, latest site power/heat recovery, accumulated metrics, violations and the numerical energy residual. Actions are simulated only; there is no device-control endpoint.
+
+```sh
+curl -X POST http://127.0.0.1:8787/api/v1/episodes \
+  -H 'Content-Type: application/json' \
+  -d '{"scenario":{"preset":"winter","seed":42,"horizonMinutes":60}}'
+
+# Replace {id} with the episodeId returned above:
+curl -X POST http://127.0.0.1:8787/api/v1/episodes/{id}/step \
+  -H 'Content-Type: application/json' \
+  -d '{"expectedMinute":0,"minutes":5,"controls":{"pumpPct":85,"fanPct":80}}'
+
+curl http://127.0.0.1:8787/api/v1/episodes/{id}/report
+```
+
+Embedded JavaScript controllers can call `startEpisode({scenario})`, `observeEpisode(episode)`, `stepEpisode(episode, {minutes,controls})`, and `episodeReport(episode)` in `science/agent-sandbox-model.js`. They are synchronous and deterministic. The engine resumes the physical and energy states from an internal checkpoint, not from a rounded, user-supplied snapshot. A **completed** episode's trace, metrics, faults and violations match a fresh batch evaluation of `episodeReport(episode).replayRequest`. For an in-progress episode, shorten the replay scenario horizon to the reported elapsed minute when comparing prefix traces.
+
+Run `node examples/closed_loop_controller.cjs` for a dependency-free sample controller that reads each observation and chooses the next simulated action. It then evaluates the resulting schedule against the paired baseline and prints violations and the service tradeoff. The rule is illustrative, not an AI model or safety/energy optimizer; an external agent can replace `chooseControls` with its own policy.
+
+The HTTP `step` body must include `expectedMinute` from the latest observation. If another controller has already advanced the session, the server returns **409 Conflict**, preventing a stale action from silently applying at the wrong time. The optional HTTP server retains at most **16 sessions**, expires them after **30 minutes idle**, and loses them on process restart. Each episode is limited to **360 simulated minutes** and **50 effective control changes**. Session IDs are random UUIDs, but do not replace bearer authentication for remote service. The static Render website cannot serve this Node API; agents need a separately hosted, TLS-protected instance. The browser panel keeps its own episode locally, independent of API sessions.
+
+Paired evaluation requests are stateless and bounded to 360 minutes, 50 scheduled patches and 64 KiB. Offsets must be unique, increasing integers within the horizon. Empty `plan: []` preserves the baseline. Omitting `plan` selects the documented example; callers should send an explicit plan. Omitted controls retain their previous value. Unknown fields, nonfinite values, invalid ranges and invalid ordering are rejected, not silently clipped.
 
 An integration should inspect `verdict.constraintsPassed`, `verdict.serviceMaintained`, all violations and model limitations. `hardwareAuthorized` is always `false`. There is deliberately no endpoint for applying a result to hardware.
 
@@ -102,7 +130,7 @@ Two paired sensitivity cases multiply envelope UA by 0.8/1.2 and divide GPU tran
 
 `within_tested_envelope` requires the candidate to meet constraints in nominal and both perturbed runs, retain at least 99% of the paired compute-service proxy in each case, and pass nominal thermal-ledger checks. It does not require or guarantee energy savings, robustness beyond the horizon, independent model accuracy or real-world safety.
 
-Missing: calibrated site telemetry, multi-zone airflow, humidity/CO₂, CFD, hydraulic pressure/valve curves, heat pumps/storage in this new plant, job queues, hardware control, continuous closed-loop agent execution and LLM integration. The existing reference studies are retained but do not validate this plant.
+Missing: calibrated site telemetry, multi-zone airflow, humidity/CO₂, CFD, hydraulic pressure/valve curves, heat pumps/storage in this new plant, job queues, hardware control and LLM integration. The new step API enables closed-loop controller experiments but does not itself supply a trained controller, prove optimality or establish field safety. The existing reference studies are retained but do not validate this plant.
 
 ## Verification
 
@@ -111,6 +139,6 @@ node scripts/build_agent_contract.cjs --check
 node --test tests/*.test.cjs
 ```
 
-`tests/agent-sandbox.test.cjs` covers reproducibility, conservation, paired controls, fault propagation, initial-state violations, action timing, input validation, compute-service tradeoffs and numerical refinement. `tests/agent-sandbox-api.test.cjs` exercises real loopback HTTP requests, engine parity, token enforcement, content type, request size, read-only serving and rejection of hardware endpoints.
+`tests/agent-sandbox.test.cjs` covers reproducibility, conservation, paired controls, fault propagation, initial-state violations, action timing, input validation, compute-service tradeoffs, numerical refinement and checkpoint/batch parity. `tests/agent-sandbox-api.test.cjs` exercises real loopback HTTP requests, engine parity, token enforcement, content type, request size, read-only serving, episode capacity, step persistence and rejection of hardware endpoints.
 
 `tests/browser_agent_sandbox.py` adds the UI regression suite to the existing pinned Playwright CI: successful/failed runs, stale-result invalidation, exports, workspace preservation and narrow viewport layout.
