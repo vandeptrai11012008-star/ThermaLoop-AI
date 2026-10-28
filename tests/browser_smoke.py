@@ -223,16 +223,13 @@ async def run(base, artifacts):
             await page.locator("#clearEvents").click()
             assert await page.locator("#events .event").count() == 0
             checks.append("Cooling-fault injection/reset and legacy energy benchmark")
-            await enter("scale-lab")
-            for panel in ["conditions", "hours", "method", "overview"]:
-                button = page.locator(f'[data-scale-page="{panel}"]')
-                await button.click()
-                assert await page.locator(f'[data-scale-panel="{panel}"]').is_visible()
-            checks.append("Finance lab tabs and existing scale calculation")
+            assert await page.locator('#scale-lab').is_hidden()
+            assert await page.locator('[data-workspace-link="economics"]').count() == 0
+            checks.append("Archived finance lab is no longer in the public navigation")
 
             downloads = {}
-            export_panels={"compareExport":"comparison","fusionDownload":"experiment-studio","gpuGpuExport":"gpu-lab","scExport":"scale-lab","sciExportJSON":"scientific-evidence","sciExportCSV":"scientific-evidence","sciExportSVG":"scientific-evidence"}
-            for id in ["export", "compareExport", "fusionDownload", "gpuGpuExport", "scExport", "sciExportJSON", "sciExportCSV", "sciExportSVG"]:
+            export_panels={"compareExport":"comparison","fusionDownload":"experiment-studio","gpuGpuExport":"gpu-lab","sciExportJSON":"scientific-evidence","sciExportCSV":"scientific-evidence","sciExportSVG":"scientific-evidence"}
+            for id in ["export", "compareExport", "fusionDownload", "gpuGpuExport", "sciExportJSON", "sciExportCSV", "sciExportSVG"]:
                 if id in export_panels: await enter(export_panels[id])
                 async with page.expect_download() as event:
                     await page.locator("#" + id).click()
@@ -250,7 +247,7 @@ async def run(base, artifacts):
             assert len(list(csv.reader(io.StringIO(downloads["gpuGpuExport"])))) == 3841
             assert "SHA-256:" in downloads["sciExportCSV"]
             assert "NOT measured" in downloads["sciExportSVG"]
-            checks.append("All five legacy exports and three scientific exports contain valid results")
+            checks.append("Active legacy and scientific exports contain valid results")
 
             for details in ["sciDesign", "sciMethods", "sciSourceDetails"]:
                 await page.locator("#" + details).evaluate("e => e.open = true")
@@ -561,7 +558,7 @@ async def run(base, artifacts):
                 with urllib.request.urlopen(request) as response:
                     assert response.status == 200, href
             checks.append("All local evidence, methods and audit links resolve")
-            for href in ["#digital-twin", "#comparison", "#experiment-studio", "#gpu-lab", "#analytics", "#control", "#diagnostics", "#scale-lab", "#scientific-evidence"]:
+            for href in ["#digital-twin", "#comparison", "#experiment-studio", "#gpu-lab", "#analytics", "#control", "#diagnostics", "#agent-sandbox", "#agent-research", "#scientific-evidence"]:
                 await enter(href[1:])
                 assert await page.locator('.workspace-panel:visible').count() == 1
                 assert await page.locator('.side a[aria-current="page"]').count() == 1

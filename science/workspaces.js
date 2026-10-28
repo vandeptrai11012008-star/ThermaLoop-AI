@@ -26,9 +26,6 @@
         {anchor:'agent-sandbox', title:'Control experiments', selectors:['#agent-sandbox']},
         {anchor:'agent-research', title:'Autonomous research', selectors:['#agent-research']}
       ]},
-      {id:'economics', title:'Economics', icon:'＄', note:'Explore financial scenarios with explicit synthetic workload, hardware and electricity assumptions.', panels:[
-        {anchor:'scale-lab', title:'Scale & financial impact', selectors:['#scale-lab']}
-      ]},
       {id:'evidence', title:'Scientific evidence', icon:'⚗', note:'Inspect public data, assumptions and reproducible comparisons. Field sensors remain disconnected.', panels:[
         {anchor:'scientific-evidence', title:'Evidence dashboard', selectors:['#scientific-evidence']}
       ]}

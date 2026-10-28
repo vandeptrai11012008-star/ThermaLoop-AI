@@ -29,19 +29,21 @@ async def run(base,out):
    async def enter(anchor,workspace,panel=None):
     await page.evaluate('(h)=>{location.hash=h}', '#'+anchor)
     await state(workspace,panel or anchor)
-   assert await page.locator('.side .menu a').count()==6
+   assert await page.locator('.side .menu a').count()==5
+   assert await page.locator('[data-workspace-link="economics"]').count()==0
+   assert await page.locator('#scale-lab').is_hidden()
    await state('overview','digital-twin')
    original_height=await page.evaluate('document.documentElement.scrollHeight')
    assert original_height<6000,original_height
    assert await page.evaluate("!!document.getElementById('glCanvas').getContext('webgl')")
    await page.evaluate('scrollTo(0,0)')
    await page.screenshot(path=str(out/'overview-1440.png'))
-   checks.append('Six main destinations; one visible panel; compact desktop overview and preserved WebGL')
+   checks.append('Five focused destinations; archived economics hidden; compact overview and preserved WebGL')
    # All former anchors and their descendants still route to their owning screen.
-   targets=[('analytics','overview','analytics'),('comparison','experiments','comparison'),('experiment-studio','experiments','experiment-studio'),('gpu-lab','experiments','gpu-lab'),('diagnostics','experiments','control'),('public-workloads','experiments','public-workloads'),('physical-model','thermal','physical-model'),('scientific-validation','thermal','scientific-validation'),('numerical-verification','thermal','numerical-verification'),('scale-lab','economics','scale-lab'),('scientific-evidence','evidence','scientific-evidence')]
+   targets=[('analytics','overview','analytics'),('comparison','experiments','comparison'),('experiment-studio','experiments','experiment-studio'),('gpu-lab','experiments','gpu-lab'),('diagnostics','experiments','control'),('public-workloads','experiments','public-workloads'),('physical-model','thermal','physical-model'),('scientific-validation','thermal','scientific-validation'),('numerical-verification','thermal','numerical-verification'),('agent-sandbox','agents','agent-sandbox'),('agent-research','agents','agent-research'),('scientific-evidence','evidence','scientific-evidence')]
    for anchor,group,panel in targets:
     await enter(anchor,group,panel);assert await page.locator('#'+anchor).is_visible()
-   checks.append('Eleven legacy/deep-link destinations reveal the correct screen and panel')
+   checks.append('Twelve active/deep-link destinations reveal the correct screen and panel')
    await enter('physical-model','thermal');await page.locator('#physFlow').select_option('0.06')
    await page.evaluate('window.__retainedPhysicsInput=document.getElementById("physFlow")')
    physics=await page.evaluate('ThermaPhysicsDashboard.getReport()')
@@ -49,13 +51,10 @@ async def run(base,out):
    numerical=await page.evaluate('ThermaNumericalDashboard.getReport()')
    await enter('public-workloads','experiments');await page.locator('#wlWeakShare').select_option('0.6');await page.locator('#wlRun').click()
    workload=await page.evaluate('ThermaWorkloadDashboard.getReport()')
-   await page.locator('[data-workspace-link="economics"]').first.click();await state('economics','scale-lab')
-   await page.locator('#scDaily').fill('120000');economic=await page.locator('#scAnnualNet').inner_text()
    for _ in range(2):
-    for group in ['overview','evidence','experiments','thermal','economics']:
+    for group in ['overview','evidence','experiments','thermal','agents']:
      await page.locator('.side [data-workspace-link="'+group+'"]').click()
-   assert await page.locator('#scDaily').input_value()=='120000'
-   assert await page.locator('#scAnnualNet').inner_text()==economic
+   assert await page.locator('#scale-lab').is_hidden()
    assert await page.evaluate('ThermaPhysicsDashboard.getReport()')==physics
    assert await page.evaluate('ThermaScientificDashboard.getResult()')==science
    assert await page.evaluate('ThermaNumericalDashboard.getReport()')==numerical

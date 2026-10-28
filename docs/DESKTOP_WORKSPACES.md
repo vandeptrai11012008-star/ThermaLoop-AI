@@ -1,8 +1,8 @@
 # Desktop workspace navigation
 
-The website now presents five workspaces instead of placing every lab in one
+The website presents five focused workspaces instead of placing every lab in one
 continuous document. The sidebar selects Overview, Experiments, Thermal models,
-Economics or Scientific evidence. Section links within a workspace select one
+AI Research Lab or Scientific evidence. Section links within a workspace select one
 panel at a time. A compact navigation row remains available when the original
 responsive layout hides the sidebar.
 
@@ -14,11 +14,16 @@ responsive layout hides the sidebar.
 - Thermal models: finite-capacity CDU, cooling validation and numerical
   verification. The heading explicitly distinguishes this 8-GPU reference
   from the conceptual 64-GPU campus.
-- Economics: existing scale/finance lab and its existing internal tabs.
+- AI Research Lab: closed-loop control experiments and bounded autonomous searches.
 - Scientific evidence: source/data connection status, scientific comparisons,
   editable assumptions, methods and source catalogue.
 
-The original section IDs and linked destinations remain. Examples:
+The former Economics workspace is removed from public navigation. Its original
+source, synthetic assumptions and embedded DOM are retained but hidden for
+research provenance and compatibility. It is no longer a supported end-user
+workspace or downloadable report on the live website.
+
+The active section IDs and linked destinations remain. Examples:
 `#comparison`, `#diagnostics`, `#public-workloads`, `#physical-model` and
 `#sciSourceDetails`. Direct source/method links open their enclosing `details`
 element. Native fragment history supports browser Back/Forward. The main
@@ -51,8 +56,8 @@ python tests/browser_smoke.py
 python tests/browser_physics.py
 ```
 
-The new browser check covers screen/section routing, eleven legacy anchors,
-state/DOM identity across repeated switches, economic inputs, scientific
+The new browser check covers screen/section routing, active deep links,
+archived economics visibility, state/DOM identity across repeated switches, scientific
 result identity, Back/Forward, direct nested-method reloads, keyboard entry,
 3D cross-screen jumps, desktop screenshots at 1440/1920 px, and fallback when
 the navigation module fails to load. The existing full regression now enters
