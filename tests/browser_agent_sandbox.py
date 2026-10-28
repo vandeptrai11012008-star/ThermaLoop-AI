@@ -82,6 +82,34 @@ async def run(base, out):
             assert baseline['comparison']['energySavedKWh'] == 0
             await page.locator('#agentExample').click()
             await execute()
+            # v1.3 bounded research panel is part of the same website and needs no API secret.
+            await page.goto(base + '/#agent-research')
+            await page.wait_for_function('window.ThermaAgentResearchDashboard && window.ThermaWorkspaces')
+            assert await page.locator('#researchRun').is_visible()
+            await page.locator('#researchTrials').fill('8')
+            await page.locator('#researchHorizon').fill('30')
+            await page.locator('#researchRun').click()
+            await page.wait_for_function('ThermaAgentResearchDashboard.getResult() !== null')
+            research = await page.evaluate('ThermaAgentResearchDashboard.getResult()')
+            assert research['trialCount'] == 8
+            assert research['best']['eligible'] is True
+            assert research['hardwareAuthorized'] is False
+            assert len(research['holdouts']) == 2
+            assert await page.locator('#researchCandidates tr').count() == 8
+            async with page.expect_download() as research_export_event:
+                await page.locator('#researchExport').click()
+            research_export = await research_export_event.value
+            await research_export.save_as(out/'research-export.json')
+            assert json.loads((out/'research-export.json').read_text()) == research
+            await page.locator('#researchReplay').click()
+            assert await page.evaluate('location.hash') == '#agent-sandbox'
+            replay_plan = json.loads(await page.locator('#agentPlan').input_value())
+            assert replay_plan == research['best']['plan']
+            await page.locator('#agentRun').click()
+            await page.wait_for_function('ThermaAgentSandboxDashboard.getReport() !== null')
+            replay = await page.evaluate('ThermaAgentSandboxDashboard.getReport()')
+            assert replay['comparison']['energySavedKWh'] == research['best']['energySavedKWh']
+            await page.goto(base + '/#agent-research')
             for width in [768, 390]:
                 await page.set_viewport_size({'width': width, 'height': 844})
                 assert await page.evaluate('document.documentElement.scrollWidth <= innerWidth + 1')
@@ -89,7 +117,8 @@ async def run(base, out):
             assert not errors, errors
             (out/'browser-report.json').write_text(json.dumps({'status':'passed','browser':browser.version,
                 'checks':['paired simulation','closed-loop episode','episode export parity','fault rejection','stale results','input validation','JSON export',
-                    'workspace preservation','desktop and narrow layouts'],'pageErrors':errors},indent=2)+'\n')
+                'workspace preservation','autonomous research search and export','research replay parity',
+                'desktop and narrow layouts'],'pageErrors':errors},indent=2)+'\n')
         finally:
             await browser.close()
 
