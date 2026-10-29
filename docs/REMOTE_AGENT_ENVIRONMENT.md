@@ -2,7 +2,7 @@
 
 - **Official Web Service:** https://thermaloop-agent-api.onrender.com/
 - **Physics Lab:** https://thermaloop-agent-api.onrender.com/physics-lab
-- **API specification:** https://thermaloop-agent-api.onrender.com/api/v1/openapi.json
+- **API specification (Bearer token required):** https://thermaloop-agent-api.onrender.com/api/v1/openapi.json
 
 **Current v1.5:** `/physics-lab` now contains the graph-editing engineering
 world and the authenticated `/api/v1/worlds` endpoints use the same
