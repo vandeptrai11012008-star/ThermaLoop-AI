@@ -14,6 +14,7 @@ test('One canonical serial circuit is finite, pressure balanced and deterministi
   assert.deepEqual(r,M.simulate({scenario:{seed:42,horizonMinutes:60}}));
   assert.equal(r.hardwareAuthorized,false);
   assert.match(r.validity,/Uncalibrated/);
+  assert.notDeepEqual(r.state,M.simulate({scenario:{seed:43,horizonMinutes:60}}).state);
 });
 
 test('Pump curve, pipe pressure losses and electrical power respond to controls',()=>{
@@ -34,6 +35,18 @@ test('Counter-flow epsilon-NTU respects limiting capacity rates and UA',()=>{
   approx(M.epsilonNTU(2,2,2),0.5);
   approx(M.epsilonNTU(5,2,3),M.epsilonNTU(5,3,2));
   assert.ok(M.epsilonNTU(1e8,2,3)<=1);
+});
+
+test('Time-step refinement remains numerically consistent across normal and fault scenarios',()=>{
+  for(const preset of ['winter','summer','pump-fault']){
+    const w=M.createWorld({scenario:{preset,horizonMinutes:15}});
+    const coarse=M.advance(w,{minutes:15,stepSeconds:5});
+    const refined=M.advance(w,{minutes:15,stepSeconds:1});
+    for(const key of ['gpuC','coolantC','buildingC'])
+      assert.ok(Math.abs(coarse.state[key]-refined.state[key])<.25,preset+' '+key);
+    assert.ok(coarse.energyResidualKJ<1e-5&&refined.energyResidualKJ<1e-5);
+  }
+  assert.throws(()=>M.advance(M.createWorld(),{stepSeconds:7}),/divisor of 60/);
 });
 
 test('Replay by minute is identical to one advance; pipe/tank volumes use water heat capacity',()=>{

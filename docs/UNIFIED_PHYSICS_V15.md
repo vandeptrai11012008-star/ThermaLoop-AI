@@ -55,6 +55,12 @@ fluid-cell temperatures.
   with integrated heat-sum reconciliation. The maximum residual over a run is
   reported. **Small conservation residuals establish coding consistency, not
   the accuracy of UA, pump curves, or loads.**
+- A separate numerical refinement test checks a 1-second step against the
+  production 5-second step across winter, summer and fault scenarios. This
+  constrains time-discretization error, **not** component-model error.
+- A deterministic, minute-keyed, **synthetic** seed disturbance changes
+  ambient temperature slightly and GPU demand; it is reproducible across step
+  partitions and not a measured weather or workload distribution.
 
 Reference materials for the formulations:
 

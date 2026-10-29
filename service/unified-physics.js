@@ -115,6 +115,8 @@
     return Math.max(0,Math.min(1,Math.abs(1-cr)<1e-8?ntu/(1+ntu):
       (1-Math.exp(-ntu*(1-cr)))/(1-cr*Math.exp(-ntu*(1-cr)))));}
   function initialState(s){return {gpuC:55,coolantC:32,buildingC:21};}
+  function forcingNoise(seed,minute){let z=(seed^Math.imul(minute+1,0x9e3779b1))>>>0;
+    z^=z<<13;z^=z>>>17;z^=z<<5;return (z>>>0)/4294967296-.5;}
   function createWorld(input={}){fields(input,['topology','scenario','controls'],'world request');
     const t=topology(input.topology??DEFAULT_TOPOLOGY),s=scenario(input.scenario??{}),c=controls(input.controls??{});
     const state=initialState(s);return {version:VERSION,minute:0,topology:t,scenario:s,controls:c,
@@ -123,25 +125,32 @@
       energyResidualKJ:0,maxPressureResidualPa:0,violations:[],last:null};}
   function checkWorld(w){obj(w,'world');if(w.version!==VERSION||!Number.isInteger(w.minute)||
       w.minute<0||w.minute>w.scenario.horizonMinutes)throw new RangeError('Invalid world checkpoint');}
-  function advance(w,{minutes=1,controls:patch={},expectedMinute=w.minute}={}){
+  function advance(w,{minutes=1,controls:patch={},expectedMinute=w.minute,stepSeconds=5}={}){
     checkWorld(w);if(expectedMinute!==w.minute){const e=new RangeError('Stale world minute');e.status=409;throw e;}
     finite(minutes,'minutes',1,Math.min(15,w.scenario.horizonMinutes-w.minute));
     if(!Number.isInteger(minutes))throw new RangeError('Step minutes must be integer');
+    finite(stepSeconds,'stepSeconds',1,10);
+    if(!Number.isInteger(stepSeconds)||60%stepSeconds!==0)throw new RangeError('stepSeconds must be a divisor of 60');
     const c=controls({...w.controls,...patch}),s=w.scenario,t=w.topology;
     const cap={gpu:t.nodes.find(n=>n.type==='gpu').params.thermalCapacityKJK,
       coolant:waterCapacityKJK(t),building:25000};
     const x={...w.state},metrics={...w.metrics},trace=w.trace.slice(),actions=w.actions.slice();
-    const violations=w.violations.slice(),dt=5,initialStored=cap.gpu*x.gpuC+cap.coolant*x.coolantC+cap.building*x.buildingC;
+    const violations=w.violations.slice(),dt=stepSeconds,
+      initialStored=cap.gpu*x.gpuC+cap.coolant*x.coolantC+cap.building*x.buildingC;
     let integratedNet=0,maxResidual=w.energyResidualKJ,maxPressure=w.maxPressureResidualPa,last=w.last;
     for(let tick=0;tick<minutes*60;tick+=dt){const time=w.minute*60+tick,minute=time/60;
       const fault=s.preset==='pump-fault'&&minute>=30?.3:1;
       const h=hydraulics(t,c.pumpPct,fault),C=h.massFlowKgS*WATER.cpKJKgK;
-      const forcingOutside=s.outsideC+1.5*Math.sin(minute/120*Math.PI);
+      // Synthetic seed-keyed disturbance is piecewise constant per minute;
+      // the same clock minute has identical forcing regardless of step calls.
+      const perturb=forcingNoise(s.seed,Math.floor(minute));
+      const forcingOutside=s.outsideC+1.5*Math.sin(minute/120*Math.PI)+.4*perturb;
       const burst=s.preset==='burst'&&minute>=20&&minute<50?1.18:1;
       // Illustrative protective derating/trip, so a stopped pump does not
       // create an arbitrarily unbounded fictitious GPU heat source.
       const throttle=Math.max(0,Math.min(1,(95-x.gpuC)/10));
-      const gpuKW=(4+30*c.gpuLoadPct/100)*burst*throttle;
+      const demandFactor=1+.04*perturb;
+      const gpuKW=(4+30*c.gpuLoadPct/100*demandFactor)*burst*throttle;
       const requestedKW=Math.max(0,12*(c.heatingSetpointC-x.buildingC));
       const serverKW=2;
       // One stream follows the actual graph order. Changes to the connection
@@ -187,7 +196,7 @@
       const siteKW=gpuKW+serverKW+h.pumpElectricKW+fanKW+lightingKW+backupKW+coolingKW/3;
       metrics.siteElectricKWh+=siteKW*dt/3600;metrics.pumpElectricKWh+=h.pumpElectricKW*dt/3600;
       metrics.gpuElectricKWh+=gpuKW*dt/3600;metrics.recoveredHeatKWh+=recoveredKW*dt/3600;
-      metrics.rejectedHeatKWh+=rejectedKW*dt/3600;metrics.computeServiceHours+=c.gpuLoadPct/100*throttle*dt/3600;
+      metrics.rejectedHeatKWh+=rejectedKW*dt/3600;metrics.computeServiceHours+=c.gpuLoadPct/100*demandFactor*throttle*dt/3600;
       if(throttle<1)metrics.throttledMinutes+=dt/60;
       integratedNet+=dt*(gpuKW+serverKW+h.pumpElectricKW+backupKW+peopleKW+lightingKW+s.solarKW-
         rejectedKW-pipeLossKW-envelopeKW-ventilationKW-coolingKW);
