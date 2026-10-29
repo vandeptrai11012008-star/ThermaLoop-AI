@@ -17,7 +17,8 @@ async def test_world(base,out):
         try:
             await page.goto(base+'/physics-lab')
             await page.wait_for_function('window.ThermaUnifiedLab?.getReport() !== null')
-            assert 'v1.5' in await page.title()
+            assert await page.title()=='ThermaLoop AI · Physics Lab'
+            assert await page.locator('a[href="/physics-lab-v14"]').count()==0
             initial=await page.evaluate('ThermaUnifiedLab.getReport()')
             assert initial['minute']==0 and len(initial['topology']['nodes'])==6
             assert await page.locator('#worldSvg .node').count()==6
@@ -70,7 +71,7 @@ async def test_world(base,out):
             (out/'result.json').write_text(json.dumps({'status':'pass','browser':browser.version,
                 'sharedStateMinute':result['minute'],'nodes':len(result['topology']['nodes']),
                 'flowBeforeLps':initial_flow,'flowAfterLps':reduced,'energyResidualKJ':result['energyResidualKJ']},indent=2)+'\n')
-            print('PASS v1.5: topology editor, pressure/heat, replay, export, mobile and main-site shared state')
+            print('PASS Physics Lab: topology editor, pressure/heat, replay, export, mobile and main-site shared state')
         finally:await browser.close()
 
 if __name__=='__main__':
