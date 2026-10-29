@@ -23,6 +23,8 @@
     world:M.report(world)}));}catch{ /* storage is optional */ }}
   function showWorld(){const t=world.topology,x=world.state,svg=$('worldSvg');svg.replaceChildren();
     const order=t.order,n=order.length,cols=n<=6?3:4;
+    const canvasHeight=n<=6?515:n<=8?460:565;
+    svg.setAttribute('viewBox',`0 0 980 ${canvasHeight}`);
     const coords=order.map((id,i)=>({id,x:165+(i%cols)*((980-330)/Math.max(1,cols-1)),
       y:115+Math.floor(i/cols)*(n<=6?176:122)}));
     const defs=element('defs'),marker=element('marker',{id:'flowArrow',markerWidth:8,markerHeight:8,refX:5,refY:3,orient:'auto'});
@@ -48,7 +50,7 @@
       const pick=()=>{selected=node.id;showWorld();renderEditor();};
       g.addEventListener('click',pick);g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick();}});
       svg.append(g);}
-    const info=element('text',{x:22,y:428,class:'canvas-note'},
+    const info=element('text',{x:22,y:canvasHeight-17,class:'canvas-note'},
       `${n} connected components · ${fmt(flow)} L/s · stream outlet readings follow graph order · not CFD`);
     svg.append(info);
   }
@@ -76,7 +78,8 @@
       ['Water capacity',M.waterCapacityKJK(world.topology),'kJ/K'],['Violations',world.violations.length,'']];
     $('audit').replaceChildren(...audits.map(([name,val,unit])=>{
       const div=document.createElement('div'),small=document.createElement('small'),strong=document.createElement('strong');
-      small.textContent=name;strong.textContent=(val<1e-6&&val!==0?val.toExponential(2):fmt(val))+(unit?' '+unit:'');
+      small.textContent=name;strong.textContent=(name==='Violations'?String(val):
+        val<1e-6&&val!==0?val.toExponential(2):fmt(val))+(unit?' '+unit:'');
       div.append(small,strong);return div;}));
     $('minute').textContent=world.minute+' / '+world.scenario.horizonMinutes;
     $('traceNote').textContent=`${world.trace.length} exact shared-state observations · ${world.violations.length} limit types violated. Model accuracy outside the synthetic envelope is unverified.`;

@@ -278,7 +278,10 @@ function createServer({token=process.env.THERMALOOP_API_TOKEN??'',apiKeys=proces
         content=Buffer.from(content.toString('utf8').replace('<div class="top-right">','<div class="top-right">'+label)
           .replace('</body>','<script src="/service/unified-physics.js"></script><script src="/service/unified-bridge.js"></script></body>'));
       }
-      res.writeHead(200,{'Content-Type':mime[ext]+'; charset=utf-8'});res.end(req.method==='HEAD'?undefined:content);
+      // This server dynamically injects route-specific content into index.html.
+      // Do not let browsers reuse the previous Web Service version's homepage.
+      res.writeHead(200,{'Content-Type':mime[ext]+'; charset=utf-8','Cache-Control':'no-store'});
+      res.end(req.method==='HEAD'?undefined:content);
     } catch{json(404,{error:'Not found'});}
   });
   server.headersTimeout=10000;server.requestTimeout=20000;

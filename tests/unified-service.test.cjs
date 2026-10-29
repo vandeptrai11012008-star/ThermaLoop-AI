@@ -9,7 +9,9 @@ const auth=token=>({Authorization:'Bearer '+token});
 const req=(method,data,token)=>({method,headers:{'Content-Type':'application/json',...auth(token)},body:JSON.stringify(data)});
 
 test('v1.5 engineering lab is served only by Web Service, with shared canonical source',()=>serve({},async base=>{
-  const home=await(await fetch(base+'/')).text();
+  const homeResponse=await fetch(base+'/');
+  assert.equal(homeResponse.headers.get('cache-control'),'no-store');
+  const home=await homeResponse.text();
   assert.match(home,/UNIFIED PHYSICS v1\.5/);assert.match(home,/unified-bridge\.js/);
   const lab=await(await fetch(base+'/physics-lab')).text();
   assert.match(lab,/v1\.5/);assert.match(lab,/unified-physics\.js/);

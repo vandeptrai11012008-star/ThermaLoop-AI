@@ -21,6 +21,7 @@ async def test_world(base,out):
             initial=await page.evaluate('ThermaUnifiedLab.getReport()')
             assert initial['minute']==0 and len(initial['topology']['nodes'])==6
             assert await page.locator('#worldSvg .node').count()==6
+            assert (await page.locator('#worldSvg').get_attribute('viewBox')).endswith('515')
             initial_flow=await page.evaluate('ThermaUnifiedPhysics.hydraulics(ThermaUnifiedLab.getReport().topology,75).flowLps')
             await page.locator('#nodeSelect').select_option('PIPE-A')
             await page.locator('#paramSelect').select_option('diameterMm')
