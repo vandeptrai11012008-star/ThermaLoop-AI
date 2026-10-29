@@ -39,13 +39,13 @@ jobs:
         if: github.event_name != 'workflow_dispatch'
       - name: Verify the deployed main website with the pinned browser
         if: github.event_name == 'workflow_dispatch'
-        run: python tests/browser_smoke.py --base-url https://thermaloop-ai-5.onrender.com --artifacts /tmp/thermaloop-browser-results
+        run: python tests/browser_smoke.py --base-url https://thermaloop-agent-api.onrender.com --artifacts /tmp/thermaloop-browser-results
       - name: Verify desktop workspace navigation
         run: python tests/browser_workspaces.py --artifacts /tmp/thermaloop-browser-results/workspaces
         if: github.event_name != 'workflow_dispatch'
       - name: Verify deployed desktop workspace navigation
         if: github.event_name == 'workflow_dispatch'
-        run: python tests/browser_workspaces.py --base-url https://thermaloop-ai-5.onrender.com --artifacts /tmp/thermaloop-browser-results/workspaces
+        run: python tests/browser_workspaces.py --base-url https://thermaloop-agent-api.onrender.com --artifacts /tmp/thermaloop-browser-results/workspaces
       - run: python tests/browser_physics.py --artifacts /tmp/thermaloop-browser-results/physics-default-motion
       - run: python tests/browser_agent_sandbox.py --artifacts /tmp/thermaloop-browser-results/agent-sandbox
       - name: Verify Web Service-only Physics Lab v1.4

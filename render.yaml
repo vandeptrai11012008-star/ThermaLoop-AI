@@ -1,5 +1,5 @@
-# Opt-in Render Blueprint: create a SECOND service for remote agents.
-# The existing static site keeps its current deployment and URL.
+# Canonical ThermaLoop AI Web Service: website, Physics Lab, and remote agent API.
+# This Blueprint deploys the agent-api service; it does not modify legacy sites.
 services:
   - type: web
     name: thermaloop-agent-api

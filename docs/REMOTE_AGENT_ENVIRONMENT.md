@@ -1,5 +1,9 @@
 # ThermaLoop v1.5 Web Service — Remote Agent Environment + Unified Physics
 
+- **Official Web Service:** https://thermaloop-agent-api.onrender.com/
+- **Physics Lab:** https://thermaloop-agent-api.onrender.com/physics-lab
+- **API specification:** https://thermaloop-agent-api.onrender.com/api/v1/openapi.json
+
 **Current v1.5:** `/physics-lab` now contains the graph-editing engineering
 world and the authenticated `/api/v1/worlds` endpoints use the same
 `service/unified-physics.js` solver. See

@@ -8,9 +8,9 @@ ThermaLoop AI is a research-oriented Web Service where people and external AI ag
 
 | Open | Link |
 | --- | --- |
-| **Main ThermaLoop AI website** | **https://thermaloop-ai.onrender.com/** |
-| **Physics Lab** | **https://thermaloop-ai.onrender.com/physics-lab** |
-| Remote agent API contract | https://thermaloop-ai.onrender.com/api/v1/openapi.json |
+| **Main ThermaLoop AI Web Service** | **https://thermaloop-agent-api.onrender.com/** |
+| **Physics Lab** | **https://thermaloop-agent-api.onrender.com/physics-lab** |
+| Remote agent API contract | https://thermaloop-agent-api.onrender.com/api/v1/openapi.json |
 
 > **Deployment:** The live product above is a **Render Node Web Service**, not the older Static Site. The repository's standalone `index.html` remains available as legacy source, but the new physics and API features are served through `scripts/serve-agent-sandbox.cjs`.
 
@@ -22,7 +22,7 @@ ThermaLoop AI is a research-oriented Web Service where people and external AI ag
 - **Audit numerical consistency:** Review energy-balance and pressure residuals, limit violations, and downloadable experiment evidence.
 - **Connect an AI agent:** Authenticated clients can create worlds, read state, step time, change topology before a run, and collect reports. No hardware is controlled.
 
-**Try it:** Open the [Physics Lab](https://thermaloop-ai.onrender.com/physics-lab), insert a thermal tank, run **Step 5 min**, then reset and change the circuit to see how flow and temperatures respond.
+**Try it:** Open the [Physics Lab](https://thermaloop-agent-api.onrender.com/physics-lab), insert a thermal tank, run **Step 5 min**, then reset and change the circuit to see how flow and temperatures respond.
 
 ## Physics model
 
@@ -59,7 +59,7 @@ DELETE /api/v1/worlds/{id}
 An external AI agent can **observe -> propose -> simulate -> evaluate -> retry**. Graph edits are validated, topology changes require minute 0, and step requests use `expectedMinute` to reject stale concurrent actions. The API applies Bearer authentication, quotas, and expiring in-memory sessions. Keep credentials **server-side**, never in public page JavaScript.
 
 - [Remote agent setup and security](docs/REMOTE_AGENT_ENVIRONMENT.md)
-- [Live OpenAPI contract](https://thermaloop-ai.onrender.com/api/v1/openapi.json)
+- [Live OpenAPI contract](https://thermaloop-agent-api.onrender.com/api/v1/openapi.json)
 
 ## Run locally
 
