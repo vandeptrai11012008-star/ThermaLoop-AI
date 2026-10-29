@@ -7,12 +7,12 @@
   container.style.flexWrap='wrap';
   const strip=document.createElement('div');strip.setAttribute('aria-label','Shared physics engine snapshot');
   strip.style.cssText='display:flex;flex-wrap:wrap;gap:10px;align-items:center;border:1px solid #34738b;background:#0b2b3a;border-radius:8px;padding:7px 10px;margin-left:auto;font-size:10px;max-width:560px';
-  const label=document.createElement('strong');label.style.color='#a1f8d9';label.textContent='CANONICAL v1.5';
+  const label=document.createElement('strong');label.style.color='#a1f8d9';label.textContent='PHYSICS LAB · CANONICAL';
   const readout=document.createElement('span');readout.style.cssText='font-variant-numeric:tabular-nums;color:#c5e7ef';
-  const action=document.createElement('a');action.href='/physics-lab';action.style.cssText='color:#aaf4f3;text-decoration:underline';action.textContent='Open physical world ↗';
+  const action=document.createElement('a');action.href='/physics-lab';action.style.cssText='color:#aaf4f3;text-decoration:underline';action.textContent='Open Physics Lab ↗';
   strip.append(label,readout,action);container.append(strip);
   const note=document.createElement('p');note.style.cssText='color:#78aec2;font-size:10px;line-height:1.45;margin:0 0 8px 1px';
-  note.textContent='Physics v1.5 above is a shared browser-local solver snapshot. The legacy 64-GPU 3D scene below remains an illustrative reference, not an independently calibrated physical circuit.';
+  note.textContent='The Physics Lab snapshot above comes from a shared browser-local solver. The legacy 64-GPU 3D scene below remains an illustrative reference, not an independently calibrated physical circuit.';
   container.parentNode.insertBefore(note,container.nextSibling);
   function render(){try{const raw=localStorage.getItem('thermaloop-unified-world-v15');
     if(!raw){readout.textContent='No episode yet · create one in Physics Lab';return;}

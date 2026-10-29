@@ -65,7 +65,7 @@ async def test_world(base,out):
             bridge=page.locator('[aria-label="Shared physics engine snapshot"]')
             await bridge.wait_for(state='visible')
             text=await bridge.inner_text()
-            assert 'CANONICAL v1.5' in text and 't=5m' in text,text
+            assert 'PHYSICS LAB · CANONICAL' in text and 't=5m' in text,text
             assert 'Legacy' in (await page.locator('body').inner_text()) or 'legacy' in (await page.locator('body').inner_text())
             (out/'result.json').write_text(json.dumps({'status':'pass','browser':browser.version,
                 'sharedStateMinute':result['minute'],'nodes':len(result['topology']['nodes']),

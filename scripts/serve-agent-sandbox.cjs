@@ -128,10 +128,8 @@ function createServer({token=process.env.THERMALOOP_API_TOKEN??'',apiKeys=proces
         document.paths['/api/v1/worlds/{id}/report']={get:{operationId:'reportUnifiedWorld',
           responses:{'200':{description:'Complete conservation audit and replay trace'}}}};
         document.paths['/physics-lab']={get:{operationId:'openUnifiedWebServicePhysicsLab',
-          summary:'v1.5 graph-builder and unified 3D physical simulation laboratory',security:[],
+          summary:'Physics Lab graph-builder and unified 3D physical simulation laboratory',security:[],
           responses:{'200':{description:'Browser-local physical circuit editor'}}}};
-        document.paths['/physics-lab-v14']={get:{operationId:'openArchivedV14Lab',security:[],
-          responses:{'200':{description:'Read-only v1.4 lab route; simulation is still interactive'}}}};
         json(200,document);return;
       }
       if(req.method==='GET'&&pathname==='/api/v1/usage'){
@@ -274,7 +272,7 @@ function createServer({token=process.env.THERMALOOP_API_TOKEN??'',apiKeys=proces
       if(relative==='index.html'){
         // This shortcut exists only in the Web Service response; the legacy
         // Static Site index.html and its pinned inline scripts stay untouched.
-        const label='<a class="btn btn-primary" href="/physics-lab" style="font-size:10px;white-space:nowrap">UNIFIED PHYSICS v1.5 ↗</a>';
+        const label='<a class="btn btn-primary" href="/physics-lab" style="font-size:10px;white-space:nowrap">PHYSICS LAB ↗</a>';
         content=Buffer.from(content.toString('utf8').replace('<div class="top-right">','<div class="top-right">'+label)
           .replace('</body>','<script src="/service/unified-physics.js"></script><script src="/service/unified-bridge.js"></script></body>'));
       }

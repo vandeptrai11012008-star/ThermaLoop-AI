@@ -9,9 +9,8 @@ ThermaLoop AI is a research-oriented Web Service where people and external AI ag
 | Open | Link |
 | --- | --- |
 | **Main ThermaLoop AI website** | **https://thermaloop-ai.onrender.com/** |
-| **Unified Physics Lab v1.5** | **https://thermaloop-ai.onrender.com/physics-lab** |
+| **Physics Lab** | **https://thermaloop-ai.onrender.com/physics-lab** |
 | Remote agent API contract | https://thermaloop-ai.onrender.com/api/v1/openapi.json |
-| Previous Physics Lab v1.4 | https://thermaloop-ai.onrender.com/physics-lab-v14 |
 
 > **Deployment:** The live product above is a **Render Node Web Service**, not the older Static Site. The repository's standalone `index.html` remains available as legacy source, but the new physics and API features are served through `scripts/serve-agent-sandbox.cjs`.
 
@@ -19,13 +18,13 @@ ThermaLoop AI is a research-oriented Web Service where people and external AI ag
 
 - **Build a circuit:** Inspect an isometric schematic generated from the validated topology. Add pipes or thermal tanks, edit component parameters, and reconnect nodes in one closed coolant circuit.
 - **Run experiments:** Change GPU load, pump speed, cooling fan, heat recovery, and room setpoint. Step the world by 1, 5, or 10 simulated minutes and compare seeded scenarios.
-- **Inspect one canonical state:** The v1.5 schematic, temperatures, hydraulic flow, pressure, energy metrics, and chart all use the same simulation state.
+- **Inspect one canonical state:** The Physics Lab schematic, temperatures, hydraulic flow, pressure, energy metrics, and chart all use the same simulation state.
 - **Audit numerical consistency:** Review energy-balance and pressure residuals, limit violations, and downloadable experiment evidence.
 - **Connect an AI agent:** Authenticated clients can create worlds, read state, step time, change topology before a run, and collect reports. No hardware is controlled.
 
-**Try it:** Open the [Unified Physics Lab](https://thermaloop-ai.onrender.com/physics-lab), insert a thermal tank, run **Step 5 min**, then reset and change the circuit to see how flow and temperatures respond.
+**Try it:** Open the [Physics Lab](https://thermaloop-ai.onrender.com/physics-lab), insert a thermal tank, run **Step 5 min**, then reset and change the circuit to see how flow and temperatures respond.
 
-## Physics in v1.5
+## Physics model
 
 The current solver is a **deterministic, reduced-order thermal-hydraulic model**:
 
@@ -40,9 +39,9 @@ The current solver is a **deterministic, reduced-order thermal-hydraulic model**
 
 **Scientific limitations:** This is **not** CFD, a calibrated facility digital twin, or proof of real-world predictive accuracy. Water properties are fixed; one aggregate GPU, one mixed coolant state, and one room are modeled. Branched networks, pressure transients, stratification, experimentally validated component maps, and measured GPU/HX parameters are not yet implemented. Small conservation residuals confirm internal consistency, **not** agreement with real hardware.
 
-The original 64-GPU dashboard includes **illustrative legacy signals**. The main Web Service shows a separately labeled canonical v1.5 snapshot; legacy animations should not be treated as measured values from the new solver.
+The original 64-GPU dashboard includes **illustrative legacy signals**. The main Web Service shows a separately labeled canonical Physics Lab snapshot; legacy animations should not be treated as measured values from the new solver.
 
-Read the [v1.5 equations, assumptions, and validation limits](docs/UNIFIED_PHYSICS_V15.md).
+Read the [physics equations, assumptions, and validation limits](docs/UNIFIED_PHYSICS_V15.md).
 
 ## Remote Agent Environment
 

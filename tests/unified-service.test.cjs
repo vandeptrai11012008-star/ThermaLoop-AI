@@ -12,9 +12,11 @@ test('v1.5 engineering lab is served only by Web Service, with shared canonical 
   const homeResponse=await fetch(base+'/');
   assert.equal(homeResponse.headers.get('cache-control'),'no-store');
   const home=await homeResponse.text();
-  assert.match(home,/UNIFIED PHYSICS v1\.5/);assert.match(home,/unified-bridge\.js/);
+  assert.match(home,/PHYSICS LAB ↗/);assert.match(home,/unified-bridge\.js/);
   const lab=await(await fetch(base+'/physics-lab')).text();
-  assert.match(lab,/v1\.5/);assert.match(lab,/unified-physics\.js/);
+  assert.match(lab,/<title>ThermaLoop AI · Physics Lab<\/title>/);
+  assert.doesNotMatch(lab,/physics-lab-v14/);
+  assert.match(lab,/unified-physics\.js/);
   const archive=await(await fetch(base+'/physics-lab-v14')).text();
   assert.match(archive,/v1\.4/);
   for(const asset of ['unified-physics.js','unified-lab.js','unified-lab.css','unified-bridge.js']){
