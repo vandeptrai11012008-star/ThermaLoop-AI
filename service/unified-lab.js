@@ -4,6 +4,7 @@
   const M=globalThis.ThermaUnifiedPhysics,$=id=>document.getElementById(id);
   if(!M){document.body.textContent='Unified physics solver failed to load';return;}
   const KEY='thermaloop-unified-world-v15';let world=null,selected='P-101';
+  let benchmarkWorker=null,benchmarkReport=null;
   const names={pump:'Pump',gpu:'Aggregate GPU',pipe:'Pipe',hx:'Heat exchanger',cooler:'Dry cooler',tank:'Thermal tank'};
   const colors={pump:'#57c8e5',gpu:'#f0a376',pipe:'#65aed8',hx:'#91e7cd',cooler:'#a99ef0',tank:'#ebc783'};
   const fmt=(v,n=2)=>Number.isFinite(v)?v.toFixed(n):'—';
@@ -122,6 +123,64 @@
   function exportReport(){const json=JSON.stringify(M.report(world),null,2),url=URL.createObjectURL(new Blob([json],{type:'application/json'}));
     const a=document.createElement('a');a.href=url;a.download='thermaloop-unified-world-v15.json';a.click();
     setTimeout(()=>URL.revokeObjectURL(url),2000);}
+  function benchmarkBusy(busy){$('benchmarkRun').disabled=busy;$('benchmarkSize').disabled=busy;
+    $('benchmarkStop').disabled=!busy;$('benchmarkExport').disabled=busy||!benchmarkReport;}
+  function stopBenchmark(message='Benchmark cancelled.'){
+    if(benchmarkWorker){benchmarkWorker.terminate();benchmarkWorker=null;}
+    benchmarkBusy(false);$('benchmarkProgress').hidden=true;
+    if(message)status('benchmarkStatus',message);
+  }
+  function showBenchmark(result){
+    const labels={fixed:'Fixed baseline',threshold:'Temperature threshold',trend:'Temperature trend'};
+    $('benchmarkRows').replaceChildren(...['fixed','threshold','trend'].map(id=>{
+      const r=result.summary[id],tr=document.createElement('tr');
+      const cells=[labels[id],fmt(r.meanSiteElectricKWh,3),fmt(r.meanComputeServiceHours,4),
+        fmt(r.meanRecoveredHeatKWh,4),r.episodesWithViolations+' / '+r.episodes];
+      for(const v of cells){const cell=document.createElement('td');cell.textContent=v;tr.append(cell);}return tr;
+    }));
+    $('benchmarkMeta').textContent=`${result.episodeCount} paired simulation episodes · ${result.cases.length} scenarios · ${result.seedValues.length} seed(s) · ${result.horizonMinutes} simulated minutes each · engine ${result.engineVersion}`;
+    const base=result.summary.fixed,trend=result.summary.trend;
+    const saved=base.meanSiteElectricKWh-trend.meanSiteElectricKWh;
+    const work=trend.meanComputeServiceHours-base.meanComputeServiceHours;
+    const violationMessage=trend.episodesWithViolations===base.episodesWithViolations?
+      'The trend controller did not reduce the number of episodes with violations.':
+      `Violating episodes: fixed ${base.episodesWithViolations}, trend ${trend.episodesWithViolations}.`;
+    $('benchmarkInsight').textContent=`Trend vs fixed: ${saved>=0?'saved':'used an extra'} ${fmt(Math.abs(saved),3)} kWh/episode; ${work<0?'lost':'gained'} ${fmt(Math.abs(work),4)} compute-service hours/episode. ${violationMessage} No real-world accuracy or trained AI superiority is established.`;
+    $('benchmarkResults').hidden=false;
+  }
+  function runBenchmark(){
+    if(benchmarkWorker)return;
+    if(typeof Worker!=='function'){status('benchmarkStatus','This browser does not support Web Workers.',true);return;}
+    const mode=$('benchmarkSize').value,total=mode==='full'?150:30;
+    if(!['quick','full'].includes(mode)){status('benchmarkStatus','Unknown benchmark size.',true);return;}
+    benchmarkReport=null;$('benchmarkResults').hidden=true;$('benchmarkProgress').hidden=false;
+    $('benchmarkProgress').max=total;$('benchmarkProgress').value=0;
+    benchmarkBusy(true);status('benchmarkStatus',`Running 0 / ${total} identical-condition experiments in this browser…`);
+    try{
+      const worker=new Worker('/service/unified-benchmark-worker.js');benchmarkWorker=worker;
+      worker.onmessage=event=>{
+        if(benchmarkWorker!==worker)return;
+        const m=event.data;
+        if(m?.type==='progress'){$('benchmarkProgress').value=m.done;
+          status('benchmarkStatus',`Running ${m.done} / ${m.total} episodes…`);}
+        else if(m?.type==='result'){
+          benchmarkReport=m.result;showBenchmark(m.result);
+          stopBenchmark(`Complete: ${m.result.episodeCount} reproducible simulated episodes. No remote API calls or hardware control.`);
+        }else if(m?.type==='error'){
+          stopBenchmark('');status('benchmarkStatus',m.message||'Benchmark failed',true);
+        }
+      };
+      worker.onerror=event=>{if(benchmarkWorker!==worker)return;
+        stopBenchmark('');status('benchmarkStatus',event.message||'Benchmark worker failed',true);};
+      worker.postMessage({type:'run',mode});
+    }catch(e){stopBenchmark('');status('benchmarkStatus',e.message,true);}
+  }
+  function exportBenchmark(){
+    if(!benchmarkReport)return;
+    const url=URL.createObjectURL(new Blob([JSON.stringify(benchmarkReport,null,2)],{type:'application/json'}));
+    const a=document.createElement('a');a.href=url;a.download=`thermaloop-physics-benchmark-${benchmarkReport.episodeCount}-episodes.json`;a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),2000);
+  }
   function initialize(){for(const id of ['pump','fan','recovery','load','setpoint'])$(id).addEventListener('input',labelControls);
     $('reset').addEventListener('click',reset);$('stepOne').addEventListener('click',()=>step(1));
     $('stepFive').addEventListener('click',()=>step(5));$('stepTen').addEventListener('click',()=>step(10));
@@ -132,8 +191,12 @@
     $('removeNode').addEventListener('click',()=>edit(t=>{const newT=M.removeNode(t,selected);selected=newT.order[0];return newT;}));
     $('addPipe').addEventListener('click',()=>add('pipe'));$('addTank').addEventListener('click',()=>add('tank'));
     $('rewire').addEventListener('click',()=>edit(t=>M.moveAfter(t,selected,$('moveAfter').value)));
+    $('benchmarkRun').addEventListener('click',runBenchmark);
+    $('benchmarkStop').addEventListener('click',()=>stopBenchmark());
+    $('benchmarkExport').addEventListener('click',exportBenchmark);
     labelControls();reset();
-    globalThis.ThermaUnifiedLab={getReport:()=>structuredClone(M.report(world)),getWorld:()=>structuredClone(world)};
+    globalThis.ThermaUnifiedLab={getReport:()=>structuredClone(M.report(world)),getWorld:()=>structuredClone(world),
+      getBenchmark:()=>benchmarkReport?structuredClone(benchmarkReport):null};
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initialize);else initialize();
 })();

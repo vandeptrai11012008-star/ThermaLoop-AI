@@ -17,9 +17,12 @@ test('v1.5 engineering lab is served only by Web Service, with shared canonical 
   assert.match(lab,/<title>ThermaLoop AI · Physics Lab<\/title>/);
   assert.doesNotMatch(lab,/physics-lab-v14/);
   assert.match(lab,/unified-physics\.js/);
+  assert.match(lab,/Controller benchmark/);
+  assert.match(lab,/id="benchmarkRun"/);
   const archive=await(await fetch(base+'/physics-lab-v14')).text();
   assert.match(archive,/v1\.4/);
-  for(const asset of ['unified-physics.js','unified-lab.js','unified-lab.css','unified-bridge.js']){
+  for(const asset of ['unified-physics.js','unified-lab.js','unified-lab.css','unified-bridge.js',
+    'unified-benchmark.js','unified-benchmark-worker.js']){
     assert.equal((await fetch(base+'/service/'+asset)).status,200);}
   const h=await(await fetch(base+'/healthz')).json();assert.equal(h.apiVersion,'1.5.0');
 }));

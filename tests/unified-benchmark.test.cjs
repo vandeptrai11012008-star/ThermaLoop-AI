@@ -1,9 +1,42 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
+const vm=require('node:vm'),fs=require('node:fs'),path=require('node:path');
 const B=require('../scripts/benchmark_unified_physics.cjs');
+const shared=require('../service/unified-benchmark.js');
 
 const tiny=()=>B.benchmark({cases:B.CASES.slice(0,2),seeds:[3,11],horizonMinutes:10});
+
+test('browser and CLI use exactly the same benchmark implementation',()=>{
+  assert.strictEqual(B,shared);
+  const events=[];
+  const report=B.benchmark({cases:B.CASES.slice(0,1),seeds:[3],horizonMinutes:3,
+    onProgress:e=>events.push(e.done)});
+  assert.equal(report.episodeCount,3);assert.deepEqual(events,[1,2,3]);
+});
+
+test('browser worker loads shared UMD solver and runs a real 30-episode comparison',()=>{
+  const messages=[],context={postMessage:m=>messages.push(m)};
+  context.self=context;vm.createContext(context);
+  context.importScripts=(...urls)=>{
+    for(const url of urls){
+      assert.match(url,/^\/service\/[a-z-]+\.js$/);
+      const source=fs.readFileSync(path.join(__dirname,'..',url),'utf8');
+      vm.runInContext(source,context,{filename:url});
+    }
+  };
+  vm.runInContext(fs.readFileSync(path.join(__dirname,'../service/unified-benchmark-worker.js'),'utf8'),
+    context,{filename:'unified-benchmark-worker.js'});
+  context.onmessage({data:{type:'run',mode:'quick'}});
+  const done=messages.find(m=>m.type==='result');
+  assert.ok(done);assert.equal(done.result.episodeCount,30);
+  assert.equal(done.result.summary.fixed.episodes,10);
+  assert.ok(messages.some(m=>m.type==='progress'&&m.done===30));
+  const node=B.benchmark({seeds:[B.DEFAULT_SEEDS[0]]});
+  assert.equal(JSON.stringify(done.result.summary),JSON.stringify(node.summary));
+  context.onmessage({data:{type:'run',mode:'unbounded'}});
+  assert.equal(messages.at(-1).type,'error');
+});
 
 test('benchmark is deterministic and pairs three controllers on identical seeds and start',()=>{
   const a=tiny(),b=tiny();assert.deepEqual(a,b);assert.equal(a.episodeCount,12);

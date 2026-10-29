@@ -4,7 +4,7 @@
 <link rel="stylesheet" href="/service/unified-lab.css"></head><body>
 <div class="shell">
   <header class="topbar"><a class="brand" href="/" aria-label="ThermaLoop home"><span class="logo">⬡</span><span>THERMALOOP <em>AI</em><small>UNIFIED PHYSICAL SIMULATION</small></span></a>
-    <div class="header-links"><span class="version">WEB SERVICE · PHYSICS LAB</span><a href="/#digital-twin" class="back">Main dashboard ↗</a></div></header>
+    <div class="header-links"><span class="version">WEB SERVICE · PHYSICS LAB</span><a href="#controller-benchmark" class="back">Benchmark ↓</a><a href="/#digital-twin" class="back">Main dashboard ↗</a></div></header>
   <section class="hero"><div><p class="eyebrow">ENGINEERING WORLD / 01</p><h1>Build a circuit. <span>Test the physics.</span></h1>
     <p>A single canonical world state drives the 3D topology, temperatures, hydraulic calculations, experiment trace and remote agent API. Each node is an explicit component in one closed coolant circuit.</p></div>
     <div class="status-badge">● SIMULATION ONLY<small>Uncalibrated · No hardware commands</small></div></section>
@@ -19,13 +19,32 @@
       <section class="panel"><div class="heading"><div><p class="eyebrow">02 / CONSERVATION AUDIT</p><h2>Results from one solver</h2><p>Energy and pressure residuals reveal inconsistent numerical results.</p></div><button id="export" type="button">Export evidence ↓</button></div>
         <div class="audit" id="audit"></div><svg id="chart" viewBox="0 0 820 240" role="img" aria-label="GPU, coolant, and room temperature history"></svg><p class="trace-note" id="traceNote"></p>
       </section>
-      <section class="panel"><p class="eyebrow">03 / SCIENTIFIC SCOPE</p><h2>What this solver does — and does not</h2>
+      <section class="panel benchmark-panel" id="controller-benchmark" aria-label="Reproducible controller benchmark">
+        <div class="heading"><div><p class="eyebrow">03 / REPRODUCIBLE RESEARCH</p><h2>Controller benchmark</h2>
+          <p>Run the same seeded physics experiments for fixed, threshold and trend-aware controllers. Computed in a browser worker with the exact same solver as this lab.</p></div><span class="benchmark-chip">SIMULATED · NO API TOKEN</span></div>
+        <div class="benchmark-toolbar"><label for="benchmarkSize">Experiment size
+          <select id="benchmarkSize"><option value="quick">Quick · 30 episodes</option><option value="full">Full · 150 episodes</option></select></label>
+          <button class="primary" id="benchmarkRun" type="button">Run comparison</button>
+          <button id="benchmarkStop" type="button" disabled>Cancel</button>
+          <button id="benchmarkExport" type="button" disabled>Export JSON ↓</button></div>
+        <progress id="benchmarkProgress" max="30" value="0" hidden></progress>
+        <p class="status" role="status" aria-live="polite" id="benchmarkStatus">Ready to run. The standard reference circuit is independent of edits in the topology builder.</p>
+        <div id="benchmarkResults" hidden>
+          <div class="benchmark-meta" id="benchmarkMeta"></div>
+          <div class="benchmark-scroll"><table class="benchmark-table" aria-label="Paired benchmark results">
+            <thead><tr><th scope="col">Controller</th><th scope="col">Electricity<br>kWh</th><th scope="col">Compute<br>service h</th><th scope="col">Recovered<br>heat kWh</th><th scope="col">Violations<br>episodes</th></tr></thead>
+            <tbody id="benchmarkRows"></tbody></table></div>
+          <p class="benchmark-insight" id="benchmarkInsight"></p>
+        </div>
+        <p class="benchmark-disclaimer">These policies use fixed rules, not trained AI. Lower energy can also mean less useful GPU work. In-model residual checks and bootstrap intervals are not real-world validation.</p>
+      </section>
+      <section class="panel"><p class="eyebrow">04 / SCIENTIFIC SCOPE</p><h2>What this solver does — and does not</h2>
         <p>Water is an incompressible fluid with fixed nominal properties. The steady pump/system operating point uses a pump curve and Darcy–Weisbach pipe losses. Two-stream heat exchangers use counter-flow ε-NTU. The transient model conserves heat across aggregate GPU, mixed coolant, and one room.</p>
         <p class="warning"><strong>Not calibrated:</strong> no measured pump curves, GPU thermal impedance, facility loads, variable fluid properties, pressure transients, branched flow, stratification or CFD. Passing numeric residual tests does not establish real-world accuracy or safety.</p>
       </section>
     </div>
     <div class="sidecol">
-      <section class="panel"><p class="eyebrow">04 / ACT ON THE WORLD</p><h2>Experiment controls</h2>
+      <section class="panel"><p class="eyebrow">05 / ACT ON THE WORLD</p><h2>Experiment controls</h2>
         <div class="two-fields"><label>Scenario<select id="preset"><option value="winter">Winter heating</option><option value="summer">Summer cooling</option><option value="burst">Compute burst</option><option value="pump-fault">Pump degradation</option></select></label>
         <label>Seed<input id="seed" type="number" min="0" max="4294967295" step="1" value="42"></label><label>Horizon (minutes)<input id="horizon" type="number" min="1" max="120" step="1" value="60"></label></div>
         <div class="sliders"><label>Pump speed <strong id="pumpLabel">75%</strong><input id="pump" type="range" min="0" max="100" step="5" value="75"></label>
@@ -35,7 +54,7 @@
           <label>Room setpoint <strong id="setpointLabel">21°C</strong><input id="setpoint" type="range" min="16" max="25" step="0.5" value="21"></label></div>
         <div class="actions"><button class="primary" id="reset">Start / reset</button><button id="stepOne">Step 1 min</button><button id="stepFive">Step 5 min</button><button id="stepTen">Step 10 min</button></div>
         <p class="status" role="status" id="controlStatus">Ready</p></section>
-      <section class="panel"><p class="eyebrow">05 / PHYSICAL TOPOLOGY BUILDER</p><h2>Create and connect</h2>
+      <section class="panel"><p class="eyebrow">06 / PHYSICAL TOPOLOGY BUILDER</p><h2>Create and connect</h2>
         <p>Change a component's parameters, insert a pipe or tank, or rewire its position in the closed series circuit. Graph edits require a reset to preserve energy accounting.</p>
         <label>Selected component<select id="nodeSelect"></select></label>
         <label>Parameter<select id="paramSelect"></select></label>
@@ -45,7 +64,7 @@
           <label>Move selected after<select id="moveAfter"></select></label><button id="rewire">Reconnect component</button></div>
         <p class="status" role="status" id="topologyStatus">Every graph is validated before running.</p>
       </section>
-      <section class="panel"><p class="eyebrow">06 / REMOTE AGENT TOOLS</p><h2>AI-controlled topology</h2>
+      <section class="panel"><p class="eyebrow">07 / REMOTE AGENT TOOLS</p><h2>AI-controlled topology</h2>
         <p>Agents can submit validated graphs, read world state, step the solver and export the trace using authenticated Web Service endpoints.</p>
         <code>POST /api/v1/worlds</code><code>POST /api/v1/worlds/{id}/step</code><code>PUT /api/v1/worlds/{id}/topology</code>
         <a class="doclink" href="/api/v1/openapi.json">API contract ↗</a>

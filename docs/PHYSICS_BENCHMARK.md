@@ -12,7 +12,16 @@ electricity, compute service, useful recovered heat and thermal violations?
 
 ## Protocol
 
-Run `node scripts/benchmark_unified_physics.cjs` from the repository root. It
+Open the public Web Service's **Physics Lab → Controller benchmark** to run
+the short 30-episode preview or full 150-episode comparison directly in a
+browser worker, inspect the table and download the full JSON evidence. The
+browser and CLI share the exact same `service/unified-benchmark.js` code and
+`service/unified-physics.js` engine. No Bearer token is embedded in browser
+JavaScript, and running the benchmark does not change the interactive world's
+state or submit expensive unauthenticated server tasks. It always uses the
+standard reference topology; user-edited circuits are not benchmarked.
+
+Alternatively, run `node scripts/benchmark_unified_physics.cjs` from the repository root. It
 prints a machine-readable JSON report. The default matrix has **10 scenario
 configurations × 5 seeds × 3 policies = 150 paired episodes**, each 60 simulated
 minutes. The configurations are predefined winter, summer, workload-burst and
@@ -29,7 +38,8 @@ All policies observe the **same filtered sensor fields**. The evaluator does
 not reveal future forcing, simulator seed, preset or heat-capacity parameters
 to them. The script is self-contained and does not use OpenAI/Kiro credits,
 external data, paid services or real hardware. Its deterministic tests are in
-`tests/unified-benchmark.test.cjs`.
+`tests/unified-benchmark.test.cjs`; the browser flow is checked in
+`tests/browser_unified_lab_service.py`.
 
 Reported metrics include electricity (kWh), compute-service hours, recovered
 heat (kWh), peak temperatures, safety-limit violation codes, energy balance

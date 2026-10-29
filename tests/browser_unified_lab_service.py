@@ -21,6 +21,27 @@ async def test_world(base,out):
             assert await page.locator('a[href="/physics-lab-v14"]').count()==0
             initial=await page.evaluate('ThermaUnifiedLab.getReport()')
             assert initial['minute']==0 and len(initial['topology']['nodes'])==6
+            assert await page.locator('#controller-benchmark').is_visible()
+            await page.locator('#benchmarkRun').click()
+            await page.wait_for_function('ThermaUnifiedLab.getBenchmark()?.episodeCount===30',timeout=30000)
+            quick=await page.evaluate('ThermaUnifiedLab.getBenchmark()')
+            assert quick['summary']['fixed']['episodes']==10
+            assert len(quick['episodes'])==30
+            assert await page.locator('#benchmarkRows tr').count()==3
+            assert await page.locator('#benchmarkExport').is_enabled()
+            assert await page.evaluate('ThermaUnifiedLab.getReport()')==initial
+            await page.locator('#benchmarkSize').select_option('full')
+            await page.locator('#benchmarkRun').click()
+            await page.wait_for_function('ThermaUnifiedLab.getBenchmark()?.episodeCount===150',timeout=60000)
+            full=await page.evaluate('ThermaUnifiedLab.getBenchmark()')
+            assert full['summary']['fixed']['episodes']==50
+            assert full['summary']['trend']['episodesWithViolations']==5
+            async with page.expect_download() as benchmark_download:
+                await page.locator('#benchmarkExport').click()
+            benchmark_file=await benchmark_download.value
+            await benchmark_file.save_as(out/'benchmark.json')
+            assert json.loads((out/'benchmark.json').read_text())==full
+            assert await page.evaluate('ThermaUnifiedLab.getReport()')==initial
             assert await page.locator('#worldSvg .node').count()==6
             assert (await page.locator('#worldSvg').get_attribute('viewBox')).endswith('515')
             initial_flow=await page.evaluate('ThermaUnifiedPhysics.hydraulics(ThermaUnifiedLab.getReport().topology,75).flowLps')
@@ -69,6 +90,7 @@ async def test_world(base,out):
             assert 'PHYSICS LAB · CANONICAL' in text and 't=5m' in text,text
             assert 'Legacy' in (await page.locator('body').inner_text()) or 'legacy' in (await page.locator('body').inner_text())
             (out/'result.json').write_text(json.dumps({'status':'pass','browser':browser.version,
+                'benchmarkEpisodes':full['episodeCount'],
                 'sharedStateMinute':result['minute'],'nodes':len(result['topology']['nodes']),
                 'flowBeforeLps':initial_flow,'flowAfterLps':reduced,'energyResidualKJ':result['energyResidualKJ']},indent=2)+'\n')
             print('PASS Physics Lab: topology editor, pressure/heat, replay, export, mobile and main-site shared state')
