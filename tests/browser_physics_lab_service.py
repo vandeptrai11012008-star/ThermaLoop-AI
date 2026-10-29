@@ -16,7 +16,7 @@ async def run(base,out):
         page=await browser.new_page(viewport={'width':1440,'height':960},accept_downloads=True)
         errors=[];page.on('pageerror',lambda error:errors.append(str(error)))
         try:
-            await page.goto(base+'/physics-lab')
+            await page.goto(base+'/physics-lab-v14')
             await page.wait_for_function('window.ThermaPhysicsLab?.getEpisodeReport() !== null')
             assert 'v1.4' in await page.title()
             assert await page.locator('#minuteBadge').inner_text()=='0 / 60 min'

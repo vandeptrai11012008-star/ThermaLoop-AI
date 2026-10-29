@@ -45,7 +45,7 @@ test('Web Service serves its own v1.4 laboratory without changing static index s
   assert.ok(!staticHTML.includes('PHYSICS LAB v1.4'));
   const homepage=await(await fetch(base+'/')).text();
   assert.ok(homepage.includes('href="/physics-lab"'));
-  const lab=await fetch(base+'/physics-lab');assert.equal(lab.status,200);
+  const lab=await fetch(base+'/physics-lab-v14');assert.equal(lab.status,200);
   const html=await lab.text();assert.ok(html.includes('Thermal world'));
   assert.ok(html.includes('/service/physics-lab-worker.js')===false);
   for(const asset of ['/service/physics-lab.js','/service/physics-lab.css',
@@ -62,11 +62,11 @@ test('authenticated v1.4 research enforces bounds, quotas and OpenAPI documentat
   assert.equal((await fetch(endpoint,body({trials:4}))).status,401);
   assert.equal((await fetch(endpoint,body({trials:31},key))).status,400);
   const health=await(await fetch(base+'/api/v1/health',{headers:{Authorization:'Bearer '+key}})).json();
-  assert.equal(health.apiVersion,'1.4.0');assert.equal(health.engineVersion,'1.1.0');
+  assert.equal(health.apiVersion,'1.5.0');assert.equal(health.engineVersion,'1.1.0');
   const schema=await(await fetch(base+'/api/v1/schema',{headers:{Authorization:'Bearer '+key}})).json();
   assert.deepEqual(schema,M.schema());
   const spec=await(await fetch(base+'/api/v1/openapi.json',{headers:{Authorization:'Bearer '+key}})).json();
-  assert.equal(spec.info.version,'1.4.0');assert.ok(spec.paths['/api/v1/research/validated']);
+  assert.equal(spec.info.version,'1.5.0');assert.ok(spec.paths['/api/v1/research/validated']);
   const input={schemaVersion:1,scenario:{preset:'winter',seed:42,horizonMinutes:60},trials:30};
   const response=await fetch(endpoint,body(input,key));assert.equal(response.status,200);
   const report=await response.json();assert.deepEqual(report,fair.run(input));

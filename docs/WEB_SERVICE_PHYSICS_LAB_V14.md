@@ -1,6 +1,10 @@
 # ThermaLoop Web Service v1.4 — Physical Simulation Lab
 
-Only the Node **Web Service** serves the new `/physics-lab` route. The original
+**Archive note (v1.5):** the active engineering route is now `/physics-lab`;
+this v1.4 three-state laboratory remains available at `/physics-lab-v14`.
+See [UNIFIED_PHYSICS_V15.md](UNIFIED_PHYSICS_V15.md) for the new solver.
+
+Only the Node **Web Service** originally served the `/physics-lab` route. The original
 `index.html`, old Static Site frontend and `science/` physics/model source files
 are unchanged by this release. The Node server injects a shortcut into its own
 homepage response. A previous Render Static Site is **not a deployment target**.

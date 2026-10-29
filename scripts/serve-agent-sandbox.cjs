@@ -9,12 +9,13 @@ const {Worker,isMainThread,parentPort,workerData} = require('node:worker_threads
 const engine = require('../science/agent-sandbox-model.js');
 const research = require('../science/agent-research-model.js');
 const validatedResearch = require('../service/validated-research.js');
+const unified = require('../service/unified-physics.js');
 const {createEpisodeStore,restoreEpisode,snapshotEpisode} = require('./episode-store.cjs');
 const ROOT = path.resolve(__dirname,'..');
 const MAX_BODY = 65536;
 const MAX_EPISODES = 16;
 const EPISODE_IDLE_MS = 30*60*1000;
-const API_VERSION='1.4.0';
+const API_VERSION='1.5.0';
 function equalToken(a,b) {
   const x=crypto.createHash('sha256').update(a).digest(),y=crypto.createHash('sha256').update(b).digest();
   return crypto.timingSafeEqual(x,y);
@@ -50,6 +51,8 @@ function createServer({token=process.env.THERMALOOP_API_TOKEN??'',apiKeys=proces
   const workers=new Set();
   const persistence=createEpisodeStore(storePath,ROOT);
   let episodes=new Map(persistence.load().filter(e=>Date.now()-e.touched<=EPISODE_IDLE_MS).map(e=>[e.id,e]));
+  // v1.5 topology worlds are separate and intentionally ephemeral. No device IO.
+  const worlds=new Map();
   const quotas=new Map();
   const server=http.createServer(async (req,res)=>{
     res.setHeader('X-Content-Type-Options','nosniff');
@@ -105,9 +108,30 @@ function createServer({token=process.env.THERMALOOP_API_TOKEN??'',apiKeys=proces
         entry.post.summary='Bounded research requiring comparable terminal thermal states';
         entry.post.description='Web Service v1.4 research: nominal final GPU, coolant and building temperatures must match the paired baseline within explicit illustrative bands; synthetic and uncalibrated, no hardware access.';
         document.paths['/api/v1/research/validated']=entry;
-        document.paths['/physics-lab']={get:{operationId:'openWebServicePhysicsLab',
-          summary:'Web Service-only browser-local physical experiment laboratory',security:[],
-          responses:{'200':{description:'Isometric thermal-state experiment website; not a hardware control interface'}}}};
+        document.paths['/api/v1/worlds']={post:{operationId:'createUnifiedWorld',
+          summary:'Create a bounded, simulated serial thermal circuit with validated topology',
+          description:'Bearer authentication required. One pump/GPU/HX/cooler, optional pipes and tanks. No hardware.',
+          requestBody:{required:true,content:{'application/json':{schema:{type:'object',
+            properties:{scenario:{type:'object'},controls:{type:'object'},topology:{type:'object'}}}}}},
+          responses:{'201':{description:'World id and canonical physical state'},'400':{description:'Invalid topology'}}}};
+        document.paths['/api/v1/worlds/{id}']={get:{operationId:'observeUnifiedWorld',responses:{'200':{description:'Unified world state'}}},
+          delete:{operationId:'deleteUnifiedWorld',responses:{'200':{description:'Session removed'}}}};
+        document.paths['/api/v1/worlds/{id}/step']={post:{operationId:'stepUnifiedWorld',
+          summary:'Advance a canonical world by 1–15 simulated minutes with control patches',
+          requestBody:{required:true,content:{'application/json':{schema:{type:'object',required:['expectedMinute'],
+            properties:{expectedMinute:{type:'integer'},minutes:{type:'integer',minimum:1,maximum:15},controls:{type:'object'}}}}}},
+          responses:{'200':{description:'New temperatures, hydraulic results and trace'},'409':{description:'Stale minute'}}}};
+        document.paths['/api/v1/worlds/{id}/topology']={put:{operationId:'rewireUnifiedWorld',
+          summary:'Replace validated serial circuit, only at minute 0',
+          requestBody:{required:true,content:{'application/json':{schema:{type:'object',required:['nodes','edges']}}}},
+          responses:{'200':{description:'Validated graph and reset state'},'400':{description:'Invalid graph or nonzero minute'}}}};
+        document.paths['/api/v1/worlds/{id}/report']={get:{operationId:'reportUnifiedWorld',
+          responses:{'200':{description:'Complete conservation audit and replay trace'}}}};
+        document.paths['/physics-lab']={get:{operationId:'openUnifiedWebServicePhysicsLab',
+          summary:'v1.5 graph-builder and unified 3D physical simulation laboratory',security:[],
+          responses:{'200':{description:'Browser-local physical circuit editor'}}}};
+        document.paths['/physics-lab-v14']={get:{operationId:'openArchivedV14Lab',security:[],
+          responses:{'200':{description:'Read-only v1.4 lab route; simulation is still interactive'}}}};
         json(200,document);return;
       }
       if(req.method==='GET'&&pathname==='/api/v1/usage'){
@@ -116,7 +140,44 @@ function createServer({token=process.env.THERMALOOP_API_TOKEN??'',apiKeys=proces
           evaluationsPerMinute:maxEvaluationsPerMinute,researchesInWindow:usage.researches??0,
           researchesPerMinute:maxResearchesPerMinute,activeEpisodes:[...episodes.values()].filter(e=>e.owner===owner).length,
           maxEpisodesPerPrincipal,globalEpisodes:episodes.size,maxGlobalEpisodes:MAX_EPISODES,
+          activeWorlds:[...worlds.values()].filter(w=>w.owner===owner).length,maxGlobalWorlds:16,
           windowResetsInSeconds:Math.max(1,Math.ceil((60000-(now-usage.started))/1000))});return;
+      }
+      const worldCollection=pathname==='/api/v1/worlds';
+      const worldMatch=/^\/api\/v1\/worlds\/([0-9a-f-]{36})(?:\/(step|report|topology))?$/.exec(pathname);
+      if(worldCollection||worldMatch){
+        for(const [id,entry] of worlds)if(now-entry.touched>EPISODE_IDLE_MS)worlds.delete(id);
+        if(worldCollection){
+          if(req.method!=='POST'){json(405,{error:'Use POST to create a world'});return;}
+          if(worlds.size>=16){json(503,{error:'World capacity reached'});return;}
+          if([...worlds.values()].filter(w=>w.owner===owner).length>=4){json(429,{error:'Principal world quota reached'});return;}
+          try{const world=unified.createWorld(await readJSON()),id=crypto.randomUUID();
+            worlds.set(id,{world,owner,touched:now});json(201,{worldId:id,...unified.report(world)});
+          }catch(e){json(e.status??(e instanceof TypeError||e instanceof RangeError||e instanceof SyntaxError?400:500),{error:e.message});}
+          return;
+        }
+        const [,id,action]=worldMatch,entry=worlds.get(id);
+        if(!entry||entry.owner!==owner){json(404,{error:'World not found or expired'});return;}
+        if(!action&&req.method==='DELETE'){worlds.delete(id);json(200,{worldId:id,discarded:true});return;}
+        if(!action&&req.method==='GET'||action==='report'&&req.method==='GET'){
+          entry.touched=now;json(200,{worldId:id,...unified.report(entry.world)});return;}
+        if(action==='step'&&req.method==='POST'||action==='topology'&&req.method==='PUT'){
+          try{const input=await readJSON();let world;
+            // Re-read after awaiting the request body: concurrent agents must
+            // not both advance the same stale checkpoint.
+            const latest=worlds.get(id);
+            if(!latest||latest.owner!==owner){json(404,{error:'World not found or expired'});return;}
+            if(action==='step'){
+              if(!input||!Number.isInteger(input.expectedMinute))throw new RangeError('Expected integer expectedMinute');
+              for(const key of Object.keys(input))if(!['expectedMinute','minutes','controls'].includes(key))
+                throw new RangeError('Unknown world step field');
+              world=unified.advance(latest.world,input);
+            }else world=unified.editTopology(latest.world,input);
+            worlds.set(id,{world,owner,touched:now});json(200,{worldId:id,...unified.report(world)});
+          }catch(e){json(e.status??(e instanceof TypeError||e instanceof RangeError||e instanceof SyntaxError?400:500),
+            {error:e.message});}return;
+        }
+        json(405,{error:'Unsupported world method'});return;
       }
       const episodeCollection=pathname==='/api/v1/episodes';
       const episodeMatch=/^\/api\/v1\/episodes\/([0-9a-f-]{36})(?:\/(step|report))?$/.exec(pathname);
@@ -201,7 +262,8 @@ function createServer({token=process.env.THERMALOOP_API_TOKEN??'',apiKeys=proces
       return;
     }
     if(!['GET','HEAD'].includes(req.method)){json(405,{error:'Read-only static server'});return;}
-    const relative=pathname==='/'?'index.html':pathname==='/physics-lab'?'service/physics-lab.html':pathname.replace(/^\//,'');
+    const relative=pathname==='/'?'index.html':pathname==='/physics-lab'?'service/unified-lab.html':
+      pathname==='/physics-lab-v14'?'service/physics-lab.html':pathname.replace(/^\//,'');
     const ext=path.extname(relative).toLowerCase();
     const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.md':'text/plain','.txt':'text/plain'};
     if(relative.split('/').some(p=>p.startsWith('.'))||!mime[ext]){json(404,{error:'Not found'});return;}
@@ -212,8 +274,9 @@ function createServer({token=process.env.THERMALOOP_API_TOKEN??'',apiKeys=proces
       if(relative==='index.html'){
         // This shortcut exists only in the Web Service response; the legacy
         // Static Site index.html and its pinned inline scripts stay untouched.
-        const label='<a class="btn btn-primary" href="/physics-lab" style="font-size:10px;white-space:nowrap">PHYSICS LAB v1.4 ↗</a>';
-        content=Buffer.from(content.toString('utf8').replace('<div class="top-right">','<div class="top-right">'+label));
+        const label='<a class="btn btn-primary" href="/physics-lab" style="font-size:10px;white-space:nowrap">UNIFIED PHYSICS v1.5 ↗</a>';
+        content=Buffer.from(content.toString('utf8').replace('<div class="top-right">','<div class="top-right">'+label)
+          .replace('</body>','<script src="/service/unified-physics.js"></script><script src="/service/unified-bridge.js"></script></body>'));
       }
       res.writeHead(200,{'Content-Type':mime[ext]+'; charset=utf-8'});res.end(req.method==='HEAD'?undefined:content);
     } catch{json(404,{error:'Not found'});}

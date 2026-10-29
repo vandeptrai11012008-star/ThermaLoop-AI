@@ -30,7 +30,7 @@ test('remote agent keys cannot inspect, step or delete another principal episode
 },async base=>{
   const alice='a'.repeat(40),bob='b'.repeat(40),create=base+'/api/v1/episodes';
   const liveness=await(await fetch(base+'/healthz')).json();
-  assert.equal(liveness.apiVersion,'1.4.0');assert.equal(liveness.hardwareConnected,false);
+  assert.equal(liveness.apiVersion,'1.5.0');assert.equal(liveness.hardwareConnected,false);
   assert.equal((await fetch(base+'/api/v1/usage')).status,401);
   assert.equal((await fetch(create,post({scenario:{horizonMinutes:3}},alice))).status,201);
   const own=await(await fetch(base+'/api/v1/usage',auth(alice))).json();

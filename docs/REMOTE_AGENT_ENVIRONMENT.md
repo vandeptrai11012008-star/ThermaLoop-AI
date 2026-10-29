@@ -1,6 +1,13 @@
-# ThermaLoop v1.4 Web Service — Remote Agent Environment + Physics Lab
+# ThermaLoop v1.5 Web Service — Remote Agent Environment + Unified Physics
 
-The Node Web Service also serves an isolated `/physics-lab` route and
+**Current v1.5:** `/physics-lab` now contains the graph-editing engineering
+world and the authenticated `/api/v1/worlds` endpoints use the same
+`service/unified-physics.js` solver. See
+[Unified Physics v1.5](UNIFIED_PHYSICS_V15.md). The old v1.4 lab remains at
+`/physics-lab-v14`; its separate v1.1 engine and old API contracts are
+unchanged. None of these models is calibrated or hardware-connected.
+
+The Node Web Service previously served an isolated `/physics-lab` route and
 authenticated `POST /api/v1/research/validated` with explicit nominal
 terminal-state comparison. The original v1.3 research endpoint is unchanged;
 the numerical thermal engine remains v1.1.0. See
@@ -31,7 +38,13 @@ All `/api/v1/*` routes require a Bearer token on a public service; `/healthz` is
 | `GET /api/v1/health` | Version and storage-mode status. |
 | `GET /api/v1/schema` | Valid scenarios and controls. |
 | `GET /api/v1/openapi.json` | OpenAPI 3.1 contract. |
-| `GET /api/v1/usage` | Per-principal quotas and current episode count. |
+| `GET /api/v1/usage` | Per-principal quotas and current episode/world count. |
+| `POST /api/v1/worlds` | Create a private, graph-validated serial physical circuit. |
+| `GET /api/v1/worlds/{id}` | Observe a canonical engineering world you own. |
+| `POST /api/v1/worlds/{id}/step` | Advance physical state with a stale-minute guard. |
+| `PUT /api/v1/worlds/{id}/topology` | Rewire or change bounded components at minute 0 only. |
+| `GET /api/v1/worlds/{id}/report` | Export graph, hydraulic/thermal audit and trace. |
+| `DELETE /api/v1/worlds/{id}` | Discard a private world. |
 | `POST /api/v1/simulations/evaluate` | Bounded paired baseline/candidate comparison. |
 | `POST /api/v1/research/optimize` | Up to 30 bounded deterministic candidate trials, best eligible training plan and two untouched holdout checks. |
 | `POST /api/v1/episodes` | Start a private, bounded simulation episode. |
